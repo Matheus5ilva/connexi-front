@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { iniciarSessaoApi } from "../../../auth/session";
-import logo from "../../../assets/logo.png";
+import { BrandLogo } from "../../../components/brand-logo";
 import { AvisoErroFormulario } from "../../../components/ui/aviso-erro-formulario";
 import { FormField } from "../../../components/ui/form-field";
 import { resolveReturnTo } from "../../../routes/return-to";
@@ -125,27 +125,29 @@ export function PaginaLogin() {
       <section className={styles.brandPanel}>
         <div className={styles.brandInner}>
           <div className={styles.logoRow}>
-            <img className={styles.logoImage} src={logo} alt="CONNEXI" />
-            <span className={styles.logoText}>ONNEXI</span>
+            <BrandLogo size={28} />
           </div>
 
-          <h1 className={styles.headline}>Acesse sua conta com segurança</h1>
+          <h1 className={styles.headline}>
+            Organize sua rotina com{" "}
+            <span className={styles.gradientText}>leveza</span>
+          </h1>
           <p className={styles.subtitle}>
-            Entre no CONNEXI para organizar sua agenda, clientes, histórico e
-            financeiro em um só lugar.
+            Agenda, clientes, histórico e financeiro em um só lugar, sem
+            complicação.
           </p>
           <ul className={styles.featureList}>
             <li className={styles.featureItem}>
               <span className={styles.featureDot} />
-              Agenda, clientes e financeiro conectados
+              Agenda organizada
             </li>
             <li className={styles.featureItem}>
               <span className={styles.featureDot} />
-              Rotina mais simples para quem atende sozinho
+              Clientes e histórico centralizados
             </li>
             <li className={styles.featureItem}>
               <span className={styles.featureDot} />
-              Menos planilhas, mais clareza no dia a dia
+              Financeiro simples e claro
             </li>
           </ul>
         </div>
@@ -227,7 +229,7 @@ export function PaginaLogin() {
               className={styles.submitButton}
               disabled={isLoading}
             >
-              {isLoading ? "Entrando..." : "Entrar com segurança"}
+              {isLoading ? "Entrando..." : "Entrar"}
             </button>
 
             <div className={styles.helperRow}>

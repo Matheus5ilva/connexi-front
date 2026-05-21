@@ -75,7 +75,7 @@ function obterCorSaldo(valor?: number): string {
     return "var(--color-brand-dark)";
   }
 
-  return "#b42318";
+  return "var(--color-danger)";
 }
 
 function obterFundoSaldo(valor?: number): string {
@@ -175,8 +175,8 @@ function SecaoResumoFinanceiro({ resumo, erro }: SecaoResumoFinanceiroProps) {
           value={formatarMoeda(resumo?.entradas)}
           subtitle="Receitas do mês de referência"
           icon={<FaArrowTrendUp />}
-          iconColor="var(--color-success)"
-          iconBg="var(--color-success-soft)"
+          iconColor="var(--color-text-muted)"
+          iconBg="var(--color-surface)"
         />
         <Card
           title="Saídas"
@@ -184,7 +184,7 @@ function SecaoResumoFinanceiro({ resumo, erro }: SecaoResumoFinanceiroProps) {
           subtitle="Despesas do mês de referência"
           icon={<FaArrowTrendDown />}
           iconColor="var(--color-danger)"
-          iconBg="var(--color-danger-soft)"
+          iconBg="var(--color-surface)"
         />
         <Card
           title="Saldo do mês"
@@ -235,24 +235,24 @@ function SecaoOperacaoHoje({
           value={formatarNumero(operacao?.consultasHoje)}
           subtitle="Agendamentos do dia"
           icon={<FaUserClock />}
-          iconColor="var(--color-brand-dark)"
-          iconBg="var(--color-brand-soft)"
+          iconColor="var(--color-text-muted)"
+          iconBg="var(--color-surface)"
         />
         <Card
           title="Pendentes"
           value={formatarNumero(operacao?.pendentes)}
           subtitle="Consultas aguardando atendimento"
           icon={<FaClock />}
-          iconColor="#d97706"
-          iconBg="var(--color-warning-soft)"
+          iconColor="var(--color-warning)"
+          iconBg="var(--color-surface)"
         />
         <Card
           title="Em atendimento"
           value={formatarNumero(operacao?.emAtendimento)}
           subtitle="Consultas em andamento"
           icon={<FaFileMedicalAlt />}
-          iconColor="#0f766e"
-          iconBg="#ecfeff"
+          iconColor="var(--color-text-muted)"
+          iconBg="var(--color-surface)"
         />
 
         <button
@@ -267,8 +267,16 @@ function SecaoOperacaoHoje({
             value={proximaConsulta?.horario ?? "Sem pendências"}
             subtitle={montarSubtituloProximaConsulta(proximaConsulta)}
             icon={<FaFileMedicalAlt />}
-            iconColor={proximaConsulta ? "#0f766e" : "var(--color-brand-hover)"}
-            iconBg={proximaConsulta ? "#ecfeff" : "var(--color-brand-soft)"}
+            iconColor={
+              proximaConsulta
+                ? "var(--color-text-muted)"
+                : "var(--color-brand-hover)"
+            }
+            iconBg={
+              proximaConsulta
+                ? "var(--color-surface)"
+                : "var(--color-brand-soft)"
+            }
           />
         </button>
       </div>

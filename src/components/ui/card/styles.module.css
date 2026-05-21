@@ -1,62 +1,65 @@
 .card {
   min-width: 0;
   background: var(--color-surface);
-  border: 1px solid var(--color-border-soft);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-soft);
-  padding: 24px;
+  padding: 20px;
 }
 
 .cardInner {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   min-width: 0;
 }
 
 .cardLabel {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--color-text-muted);
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
+  font-weight: 500;
 }
 
 .cardValue {
-  font-size: 1.45rem;
+  font-size: 1.28rem;
   font-weight: 600;
-  margin: 0 0 3px;
+  margin: 0 0 4px;
   color: var(--color-text);
   line-height: 1.18;
   overflow-wrap: anywhere;
 }
 
 .cardSubtitle {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--color-text-muted);
   line-height: 1.45;
   overflow-wrap: anywhere;
 }
 
 .iconWrapper {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 15px;
   flex-shrink: 0;
 }
 
 .highlight {
-  background: var(--color-brand-soft);
+  background: var(--color-surface);
 }
 
 .highlightLabel {
   font-size: 0.85rem;
   font-weight: 500;
-  color: var(--color-brand-dark);
+  color: var(--color-text-muted);
   display: block;
   margin-bottom: 16px;
 }
@@ -68,20 +71,21 @@
 }
 
 .highlightIcon {
-  width: 48px;
-  height: 48px;
+  width: 38px;
+  height: 38px;
   border-radius: 14px;
-  background: var(--color-brand-dark);
-  color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 15px;
   flex-shrink: 0;
 }
 
 .highlightValue {
-  font-size: 1.2rem;
+  font-size: 1.12rem;
   color: var(--color-text);
   display: block;
   line-height: 1.2;
@@ -104,9 +108,9 @@
 
   .iconWrapper,
   .highlightIcon {
-    width: 42px;
-    height: 42px;
-    font-size: 16px;
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
   }
 
   .highlightLabel {

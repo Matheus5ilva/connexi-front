@@ -93,7 +93,7 @@
 }
 
 .coverageOptionActive {
-  border-color: #93c5fd;
+  border-color: rgba(99, 213, 199, 0.46);
   background: var(--color-brand-soft);
   color: var(--color-brand-hover);
 }
@@ -128,7 +128,7 @@
 .input:focus,
 .textarea:focus {
   border-color: var(--color-brand-dark);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.08);
 }
 
 .actions {
@@ -190,7 +190,7 @@
 
 .detailsPrimaryAction {
   order: -1;
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.24);
+  box-shadow: 0 6px 16px rgba(15, 118, 110, 0.24);
 }
 
 .detailsRoot {

@@ -7,7 +7,7 @@
 .section {
   background: var(--color-surface);
   border-radius: 14px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(12, 31, 44, 0.045);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -53,7 +53,7 @@
 .textarea:focus,
 .convenioValueInput:focus {
   border-color: var(--color-brand-dark);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.08);
 }
 
 .inputError {
@@ -200,7 +200,7 @@
 .emptyConvenio {
   margin: 0;
   padding: 10px 12px;
-  border: 1px dashed #cbd5e1;
+  border: 1px dashed var(--color-border);
   border-radius: 10px;
   color: var(--color-text-muted);
   font-size: 0.85rem;

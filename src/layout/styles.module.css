@@ -1,7 +1,9 @@
 .layoutWrapper {
   display: flex;
   min-height: 100vh;
-  background: var(--color-bg);
+  background:
+    radial-gradient(circle at top right, rgba(20, 184, 166, 0.04), transparent 30rem),
+    var(--color-bg);
 }
 
 .contentArea {

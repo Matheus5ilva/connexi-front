@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import logo from "../../../assets/logo.png";
+import { BrandLogo } from "../../../components/brand-logo";
 import { AvisoErroFormulario } from "../../../components/ui/aviso-erro-formulario";
 import { FormField } from "../../../components/ui/form-field";
 import {
@@ -101,8 +101,7 @@ export function PaginaRedefinirSenha() {
       <section className={styles.brandPanel}>
         <div className={styles.brandInner}>
           <div className={styles.logoRow}>
-            <img className={styles.logoImage} src={logo} alt="CONNEXI" />
-            <span className={styles.logoText}>ONNEXI</span>
+            <BrandLogo size={28} />
           </div>
           <h1 className={styles.headline}>Defina sua nova senha</h1>
           <p className={styles.subtitle}>

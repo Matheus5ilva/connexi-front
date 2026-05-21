@@ -1,6 +1,6 @@
 import styles from "./styles.module.css";
-import logo from "../../assets/logo.png";
 import { FaBars } from "react-icons/fa";
+import { BrandLogo } from "../brand-logo";
 
 type Props = {
   onToggleSidebar: () => void;
@@ -9,10 +9,7 @@ type Props = {
 export function Header({ onToggleSidebar }: Props) {
   return (
     <header className={styles.mobileHeader}>
-      <div className={styles.mobileLogoArea}>
-        <img className={styles.brandSymbol} src={logo} alt="CONNEXI" />
-        <span className={styles.mobileLogoName}>ONNEXI</span>
-      </div>
+      <BrandLogo className={styles.mobileLogoArea} size={28} />
 
       <button
         className={styles.mobileMenuBtn}

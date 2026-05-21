@@ -9,9 +9,9 @@
   min-height: 100vh;
   padding: 24px;
   background:
-    radial-gradient(circle at 18% 20%, rgba(37, 99, 235, 0.14), transparent 34%),
-    radial-gradient(circle at 82% 74%, rgba(14, 165, 233, 0.12), transparent 38%),
-    #f3f6f8;
+    radial-gradient(circle at 18% 20%, rgba(15, 118, 110, 0.14), transparent 34%),
+    radial-gradient(circle at 82% 74%, rgba(32, 184, 173, 0.12), transparent 38%),
+    var(--color-bg);
 }
 
 .indicador {
@@ -30,15 +30,15 @@
 }
 
 .anelExterno {
-  border: 4px solid rgba(37, 99, 235, 0.14);
+  border: 4px solid rgba(15, 118, 110, 0.14);
   border-top-color: var(--color-brand-dark);
   animation: girar 0.9s linear infinite;
-  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 14px 28px rgba(15, 118, 110, 0.12);
 }
 
 .anelInterno {
   inset: 12px;
-  border: 4px solid rgba(14, 165, 233, 0.12);
+  border: 4px solid rgba(32, 184, 173, 0.12);
   border-bottom-color: var(--color-brand);
   animation: girarInvertido 1.1s linear infinite;
 }
@@ -48,7 +48,7 @@
   height: 14px;
   border-radius: 999px;
   background: linear-gradient(135deg, var(--color-brand-dark), var(--color-brand));
-  box-shadow: 0 0 0 10px rgba(37, 99, 235, 0.08);
+  box-shadow: 0 0 0 10px rgba(15, 118, 110, 0.08);
   animation: pulsar 1.2s ease-in-out infinite;
 }
 

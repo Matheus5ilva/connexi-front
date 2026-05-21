@@ -70,7 +70,7 @@
 
 .headerMetaItem strong {
   margin: 0;
-  color: #0f172a;
+  color: var(--color-text);
   font-size: 0.87rem;
   display: inline-flex;
   align-items: center;
@@ -102,7 +102,7 @@
 
 .cardHeader h2 {
   margin: 0;
-  color: #0f172a;
+  color: var(--color-text);
   font-size: 1.02rem;
 }
 
@@ -145,7 +145,7 @@
 
 .cardHeaderCompact h3 {
   margin: 0;
-  color: #0f172a;
+  color: var(--color-text);
   font-size: 0.92rem;
 }
 
@@ -178,11 +178,11 @@
 .formGrid input,
 .formGrid textarea {
   width: 100%;
-  border: 1px solid #dbe4f0;
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 10px 12px;
   box-sizing: border-box;
-  color: #0f172a;
+  color: var(--color-text);
   background: var(--color-surface);
   font-size: 0.9rem;
   transition:
@@ -198,7 +198,7 @@
 .formGrid input:focus,
 .formGrid textarea:focus {
   border-color: var(--color-brand-dark);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
   outline: none;
 }
 
@@ -280,7 +280,7 @@
 
 .attachmentsTitle {
   margin: 0;
-  color: #0f172a;
+  color: var(--color-text);
   font-size: 0.92rem;
 }
 
@@ -332,7 +332,7 @@
 
 .emptyAttachment {
   margin-top: 10px;
-  border: 1px dashed #cbd5e1;
+  border: 1px dashed var(--color-border);
   border-radius: 10px;
   padding: 10px;
   color: var(--color-text-muted);
@@ -367,7 +367,7 @@
 }
 
 .attachmentMeta strong {
-  color: #0f172a;
+  color: var(--color-text);
   font-size: 0.84rem;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -388,7 +388,7 @@
 }
 
 .attachmentBtn {
-  border: 1px solid #dbe4f0;
+  border: 1px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text);
   border-radius: 8px;
@@ -471,7 +471,7 @@
 .patientName {
   display: block;
   margin-top: 8px;
-  color: #0f172a;
+  color: var(--color-text);
   font-size: 1rem;
 }
 
@@ -490,7 +490,7 @@
   flex-direction: column;
   gap: 3px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #eef2f7;
+  border-bottom: 1px solid var(--color-border-soft);
 }
 
 .patientMeta span {
@@ -505,7 +505,7 @@
 }
 
 .patientMeta strong {
-  color: #0f172a;
+  color: var(--color-text);
   font-size: 0.9rem;
   overflow-wrap: anywhere;
 }
@@ -538,7 +538,7 @@
 
 .emptyHistory {
   margin-top: 10px;
-  border: 1px dashed #cbd5e1;
+  border: 1px dashed var(--color-border);
   border-radius: 12px;
   padding: 14px;
   color: var(--color-text-muted);
@@ -589,7 +589,7 @@
 }
 
 .historyTitle strong {
-  color: #0f172a;
+  color: var(--color-text);
   font-size: 0.88rem;
 }
 
@@ -631,7 +631,7 @@
 
 .notFoundCard h2 {
   margin: 0;
-  color: #0f172a;
+  color: var(--color-text);
 }
 
 .notFoundCard p {
@@ -641,7 +641,7 @@
 
 .notFoundCard button {
   align-self: flex-start;
-  border: 1px solid #dbe4f0;
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   background: var(--color-surface);
   color: var(--color-text);

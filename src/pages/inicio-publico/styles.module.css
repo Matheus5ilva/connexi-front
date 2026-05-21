@@ -10,12 +10,12 @@
   background:
     radial-gradient(
       circle at 12% 18%,
-      rgba(111, 174, 149, 0.14),
+      rgba(156, 244, 212, 0.32),
       transparent 30%
     ),
     radial-gradient(
       circle at 88% 16%,
-      rgba(167, 139, 250, 0.1),
+      rgba(32, 184, 173, 0.1),
       transparent 28%
     ),
     linear-gradient(180deg, var(--color-surface) 0%, var(--color-bg) 100%);
@@ -41,19 +41,12 @@
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 9px;
   color: var(--color-brand-dark);
-  font-size: 1.15rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
+  font-size: 0.95rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
   line-height: 1;
-}
-
-.brandIcon {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-  display: block;
 }
 
 .headerLink {
@@ -134,9 +127,9 @@
 }
 
 .primaryButton {
-  background: var(--color-brand-dark);
+  background: linear-gradient(135deg, var(--color-brand-dark), var(--color-brand-teal));
   color: var(--color-surface);
-  box-shadow: 0 16px 32px rgba(63, 124, 103, 0.22);
+  box-shadow: 0 16px 32px rgba(15, 118, 110, 0.2);
 }
 
 .primaryButton:hover {
@@ -187,7 +180,7 @@
 .previewTop {
   border-radius: 26px;
   padding: 24px;
-  background: linear-gradient(135deg, var(--color-brand-dark), #2f5d50);
+  background: linear-gradient(135deg, var(--color-navy), var(--color-brand-dark) 58%, var(--color-brand-teal));
   color: var(--color-surface);
   display: flex;
   align-items: flex-start;
@@ -357,7 +350,7 @@
   background:
     radial-gradient(
       circle at 14% 18%,
-      rgba(111, 174, 149, 0.12),
+      rgba(156, 244, 212, 0.22),
       transparent 30%
     ),
     linear-gradient(135deg, var(--color-surface), var(--color-surface-soft));
@@ -444,8 +437,8 @@
       rgba(167, 139, 250, 0.16),
       transparent 30%
     ),
-    linear-gradient(135deg, #243b35, var(--color-brand-hover));
-  box-shadow: 0 28px 70px rgba(63, 124, 103, 0.24);
+    linear-gradient(135deg, var(--color-navy), var(--color-petrol) 52%, var(--color-brand-hover));
+  box-shadow: 0 28px 70px rgba(15, 118, 110, 0.22);
   display: grid;
   gap: 18px;
 }
@@ -468,7 +461,7 @@
 
 .footer {
   padding: 34px 20px 20px;
-  background: #17211d;
+  background: var(--color-navy);
   color: rgba(255, 255, 255, 0.74);
 }
 

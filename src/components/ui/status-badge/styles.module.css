@@ -30,5 +30,5 @@
 
 .info {
   background: var(--color-info-soft);
-  color: #2563b8;
+  color: var(--color-info);
 }

@@ -1,6 +1,6 @@
 import { FaArrowLeft, FaFileSignature } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
-import logo from "../../assets/logo.png";
+import { BrandLogo } from "../../components/brand-logo";
 import styles from "./styles.module.css";
 
 const UPDATE_DATE_LABEL = "16/04/2026";
@@ -12,8 +12,7 @@ export function TermosCompromissoPage() {
     <main className={styles.page}>
       <section className={styles.hero}>
         <div className={styles.brandRow}>
-          <img className={styles.brandIcon} src={logo} alt="CONNEXI" />
-          <span className={styles.brandName}>ONNEXI</span>
+          <BrandLogo size={30} />
         </div>
 
         <div className={styles.heroContent}>

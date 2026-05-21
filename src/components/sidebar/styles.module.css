@@ -4,8 +4,9 @@
   position: fixed;
   left: 0;
   top: 0;
-  background: var(--color-surface);
-  border-right: 1px solid var(--color-border-soft);
+  background: rgba(255, 255, 255, 0.96);
+  border-right: 1px solid var(--color-border);
+  backdrop-filter: blur(14px);
   display: flex;
   flex-direction: column;
   transition:
@@ -21,7 +22,7 @@
   }
 
   .sidebar:hover .linkText,
-  .sidebar:hover .logoName,
+  .sidebar:hover [data-logo-text],
   .sidebar:hover .badgeSoon,
   .sidebar:hover .productVersion {
     opacity: 1;
@@ -35,18 +36,27 @@
   }
 
   .sidebar:hover .sidebarHeader {
-    padding: 0 20px;
+    padding: 12px 18px 10px;
+  }
+
+  .sidebar:hover .sidebarLogo {
+    width: auto;
+    justify-content: flex-start;
+  }
+
+  .sidebar:hover .sidebarBrand {
+    gap: 7px;
   }
 
   .sidebar:hover .navLinkMed {
-    padding: 11px 14px;
-    gap: 12px;
+    padding: 10px 12px;
+    gap: 11px;
     width: 100%;
   }
 
   .sidebar:hover .submenuLink {
-    padding: 9px 12px;
-    gap: 12px;
+    padding: 9px 10px;
+    gap: 10px;
     width: 100%;
   }
 
@@ -72,7 +82,7 @@
   }
 
   .sidebar.active .linkText,
-  .sidebar.active .logoName,
+  .sidebar.active [data-logo-text],
   .sidebar.active .badgeSoon,
   .sidebar.active .productVersion {
     opacity: 1;
@@ -86,12 +96,21 @@
   }
 
   .sidebar.active .sidebarHeader {
-    padding: 0 20px;
+    padding: 12px 18px 10px;
+  }
+
+  .sidebar.active .sidebarLogo {
+    width: auto;
+    justify-content: flex-start;
+  }
+
+  .sidebar.active .sidebarBrand {
+    gap: 7px;
   }
 
   .sidebar.active .navLinkMed {
-    padding: 11px 14px;
-    gap: 12px;
+    padding: 10px 12px;
+    gap: 11px;
     width: 100%;
   }
 
@@ -115,21 +134,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  gap: 5px;
-  color: var(--color-brand-dark);
+  padding: 12px 10px 10px;
+  color: var(--color-text);
   flex-shrink: 0;
 }
 
-.brandSymbol {
-  display: block;
-  width: 28px;
-  height: 28px;
-  max-width: 28px;
-  max-height: 28px;
-  flex: 0 0 28px;
-  object-fit: contain;
-  transform: translateY(-0.5px);
+.sidebarLogo {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebarBrand {
+  gap: 0;
+}
+
+.sidebarBrand [data-logo-symbol] {
+  transform: translate(0.5px, 0.5px);
 }
 
 .mainLogoIcon {
@@ -137,17 +161,12 @@
   flex-shrink: 0;
 }
 
-.logoName {
+.sidebarHeader [data-logo-text] {
   opacity: 0;
   width: 0;
   overflow: hidden;
   transition: opacity var(--transition-fast);
   white-space: nowrap;
-  color: var(--color-text);
-  font-size: 1.16rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  line-height: 1;
 }
 
 .navContainer {
@@ -158,7 +177,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   gap: 4px;
-  padding: 6px 12px 12px;
+  padding: 6px 10px 12px;
 }
 
 .navItemMed {
@@ -179,13 +198,13 @@
   text-decoration: none;
   background: none;
   border: none;
-  border-radius: 12px;
+  border-radius: 13px;
   cursor: pointer;
   width: 100%;
-  height: 44px;
-  min-height: 44px;
+  height: 42px;
+  min-height: 42px;
   white-space: nowrap;
-  font-size: 0.88rem;
+  font-size: 0.84rem;
   font-weight: 500;
   transition:
     background var(--transition-fast),
@@ -194,15 +213,15 @@
 
 .navLinkMed:hover,
 .navLinkMed:focus-visible {
-  background: var(--color-surface-soft);
-  color: var(--color-brand-dark);
+  background: #f8faf9;
+  color: var(--color-text);
   outline: none;
 }
 
 .icon {
   flex-shrink: 0;
-  font-size: 18px;
-  opacity: 0.82;
+  font-size: 17px;
+  opacity: 0.78;
 }
 
 .linkText {
@@ -214,8 +233,13 @@
 }
 
 .activeLink {
-  background: var(--color-brand-soft);
+  background: #f3f7f6;
+  box-shadow: inset 0 0 0 1px rgba(20, 184, 166, 0.12);
   color: var(--color-brand-dark);
+}
+
+.activeLink .icon {
+  opacity: 0.92;
 }
 
 .submenuArrow {
@@ -269,13 +293,13 @@
 
 .submenuLink:hover,
 .submenuLink:focus-visible {
-  background: var(--color-surface-soft);
-  color: var(--color-brand-dark);
+  background: #f8faf9;
+  color: var(--color-text);
   outline: none;
 }
 
 .activeSubmenuLink {
-  background: var(--color-brand-soft);
+  background: #f3f7f6;
   color: var(--color-brand-dark);
 }
 
@@ -314,7 +338,7 @@
   margin: 0;
   overflow: hidden;
   opacity: 0;
-  color: #94a3b8;
+  color: var(--color-text-light);
   font-size: 11px;
   font-weight: 500;
   line-height: 1.35;

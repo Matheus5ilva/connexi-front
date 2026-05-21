@@ -1,0 +1,29 @@
+.brandLogo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--color-text);
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.symbol {
+  display: block;
+  width: var(--brand-logo-size);
+  height: var(--brand-logo-size);
+  max-width: var(--brand-logo-size);
+  max-height: var(--brand-logo-size);
+  flex: 0 0 var(--brand-logo-size);
+  object-fit: contain;
+}
+
+.text {
+  display: inline-block;
+  color: currentColor;
+  font-size: calc(var(--brand-logo-size) * 0.6);
+  font-weight: 650;
+  letter-spacing: 0.045em;
+  line-height: 1;
+  white-space: nowrap;
+}

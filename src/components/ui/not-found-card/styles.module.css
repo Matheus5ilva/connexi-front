@@ -28,7 +28,7 @@
 
 .content h2 {
   margin: 0 0 10px;
-  color: #0f172a;
+  color: var(--color-text);
   font-size: 1.35rem;
   line-height: 1.2;
 }
@@ -67,7 +67,7 @@
 
 .secondaryButton {
   background: var(--color-surface);
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border);
   color: var(--color-text);
 }
 

@@ -20,7 +20,7 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import { encerrarSessaoAutenticada } from "../../auth/session";
-import logo from "../../assets/logo.png";
+import { BrandLogo } from "../brand-logo";
 import { authService } from "../../services/api";
 import styles from "./styles.module.css";
 
@@ -134,8 +134,9 @@ export function Sidebar({ open, onClose }: Props) {
         onMouseLeave={handleSidebarMouseLeave}
       >
         <div className={styles.sidebarHeader}>
-          <img className={styles.brandSymbol} src={logo} alt="CONNEXI" />
-          <span className={styles.logoName}>ONNEXI</span>
+          <div className={styles.sidebarLogo}>
+            <BrandLogo className={styles.sidebarBrand} size={26} />
+          </div>
         </div>
 
         <nav className={styles.navContainer} aria-label="Navegação principal">

@@ -1,14 +1,14 @@
 .sectionBlock {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .sectionHeader {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
@@ -21,7 +21,7 @@
 
 .sectionTitle {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 600;
   color: var(--color-text);
 }
@@ -33,10 +33,10 @@
 }
 
 .sectionAction {
-  border: 1px solid var(--color-brand);
-  background: var(--color-brand-soft);
-  color: var(--color-brand-hover);
-  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  border-radius: 10px;
   padding: 6px 10px;
   cursor: pointer;
   font-size: 0.78rem;
@@ -45,15 +45,15 @@
 
 .sectionAction:hover,
 .sectionAction:focus-visible {
-  background: var(--color-brand-soft);
+  background: var(--color-surface-soft);
   outline: none;
 }
 
 .cardsGridFinance,
 .cardsGridDay {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
 }
 
 .cardsGridFinance {
@@ -89,7 +89,7 @@
 }
 
 .nextCardButton:hover > * {
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.14);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
 }
 
 .tableSection {
@@ -108,7 +108,7 @@
 }
 
 .tableTitle {
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 600;
   color: var(--color-text);
   margin: 0;
@@ -118,16 +118,17 @@
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text-muted);
-  border-radius: 8px;
-  padding: 8px 12px;
+  border-radius: 10px;
+  padding: 7px 11px;
   cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
 .tableHeaderAction:hover,
 .tableHeaderAction:focus-visible {
-  background: var(--color-surface-soft);
+  background: #f8faf9;
+  color: var(--color-text);
   outline: none;
 }
 

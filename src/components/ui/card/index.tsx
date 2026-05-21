@@ -16,7 +16,6 @@ export function Card({
   subtitle,
   icon,
   iconColor,
-  iconBg,
   variant = "default",
 }: Props) {
   return (
@@ -43,7 +42,7 @@ export function Card({
           </div>
           <div
             className={styles.iconWrapper}
-            style={{ background: iconBg, color: iconColor }}
+            style={{ color: iconColor }}
           >
             {icon}
           </div>

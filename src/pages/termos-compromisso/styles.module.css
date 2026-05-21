@@ -2,8 +2,8 @@
   min-height: 100vh;
   padding: 32px 20px 48px;
   background:
-    radial-gradient(circle at top left, rgba(111, 174, 149, 0.12), transparent 34%),
-    radial-gradient(circle at bottom right, rgba(167, 139, 250, 0.1), transparent 30%),
+    radial-gradient(circle at top left, rgba(156, 244, 212, 0.22), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(32, 184, 173, 0.1), transparent 30%),
     var(--color-bg);
   color: var(--color-text);
 }
@@ -23,29 +23,11 @@
 .brandRow {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
   color: var(--color-brand-dark);
   font-size: 1.24rem;
   font-weight: 500;
   line-height: 1;
-}
-
-.brandIcon {
-  display: block;
-  width: 28px;
-  height: 28px;
-  max-width: 28px;
-  max-height: 28px;
-  flex: 0 0 28px;
-  object-fit: contain;
-  transform: translateY(-0.5px);
-}
-
-.brandName {
-  font-size: 1.45rem;
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: 0.01em;
 }
 
 .heroContent {
@@ -90,7 +72,7 @@
 }
 
 .backButton {
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text);
   display: inline-flex;
@@ -153,7 +135,7 @@
 .section h3 {
   margin: 0 0 8px;
   font-size: 1rem;
-  color: #0f172a;
+  color: var(--color-text);
 }
 
 .section p {

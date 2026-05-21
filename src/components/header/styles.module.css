@@ -1,11 +1,11 @@
 .mobileHeader {
   display: none;
-  background: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.94);
   height: 65px;
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  border-bottom: 1px solid var(--color-border-soft);
+  border-bottom: 1px solid var(--color-border);
   backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
@@ -15,23 +15,12 @@
 .mobileLogoArea {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
   color: var(--color-text);
-  font-size: 1.12rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
+  font-size: 0.96rem;
+  font-weight: 650;
+  letter-spacing: 0.05em;
   line-height: 1;
-}
-
-.brandSymbol {
-  display: block;
-  width: 28px;
-  height: 28px;
-  max-width: 28px;
-  max-height: 28px;
-  flex: 0 0 28px;
-  object-fit: contain;
-  transform: translateY(-0.5px);
 }
 
 .mobileMenuBtn {
@@ -41,7 +30,7 @@
   border: 1px solid var(--color-border);
   padding: 12px 14px;
   border-radius: 12px;
-  color: var(--color-brand-dark);
+  color: var(--color-text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,8 +42,8 @@
 
 .mobileMenuBtn:hover,
 .mobileMenuBtn:focus-visible {
-  background: var(--color-brand-soft);
-  border-color: var(--color-brand);
+  background: #f8faf9;
+  border-color: var(--color-border);
   outline: none;
 }
 

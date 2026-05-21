@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: space-between;
   position: relative;
-  min-height: 48px;
+  min-height: 44px;
   flex-wrap: wrap;
   gap: 18px;
 }
@@ -15,14 +15,14 @@
 }
 
 .pageTitle {
-  font-size: 1.45rem;
+  font-size: 1.32rem;
   font-weight: 600;
   color: var(--color-text);
   margin: 0;
 }
 
 .pageSubtitle {
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   color: var(--color-text-muted);
   margin: 0;
 }

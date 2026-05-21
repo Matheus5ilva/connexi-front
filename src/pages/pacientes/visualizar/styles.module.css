@@ -98,7 +98,7 @@
   border-color: var(--color-brand-hover);
   outline: none;
   transform: translateY(-1px);
-  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 10px 20px rgba(15, 118, 110, 0.2);
 }
 
 .quickSecondary {
@@ -208,7 +208,7 @@
 .sectionCard {
   background: var(--color-surface);
   border-radius: 14px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(12, 31, 44, 0.045);
   padding: 22px;
   display: flex;
   flex-direction: column;
@@ -445,6 +445,6 @@
     padding: 12px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.24);
+    box-shadow: 0 12px 24px rgba(15, 118, 110, 0.24);
   }
 }

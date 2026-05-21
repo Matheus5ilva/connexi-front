@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { FaArrowRight } from "react-icons/fa6";
-import logo from "../../../assets/logo.png";
+import { BrandLogo } from "../../../components/brand-logo";
 import { apiConfig } from "../../../services/api";
 import styles from "./styles.module.css";
 
@@ -45,8 +45,7 @@ export function PaginaTenantInexistente() {
     <div className={styles.page}>
       <section className={styles.heroSection}>
         <div className={styles.brandRow}>
-          <img className={styles.brandIcon} src={logo} alt="CONNEXI" />
-          <span className={styles.brandName}>ONNEXI</span>
+          <BrandLogo size={30} />
         </div>
 
         <h1 className={styles.heroTitle}>Este espaço ainda não está ativo</h1>

@@ -14,7 +14,7 @@ import {
   FaHeart,
 } from "react-icons/fa";
 import { FaScissors } from "react-icons/fa6";
-import logo from "../../assets/logo.png";
+import { BrandLogo } from "../../components/brand-logo";
 import styles from "./styles.module.css";
 
 const whatsappContratar =
@@ -29,10 +29,7 @@ export function PaginaInicialPublica() {
       <main className={styles.page}>
         <section className={styles.hero}>
           <header className={styles.header}>
-            <div className={styles.brand}>
-              <img className={styles.brandIcon} src={logo} alt="CONNEXI" />
-              <span>ONNEXI</span>
-            </div>
+            <BrandLogo className={styles.brand} size={30} />
 
             <a
               href={whatsappDuvidas}
