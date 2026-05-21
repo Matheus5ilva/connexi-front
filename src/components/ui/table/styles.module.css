@@ -1,0 +1,136 @@
+.tableCard {
+  min-width: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+
+.tableResponsive {
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+.tableResponsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.tableResponsive::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 999px;
+}
+
+.table {
+  width: 100%;
+  min-width: max-content;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  white-space: nowrap;
+}
+
+.thead {
+  background: var(--color-surface-soft);
+}
+
+.thead th {
+  padding: 15px 18px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border-soft);
+  white-space: nowrap;
+}
+
+.tr {
+  border-bottom: 1px solid var(--color-border-soft);
+  transition: background var(--transition-fast);
+}
+
+.tr:last-child {
+  border-bottom: none;
+}
+
+.tr:hover {
+  background: var(--color-surface-soft);
+}
+
+.clickableRow {
+  cursor: pointer;
+}
+
+.clickableRow:focus-visible {
+  outline: 2px solid rgba(63, 124, 103, 0.3);
+  outline-offset: -2px;
+}
+
+.table td {
+  padding: 16px 18px;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.table td,
+.thead th {
+  vertical-align: middle;
+}
+
+.emptyCell {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: 28px 16px;
+}
+
+.alignleft {
+  text-align: left;
+}
+
+.aligncenter {
+  text-align: center;
+}
+
+.alignright {
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .thead th:first-child,
+  .table td:first-child {
+    position: sticky;
+    left: 0;
+    background: var(--color-surface);
+    z-index: 2;
+    font-weight: 500;
+  }
+
+  .thead th:first-child {
+    background: var(--color-surface-soft);
+  }
+}
+
+@media (max-width: 480px) {
+  .table {
+    font-size: 0.82rem;
+    min-width: 680px;
+  }
+
+  .thead th,
+  .table td {
+    padding: 12px 14px;
+  }
+}

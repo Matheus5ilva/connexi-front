@@ -1,0 +1,342 @@
+.titleWithBack {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.backBtn {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--color-text-light);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.backBtn:hover,
+.backBtn:focus-visible {
+  background: var(--color-border-soft);
+  color: var(--color-text-muted);
+  outline: none;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.pageSubtitle {
+  margin: 2px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+}
+
+.headerActions {
+  display: flex;
+  gap: 10px;
+}
+
+.btnPrimary,
+.btnSecondary,
+.btnDanger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnPrimary {
+  background: var(--color-brand-dark);
+  color: var(--color-surface);
+  border: none;
+}
+
+.btnPrimary:hover,
+.btnPrimary:focus-visible {
+  background: var(--color-brand-hover);
+  outline: none;
+}
+
+.btnSecondary {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
+
+.btnSecondary:hover,
+.btnSecondary:focus-visible {
+  background: var(--color-surface-soft);
+  outline: none;
+}
+
+.btnDanger {
+  border: none;
+  background: var(--color-danger);
+  color: var(--color-surface);
+}
+
+.btnDanger:hover,
+.btnDanger:focus-visible {
+  background: #b42318;
+  outline: none;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.statusPago {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.statusPendente {
+  background: var(--color-warning-soft);
+  color: #ad6b00;
+}
+
+.statusAtrasado {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.statusCancelado {
+  background: var(--color-border-soft);
+  color: var(--color-text-muted);
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kpiCard {
+  background: var(--color-surface);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kpiLabel {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-weight: 600;
+}
+
+.kpiValue {
+  color: var(--color-text);
+  font-size: 1.05rem;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.sectionCard {
+  background: var(--color-surface);
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sectionTitle {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.sectionIcon {
+  color: var(--color-brand-dark);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.infoLabel {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 4px;
+}
+
+.infoValue {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.colSpan2 {
+  grid-column: span 2;
+}
+
+.notesText {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.notFoundCard {
+  background: var(--color-surface);
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  padding: 24px;
+}
+
+.notFoundCard h2 {
+  margin: 0 0 10px;
+  color: var(--color-text);
+}
+
+.notFoundCard p {
+  margin: 0 0 16px;
+  color: var(--color-text-muted);
+}
+
+.notFoundCard button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: var(--color-brand-dark);
+  color: var(--color-surface);
+  cursor: pointer;
+}
+
+.confirmBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--color-text-muted);
+}
+
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.formGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.formField input,
+.formField textarea {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.94rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+}
+
+.formField textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.formField input:focus-visible,
+.formField textarea:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.2);
+  border-color: var(--color-brand-dark);
+}
+
+.fieldError {
+  color: var(--color-danger);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+@media (max-width: 1024px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .headerActions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .colSpan2 {
+    grid-column: auto;
+  }
+
+  .sectionCard {
+    padding: 16px;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageTitle {
+    font-size: 1.22rem;
+  }
+
+  .pageSubtitle {
+    font-size: 0.8rem;
+  }
+
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+}

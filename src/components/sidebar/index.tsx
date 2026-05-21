@@ -1,0 +1,374 @@
+import { useEffect, useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import {
+  FaBuilding,
+  FaCalendarAlt,
+  FaChartLine,
+  FaChevronDown,
+  FaCog,
+  FaCreditCard,
+  FaFileInvoiceDollar,
+  FaIdCard,
+  FaList,
+  FaMoneyBillWave,
+  FaMoneyCheckAlt,
+  FaPowerOff,
+  FaStethoscope,
+  FaThLarge,
+  FaUserCog,
+  FaUserMd,
+  FaUsers,
+} from "react-icons/fa";
+import { encerrarSessaoAutenticada } from "../../auth/session";
+import logo from "../../assets/logo.png";
+import { authService } from "../../services/api";
+import styles from "./styles.module.css";
+
+type Props = {
+  open: boolean;
+  onClose: () => void;
+};
+
+export function Sidebar({ open, onClose }: Props) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [dropdownOpen, setDropdownOpen] = useState({
+    pacientes: false,
+    profissional: false,
+    financeiro: false,
+    configuracao: false,
+  });
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const isProfissionaisRoute =
+    location.pathname.startsWith("/profissional") ||
+    location.pathname.startsWith("/profissionais");
+  const isConsultorioRoute =
+    location.pathname.startsWith("/consultorio") ||
+    location.pathname.startsWith("/consultorios");
+
+  const isFinanceiroRoute = location.pathname.startsWith("/financeiro");
+  const isConfiguracaoRoute = location.pathname.startsWith("/configuracoes");
+  const isMinhaContaRoute = location.pathname === "/configuracoes/minha-conta";
+  const isConfiguracoesSistemaRoute = isConfiguracaoRoute && !isMinhaContaRoute;
+
+  const isProfissionalSubmenuOpen = dropdownOpen.profissional;
+  const isFinanceiroSubmenuOpen = dropdownOpen.financeiro;
+  const isConfiguracaoSubmenuOpen =
+    dropdownOpen.configuracao || isConfiguracaoRoute;
+
+  function closeAllDropdowns() {
+    setDropdownOpen({
+      pacientes: false,
+      profissional: false,
+      financeiro: false,
+      configuracao: false,
+    });
+  }
+
+  function handleCloseSidebar() {
+    closeAllDropdowns();
+    onClose();
+  }
+
+  useEffect(() => {
+    if (typeof window === "undefined" || window.innerWidth > 768) {
+      return;
+    }
+
+    onClose();
+  }, [location.pathname, onClose]);
+
+  function toggleDropdown(
+    key: "pacientes" | "profissional" | "financeiro" | "configuracao",
+  ) {
+    setDropdownOpen((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  }
+
+  function closeOnMobile() {
+    if (typeof window !== "undefined" && window.innerWidth <= 768) {
+      handleCloseSidebar();
+    }
+  }
+
+  function handleSidebarMouseLeave() {
+    if (typeof window !== "undefined" && window.innerWidth > 768) {
+      closeAllDropdowns();
+    }
+  }
+
+  async function handleLogout() {
+    if (isLoggingOut) {
+      return;
+    }
+
+    setIsLoggingOut(true);
+
+    try {
+      await authService.encerrarSessao();
+    } catch {
+      // Keep logout flow deterministic even when API is unavailable.
+    } finally {
+      encerrarSessaoAutenticada();
+      handleCloseSidebar();
+      navigate("/login", { replace: true });
+      setIsLoggingOut(false);
+    }
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        className={`${styles.overlay} ${open ? styles.active : ""}`}
+        onClick={handleCloseSidebar}
+        aria-label="Fechar menu lateral"
+        tabIndex={open ? 0 : -1}
+      />
+
+      <aside
+        className={`${styles.sidebar} ${open ? styles.active : ""}`}
+        onMouseLeave={handleSidebarMouseLeave}
+      >
+        <div className={styles.sidebarHeader}>
+          <img className={styles.brandSymbol} src={logo} alt="CONNEXI" />
+          <span className={styles.logoName}>ONNEXI</span>
+        </div>
+
+        <nav className={styles.navContainer} aria-label="Navegação principal">
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              `${styles.navLinkMed} ${isActive ? styles.activeLink : ""}`
+            }
+            onClick={closeOnMobile}
+          >
+            <FaThLarge className={styles.icon} />
+            <span className={styles.linkText}>Home</span>
+          </NavLink>
+
+          <NavLink
+            to="/agenda"
+            className={({ isActive }) =>
+              `${styles.navLinkMed} ${isActive ? styles.activeLink : ""}`
+            }
+            onClick={closeOnMobile}
+          >
+            <FaCalendarAlt className={styles.icon} />
+            <span className={styles.linkText}>Agenda</span>
+          </NavLink>
+
+          <NavLink
+            to="/pacientes"
+            className={({ isActive }) =>
+              `${styles.navLinkMed} ${isActive ? styles.activeLink : ""}`
+            }
+            onClick={closeOnMobile}
+          >
+            <FaUsers className={styles.icon} />
+            <span className={styles.linkText}>Pacientes</span>
+          </NavLink>
+          <div
+            className={`${styles.navItemMed} ${isProfissionalSubmenuOpen ? styles.open : ""}`}
+          >
+            <button
+              className={`${styles.navLinkMed} ${isProfissionaisRoute ? styles.activeLink : ""}`}
+              onClick={() => toggleDropdown("profissional")}
+              type="button"
+              aria-expanded={isProfissionalSubmenuOpen}
+              aria-controls="submenu-profissional"
+            >
+              <FaUserMd className={styles.icon} />
+              <span className={styles.linkText}>Profissional</span>
+              <FaChevronDown className={styles.submenuArrow} />
+            </button>
+
+            <div className={styles.submenu} id="submenu-profissional">
+              <NavLink
+                to="/profissional"
+                end
+                className={({ isActive }) =>
+                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                }
+                onClick={closeOnMobile}
+              >
+                <FaUserMd className={styles.icon} />
+                <span className={styles.linkText}>Meu Perfil</span>
+              </NavLink>
+
+              <NavLink
+                to="/profissional/especialidades"
+                className={({ isActive }) =>
+                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                }
+                onClick={closeOnMobile}
+              >
+                <FaList className={styles.icon} />
+                <span className={styles.linkText}>Especialidades</span>
+              </NavLink>
+            </div>
+          </div>
+
+          <NavLink
+            to="/consultorio"
+            className={({ isActive }) =>
+              `${styles.navLinkMed} ${isActive || isConsultorioRoute ? styles.activeLink : ""}`
+            }
+            onClick={closeOnMobile}
+          >
+            <FaBuilding className={styles.icon} />
+            <span className={styles.linkText}>Consultório</span>
+          </NavLink>
+
+          <div
+            className={`${styles.navItemMed} ${isFinanceiroSubmenuOpen ? styles.open : ""}`}
+          >
+            <button
+              className={`${styles.navLinkMed} ${isFinanceiroRoute ? styles.activeLink : ""}`}
+              onClick={() => toggleDropdown("financeiro")}
+              type="button"
+              aria-expanded={isFinanceiroSubmenuOpen}
+              aria-controls="submenu-financeiro"
+            >
+              <FaFileInvoiceDollar className={styles.icon} />
+              <span className={styles.linkText}>Financeiro</span>
+              <FaChevronDown className={styles.submenuArrow} />
+            </button>
+
+            <div className={styles.submenu} id="submenu-financeiro">
+              <NavLink
+                to="/financeiro/contas-a-receber"
+                className={({ isActive }) =>
+                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                }
+                onClick={closeOnMobile}
+              >
+                <FaMoneyBillWave className={styles.icon} />
+                <span className={styles.linkText}>Contas a Receber</span>
+              </NavLink>
+
+              <NavLink
+                to="/financeiro/contas-a-pagar"
+                className={({ isActive }) =>
+                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                }
+                onClick={closeOnMobile}
+              >
+                <FaMoneyCheckAlt className={styles.icon} />
+                <span className={styles.linkText}>Contas a Pagar</span>
+              </NavLink>
+
+              <NavLink
+                to="/financeiro/fluxo-caixa"
+                className={({ isActive }) =>
+                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                }
+                onClick={closeOnMobile}
+              >
+                <FaChartLine className={styles.icon} />
+                <span className={styles.linkText}>Fluxo de Caixa</span>
+              </NavLink>
+
+              <NavLink
+                to="/financeiro/formas-pagamento"
+                className={({ isActive }) =>
+                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                }
+                onClick={closeOnMobile}
+              >
+                <FaCreditCard className={styles.icon} />
+                <span className={styles.linkText}>Formas de Pagamento</span>
+              </NavLink>
+
+              <NavLink
+                to="/financeiro/convenios"
+                className={({ isActive }) =>
+                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                }
+                onClick={closeOnMobile}
+              >
+                <FaIdCard className={styles.icon} />
+                <span className={styles.linkText}>Convênios</span>
+              </NavLink>
+
+              <NavLink
+                to="/financeiro/servicos"
+                className={({ isActive }) =>
+                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                }
+                onClick={closeOnMobile}
+              >
+                <FaStethoscope className={styles.icon} />
+                <span className={styles.linkText}>Serviços</span>
+              </NavLink>
+            </div>
+          </div>
+
+          <div
+            className={`${styles.navItemMed} ${isConfiguracaoSubmenuOpen ? styles.open : ""}`}
+          >
+            <button
+              className={`${styles.navLinkMed} ${isConfiguracaoRoute ? styles.activeLink : ""}`}
+              onClick={() => toggleDropdown("configuracao")}
+              type="button"
+              aria-expanded={isConfiguracaoSubmenuOpen}
+              aria-controls="submenu-configuracao"
+            >
+              <FaCog className={styles.icon} />
+              <span className={styles.linkText}>Configuração</span>
+              <FaChevronDown className={styles.submenuArrow} />
+            </button>
+
+            <div className={styles.submenu} id="submenu-configuracao">
+              <NavLink
+                to="/configuracoes"
+                className={() =>
+                  `${styles.submenuLink} ${isConfiguracoesSistemaRoute ? styles.activeSubmenuLink : ""}`
+                }
+                onClick={closeOnMobile}
+              >
+                <FaCog className={styles.icon} />
+                <span className={styles.linkText}>Configurações</span>
+              </NavLink>
+
+              <NavLink
+                to="/configuracoes/minha-conta"
+                className={() =>
+                  `${styles.submenuLink} ${isMinhaContaRoute ? styles.activeSubmenuLink : ""}`
+                }
+                onClick={closeOnMobile}
+              >
+                <FaUserCog className={styles.icon} />
+                <span className={styles.linkText}>Minha Conta</span>
+              </NavLink>
+            </div>
+          </div>
+        </nav>
+
+        <div className={styles.sidebarFooter}>
+          <button
+            className={styles.navLinkMed}
+            type="button"
+            aria-label="Encerrar sessão"
+            onClick={() => {
+              void handleLogout();
+            }}
+            disabled={isLoggingOut}
+          >
+            <FaPowerOff className={styles.icon} />
+            <span className={styles.linkText}>
+              {isLoggingOut ? "Saindo..." : "Sair"}
+            </span>
+          </button>
+          <p className={styles.productVersion}>
+            CONNEXI • connexi.com.br • v1.0
+          </p>
+        </div>
+      </aside>
+    </>
+  );
+}

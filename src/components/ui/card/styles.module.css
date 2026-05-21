@@ -1,0 +1,147 @@
+.card {
+  min-width: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 24px;
+}
+
+.cardInner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.cardLabel {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.cardValue {
+  font-size: 1.45rem;
+  font-weight: 600;
+  margin: 0 0 3px;
+  color: var(--color-text);
+  line-height: 1.18;
+  overflow-wrap: anywhere;
+}
+
+.cardSubtitle {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.iconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.highlight {
+  background: var(--color-brand-soft);
+}
+
+.highlightLabel {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-brand-dark);
+  display: block;
+  margin-bottom: 16px;
+}
+
+.highlightContent {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.highlightIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--color-brand-dark);
+  color: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.highlightValue {
+  font-size: 1.2rem;
+  color: var(--color-text);
+  display: block;
+  line-height: 1.2;
+}
+
+.highlightSubtitle {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding: 18px;
+  }
+
+  .cardValue {
+    font-size: 1.25rem;
+  }
+
+  .iconWrapper,
+  .highlightIcon {
+    width: 42px;
+    height: 42px;
+    font-size: 16px;
+  }
+
+  .highlightLabel {
+    margin-bottom: 12px;
+  }
+
+  .highlightValue {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .cardLabel {
+    font-size: 0.78rem;
+  }
+
+  .cardValue {
+    font-size: 1.1rem;
+  }
+
+  .cardSubtitle,
+  .highlightSubtitle {
+    font-size: 0.78rem;
+  }
+
+  .highlightLabel {
+    font-size: 0.78rem;
+  }
+
+  .highlightValue {
+    font-size: 1rem;
+  }
+}

@@ -1,0 +1,123 @@
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-brand-dark);
+  color: var(--color-surface);
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnPrimary:hover,
+.btnPrimary:focus-visible {
+  background: var(--color-brand-hover);
+  outline: none;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.statusAtivo {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.statusInativo {
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+}
+
+.actionButtons {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.actionButtons button {
+  background: var(--color-border-soft);
+  border: 1px solid var(--color-border);
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.actionButtons button:hover,
+.actionButtons button:focus-visible {
+  background: var(--color-border);
+  outline: none;
+}
+
+.deleteBtn {
+  background: var(--color-danger-soft) !important;
+  border-color: #fecdca !important;
+}
+
+.confirmBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--color-text-muted);
+}
+
+.confirmBody strong {
+  color: var(--color-text);
+}
+
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.btnSecondary {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  border-radius: 8px;
+  padding: 9px 14px;
+  cursor: pointer;
+}
+
+.btnSecondary:hover,
+.btnSecondary:focus-visible {
+  background: var(--color-surface-soft);
+  outline: none;
+}
+
+.btnDanger {
+  border: none;
+  background: var(--color-danger);
+  color: var(--color-surface);
+  border-radius: 8px;
+  padding: 9px 14px;
+  cursor: pointer;
+}
+
+.btnDanger:hover,
+.btnDanger:focus-visible {
+  background: #b42318;
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .btnPrimary {
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+  }
+}

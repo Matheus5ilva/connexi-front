@@ -1,0 +1,130 @@
+.card {
+  border: 1px solid #dbe4f0;
+  background: var(--color-surface-soft);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition:
+    border-color 0.12s,
+    box-shadow 0.12s,
+    transform 0.12s,
+    background 0.12s;
+}
+
+.card:hover {
+  border-color: var(--color-brand);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
+  background: var(--color-surface);
+}
+
+.active {
+  border-color: #93c5fd;
+  background: var(--color-brand-soft);
+}
+
+.selectBtn {
+  border: none;
+  background: transparent;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.selectBtn:focus-visible {
+  outline: 2px solid var(--color-brand-dark);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.dateBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dateBlock strong {
+  color: #0f172a;
+  font-size: 0.88rem;
+}
+
+.dateBlock small {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.summary {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  display: inline-flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.summary svg {
+  color: var(--color-brand-dark);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.summary span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.metaRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.metaChip {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: 999px;
+  padding: 3px 8px;
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.openBtn {
+  border: 1px solid var(--color-brand);
+  background: var(--color-brand-soft);
+  color: var(--color-brand-hover);
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.openBtn:hover,
+.openBtn:focus-visible {
+  background: var(--color-brand-soft);
+  outline: none;
+}
+

@@ -1,0 +1,38 @@
+.dateValue {
+  color: var(--color-text);
+  font-size: 0.88rem;
+}
+
+.feedbackCard {
+  border: 1px solid #fecdca;
+  background: var(--color-danger-soft);
+  color: #b42318;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.valuePositiveStrong,
+.valueNegativeStrong,
+.runningBalance,
+.runningBalanceNegative {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.valuePositiveStrong {
+  color: #178047;
+}
+
+.valueNegativeStrong {
+  color: #b42318;
+}
+
+.runningBalance {
+  color: var(--color-text);
+}
+
+.runningBalanceNegative {
+  color: #b42318;
+}

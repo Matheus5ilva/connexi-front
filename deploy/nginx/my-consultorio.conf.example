@@ -1,0 +1,77 @@
+# Exemplo Nginx para SaaS multitenant por subdominio.
+# Ajuste dominio, certificados e caminhos antes de habilitar.
+
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    '' close;
+}
+
+server {
+    listen 80;
+    server_name meudominio.com.br *.meudominio.com.br;
+
+    # Ative depois de configurar SSL com Certbot.
+    # return 301 https://$host$request_uri;
+
+    root /var/www/my-consultorio-front/my-consultorio/dist;
+    index index.html;
+
+    access_log /var/log/nginx/my_consultorio_access.log;
+    error_log /var/log/nginx/my_consultorio_error.log warn;
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript application/xml image/svg+xml;
+    gzip_min_length 1024;
+
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+
+    client_max_body_size 10m;
+
+    location /api/ {
+        rewrite ^/api/(.*)$ /$1 break;
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_read_timeout 60s;
+        proxy_send_timeout 60s;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+
+# Versao HTTPS sugerida apos emitir certificado:
+#
+# server {
+#     listen 443 ssl http2;
+#     server_name meudominio.com.br *.meudominio.com.br;
+#
+#     ssl_certificate /etc/letsencrypt/live/meudominio.com.br/fullchain.pem;
+#     ssl_certificate_key /etc/letsencrypt/live/meudominio.com.br/privkey.pem;
+#     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+#
+#     root /var/www/my-consultorio-front/my-consultorio/dist;
+#     index index.html;
+#
+#     location /api/ {
+#         rewrite ^/api/(.*)$ /$1 break;
+#         proxy_pass http://127.0.0.1:3000;
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Proto https;
+#     }
+#
+#     location / {
+#         try_files $uri $uri/ /index.html;
+#     }
+# }

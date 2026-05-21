@@ -1,0 +1,438 @@
+.headerLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agendaTitle {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.dateNav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.navBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.15s;
+}
+
+.navBtn:hover,
+.navBtn:focus-visible {
+  background: var(--color-border-soft);
+  color: var(--color-text);
+  outline: none;
+}
+
+.dateLabel {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  text-transform: capitalize;
+  min-width: 220px;
+  text-align: center;
+}
+
+.todayBtn {
+  padding: 4px 12px;
+  background: var(--color-brand-soft);
+  border: 1px solid var(--color-brand);
+  border-radius: 6px;
+  color: var(--color-brand-dark);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.todayBtn:hover,
+.todayBtn:focus-visible {
+  background: var(--color-brand-soft);
+  outline: none;
+}
+
+.btnPrimary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-brand-dark);
+  color: var(--color-surface);
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.btnPrimary:hover,
+.btnPrimary:focus-visible {
+  background: var(--color-brand-hover);
+  outline: none;
+}
+
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btnSecondaryHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-brand-soft);
+  color: var(--color-brand-hover);
+  border: 1px solid var(--color-brand);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.btnSecondaryHeader:hover,
+.btnSecondaryHeader:focus-visible {
+  background: var(--color-brand-soft);
+  outline: none;
+}
+
+.botaoDesabilitado {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pageFeedbackError {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #fecdca;
+  border-radius: 12px;
+  background: var(--color-danger-soft);
+  color: #b42318;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.flowCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flowTrack {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.flowStep {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.flowArrow {
+  color: var(--color-text-light);
+  font-size: 0.86rem;
+}
+
+.flowSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.timeCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.horario {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.nowBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--color-brand-soft);
+  color: var(--color-brand-hover);
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.freeSlotRow {
+  background: var(--color-surface-soft);
+}
+
+.freeSlotRow:hover {
+  background: var(--color-border-soft);
+}
+
+.currentTimeRow {
+  background: var(--color-info-soft);
+}
+
+.currentTimeRow:hover {
+  background: var(--color-brand-soft);
+}
+
+.freeSlot {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.slotLivreBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+  padding: 4px 10px;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.coverageBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.coverageParticular {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-hover);
+}
+
+.coverageConvenio {
+  background: var(--color-success-soft);
+  color: #178047;
+}
+
+.status {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.confirmado {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+.agendado {
+  background: var(--color-warning-soft);
+  color: #d97706;
+}
+
+.realizado {
+  background: #ddf3e6;
+  color: #178047;
+}
+
+.atendimento {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-dark);
+}
+
+.cancelado {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.faltou {
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+}
+
+.actionColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.rowPrimaryAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.primaryFree {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-dark);
+}
+
+.primaryConfirm {
+  background: var(--color-warning-soft);
+  color: #b45309;
+}
+
+.primaryStart {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-hover);
+}
+
+.primaryFinish {
+  background: #ecfdf3;
+  color: #178047;
+}
+
+.primaryView {
+  background: var(--color-border-soft);
+  color: var(--color-text);
+}
+
+.rowPrimaryAction:hover,
+.rowPrimaryAction:focus-visible {
+  filter: brightness(0.97);
+  outline: none;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.actionBtn {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-border-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.actionBtn:hover,
+.actionBtn:focus-visible {
+  background: var(--color-border);
+  outline: none;
+}
+
+.actionDanger {
+  background: var(--color-danger-soft);
+  border-color: #fecdca;
+}
+
+.actionDanger:hover,
+.actionDanger:focus-visible {
+  background: #fde3e3;
+}
+
+@media (max-width: 900px) {
+  .actionColumn {
+    align-items: stretch;
+  }
+
+  .rowPrimaryAction {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .dateLabel {
+    min-width: unset;
+    font-size: 0.85rem;
+    text-align: left;
+  }
+
+  .headerActions {
+    width: 100%;
+  }
+
+  .btnPrimary,
+  .btnSecondaryHeader {
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+  }
+
+  .flowSummary {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .agendaTitle {
+    font-size: 1.2rem;
+  }
+
+  .dateNav {
+    gap: 8px;
+  }
+
+  .navBtn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .todayBtn {
+    padding: 6px 10px;
+  }
+
+  .status {
+    padding: 4px 10px;
+    font-size: 0.74rem;
+  }
+
+  .rowPrimaryAction {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,140 @@
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-brand-dark);
+  color: var(--color-surface);
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnPrimary:hover,
+.btnPrimary:focus-visible {
+  background: var(--color-brand-hover);
+  outline: none;
+}
+
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.linhaEspecialidade {
+  transition: background 0.15s;
+}
+
+.actionButtons {
+  display: inline-flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.feedbackCard {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.feedbackInfo {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}
+
+.feedbackError {
+  margin: 0;
+  color: #b42318;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.confirmBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--color-text-muted);
+}
+
+.warningBox {
+  border: 1px solid #fed7aa;
+  background: var(--color-warning-soft);
+  color: #9a3412;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.84rem;
+}
+
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  border-radius: 8px;
+  padding: 9px 14px;
+  cursor: pointer;
+}
+
+.btnSecondary:hover,
+.btnSecondary:focus-visible {
+  background: var(--color-surface-soft);
+  outline: none;
+}
+
+.btnDanger {
+  border: none;
+  background: var(--color-danger);
+  color: var(--color-surface);
+  border-radius: 8px;
+  padding: 9px 14px;
+  cursor: pointer;
+}
+
+.btnDanger:hover,
+.btnDanger:focus-visible {
+  background: #b42318;
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .headerActions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .btnPrimary {
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+  }
+
+  .btnSecondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .actionButtons {
+    justify-content: flex-start;
+  }
+}

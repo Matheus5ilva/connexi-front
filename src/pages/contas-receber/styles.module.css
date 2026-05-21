@@ -1,0 +1,24 @@
+.actionButtons {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.accountRow:hover {
+  background: var(--color-surface-soft);
+}
+
+.feedbackCard {
+  border: 1px solid #fecdca;
+  background: var(--color-danger-soft);
+  color: #b42318;
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.resultInfo {
+  margin: -4px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}

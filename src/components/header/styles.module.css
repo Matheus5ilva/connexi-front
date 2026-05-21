@@ -1,0 +1,76 @@
+.mobileHeader {
+  display: none;
+  background: rgba(255, 255, 255, 0.88);
+  height: 65px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--color-border-soft);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.mobileLogoArea {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-text);
+  font-size: 1.12rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.brandSymbol {
+  display: block;
+  width: 28px;
+  height: 28px;
+  max-width: 28px;
+  max-height: 28px;
+  flex: 0 0 28px;
+  object-fit: contain;
+  transform: translateY(-0.5px);
+}
+
+.mobileMenuBtn {
+  min-width: 44px;
+  min-height: 44px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  padding: 12px 14px;
+  border-radius: 12px;
+  color: var(--color-brand-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.mobileMenuBtn:hover,
+.mobileMenuBtn:focus-visible {
+  background: var(--color-brand-soft);
+  border-color: var(--color-brand);
+  outline: none;
+}
+
+.mainLogoIcon {
+  font-size: 24px;
+}
+
+@media (max-width: 768px) {
+  .mobileHeader {
+    display: flex;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobileHeader {
+    height: 60px;
+    padding: 0 14px;
+  }
+}

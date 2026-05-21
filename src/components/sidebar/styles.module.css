@@ -1,0 +1,339 @@
+.sidebar {
+  width: var(--sidebar-width);
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border-soft);
+  display: flex;
+  flex-direction: column;
+  transition:
+    width var(--transition),
+    left var(--transition);
+  overflow: hidden;
+  z-index: 1020;
+}
+
+@media (min-width: 769px) {
+  .sidebar:hover {
+    width: var(--sidebar-full);
+  }
+
+  .sidebar:hover .linkText,
+  .sidebar:hover .logoName,
+  .sidebar:hover .badgeSoon,
+  .sidebar:hover .productVersion {
+    opacity: 1;
+    width: auto;
+  }
+
+  .sidebar:hover .sidebarHeader,
+  .sidebar:hover .navLinkMed,
+  .sidebar:hover .submenuLink {
+    justify-content: flex-start;
+  }
+
+  .sidebar:hover .sidebarHeader {
+    padding: 0 20px;
+  }
+
+  .sidebar:hover .navLinkMed {
+    padding: 11px 14px;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .sidebar:hover .submenuLink {
+    padding: 9px 12px;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .sidebar:hover .navItemMed {
+    align-items: stretch;
+  }
+
+  .sidebar:hover .submenuArrow {
+    display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    left: -100vw;
+    width: min(86vw, 320px);
+    top: 0;
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .sidebar.active {
+    left: 0;
+  }
+
+  .sidebar.active .linkText,
+  .sidebar.active .logoName,
+  .sidebar.active .badgeSoon,
+  .sidebar.active .productVersion {
+    opacity: 1;
+    width: auto;
+  }
+
+  .sidebar.active .navLinkMed,
+  .sidebar.active .submenuLink,
+  .sidebar.active .sidebarHeader {
+    justify-content: flex-start;
+  }
+
+  .sidebar.active .sidebarHeader {
+    padding: 0 20px;
+  }
+
+  .sidebar.active .navLinkMed {
+    padding: 11px 14px;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .sidebar.active .submenuLink {
+    padding: 9px 12px;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .sidebar.active .navItemMed {
+    align-items: stretch;
+  }
+
+  .sidebar.active .submenuArrow {
+    display: block;
+  }
+}
+
+.sidebarHeader {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  gap: 5px;
+  color: var(--color-brand-dark);
+  flex-shrink: 0;
+}
+
+.brandSymbol {
+  display: block;
+  width: 28px;
+  height: 28px;
+  max-width: 28px;
+  max-height: 28px;
+  flex: 0 0 28px;
+  object-fit: contain;
+  transform: translateY(-0.5px);
+}
+
+.mainLogoIcon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.logoName {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity var(--transition-fast);
+  white-space: nowrap;
+  color: var(--color-text);
+  font-size: 1.16rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.navContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  overflow-y: auto;
+  gap: 4px;
+  padding: 6px 12px 12px;
+}
+
+.navItemMed {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.navLinkMed {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  background: none;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  width: 100%;
+  height: 44px;
+  min-height: 44px;
+  white-space: nowrap;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.navLinkMed:hover,
+.navLinkMed:focus-visible {
+  background: var(--color-surface-soft);
+  color: var(--color-brand-dark);
+  outline: none;
+}
+
+.icon {
+  flex-shrink: 0;
+  font-size: 18px;
+  opacity: 0.82;
+}
+
+.linkText {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity var(--transition-fast);
+  white-space: nowrap;
+}
+
+.activeLink {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-dark);
+}
+
+.submenuArrow {
+  display: none;
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  transition: transform var(--transition-fast);
+}
+
+.navItemMed.open .submenuArrow {
+  transform: rotate(180deg);
+}
+
+.submenu {
+  display: none;
+  background: transparent;
+  width: 100%;
+  padding: 3px 0 6px;
+  gap: 3px;
+}
+
+.navItemMed.open .submenu {
+  display: flex;
+  flex-direction: column;
+}
+
+.submenuLink {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 0;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: nowrap;
+  width: 100%;
+  height: 40px;
+  min-height: 40px;
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast);
+  border: none;
+  border-radius: 10px;
+  background: none;
+  cursor: pointer;
+}
+
+.submenuLink:hover,
+.submenuLink:focus-visible {
+  background: var(--color-surface-soft);
+  color: var(--color-brand-dark);
+  outline: none;
+}
+
+.activeSubmenuLink {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-dark);
+}
+
+.disabledLink {
+  opacity: 0.68;
+  cursor: not-allowed;
+}
+
+.disabledLink:hover {
+  background: transparent;
+}
+
+.badgeSoon {
+  margin-left: auto;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--color-lavender);
+  background: var(--color-lavender-soft);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.sidebarFooter {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--color-border-soft);
+  background: transparent;
+  flex-shrink: 0;
+}
+
+.productVersion {
+  width: 0;
+  margin: 0;
+  overflow: hidden;
+  opacity: 0;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: center;
+  white-space: nowrap;
+  transition: opacity var(--transition-fast);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 41, 55, 0.34);
+  backdrop-filter: blur(2px);
+  border: none;
+  padding: 0;
+  z-index: 1010;
+  display: none;
+}
+
+.overlay.active {
+  display: block;
+}

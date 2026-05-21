@@ -1,0 +1,273 @@
+.page {
+  min-height: 100vh;
+  padding: 42px 28px;
+  background:
+    radial-gradient(circle at 14% 16%, rgba(111, 174, 149, 0.15), transparent 42%),
+    radial-gradient(circle at 88% 78%, rgba(167, 139, 250, 0.12), transparent 48%),
+    var(--color-bg);
+  display: grid;
+  grid-template-columns: minmax(320px, 1.25fr) minmax(300px, 1fr);
+  gap: 22px;
+}
+
+.heroSection,
+.contentSection {
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+}
+
+.heroSection {
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.brandRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-brand-dark);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.brandIcon {
+  display: block;
+  width: 29px;
+  height: 29px;
+  max-width: 29px;
+  max-height: 29px;
+  flex: 0 0 29px;
+  object-fit: contain;
+  transform: translateY(-0.5px);
+}
+
+.brandName {
+  font-size: 1.8rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.heroTitle {
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.2;
+}
+
+.heroDescription {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  line-height: 1.55;
+  max-width: 52ch;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btnPrimary,
+.btnSecondary {
+  border-radius: 11px;
+  padding: 12px 18px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.92rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.btnPrimary {
+  border: 1px solid var(--color-brand-dark);
+  background: var(--color-brand-dark);
+  color: var(--color-surface);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.24);
+}
+
+.btnPrimary:hover,
+.btnPrimary:focus-visible {
+  background: var(--color-brand-hover);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.btnSecondary {
+  border: 1px solid #d2dbe8;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.btnSecondary:hover,
+.btnSecondary:focus-visible {
+  background: var(--color-surface-soft);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.tenantBox {
+  border: 1px solid #dce5f1;
+  border-radius: 12px;
+  background: var(--color-surface-soft);
+  padding: 12px 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.tenantLine {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.87rem;
+}
+
+.revalidationHint {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.retryRow {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.retryButton {
+  width: fit-content;
+  border: 1px solid #d2dbe8;
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.12s ease, transform 0.12s ease, border-color 0.12s ease;
+}
+
+.retryButton:hover,
+.retryButton:focus-visible {
+  background: var(--color-surface-soft);
+  border-color: #c3d0e0;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.retryButton:disabled {
+  cursor: wait;
+  opacity: 0.72;
+  transform: none;
+}
+
+.retryFeedback {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.contentSection {
+  padding: 28px;
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.infoCard {
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  padding: 20px;
+  display: grid;
+  gap: 12px;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 1.07rem;
+  color: var(--color-text);
+  line-height: 1.35;
+}
+
+.cardDescription {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.featureList {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: 0.89rem;
+  line-height: 1.5;
+}
+
+.inlineActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+
+.inlineLink {
+  color: var(--color-brand-dark);
+  text-decoration: none;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.inlineLink:hover,
+.inlineLink:focus-visible {
+  text-decoration: underline;
+  outline: none;
+}
+
+@media (max-width: 980px) {
+  .page {
+    grid-template-columns: 1fr;
+    padding: 24px 16px;
+  }
+
+  .heroSection,
+  .contentSection {
+    border-radius: 16px;
+  }
+
+  .heroSection {
+    padding: 24px 20px;
+  }
+
+  .contentSection {
+    padding: 20px 16px;
+  }
+}
+
+@media (max-width: 560px) {
+  .heroActions {
+    flex-direction: column;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .brandName {
+    font-size: 1.5rem;
+  }
+
+  .retryButton {
+    width: 100%;
+  }
+}

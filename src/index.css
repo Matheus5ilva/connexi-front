@@ -1,0 +1,49 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=swap");
+@import "./styles/tokens.css";
+@import "./styles/theme.css";
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--color-bg) !important;
+  min-height: -webkit-fill-available;
+  font-family: var(--font-sans) !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  color: var(--color-text);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.55;
+  overflow-x: clip;
+}
+
+#root {
+  min-height: 100vh;
+  padding-bottom: env(safe-area-inset-bottom); /* barra do Safari */
+  overflow-x: clip;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid rgba(63, 124, 103, 0.34);
+  outline-offset: 3px;
+}
+
+[class*="sydle" i],
+[id*="sydle" i] {
+  display: none !important;
+}

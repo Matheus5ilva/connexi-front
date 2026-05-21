@@ -1,0 +1,150 @@
+.wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(111, 174, 149, 0.14), transparent 42%),
+    radial-gradient(circle at 82% 76%, rgba(167, 139, 250, 0.12), transparent 46%),
+    var(--color-bg);
+  padding: 24px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.1);
+  padding: 52px 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  max-width: 32px;
+  max-height: 32px;
+  object-fit: contain;
+  margin-bottom: 4px;
+}
+
+.errorCode {
+  font-size: clamp(5rem, 17vw, 7rem);
+  font-weight: 600;
+  color: var(--color-brand-soft);
+  line-height: 0.9;
+  letter-spacing: 0;
+}
+
+.title {
+  font-size: 1.45rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.96rem;
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.6;
+  max-width: 42ch;
+}
+
+.pathHint {
+  width: 100%;
+  margin: 4px 0 0;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface-soft);
+  color: var(--color-text-muted);
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.pathHint strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btnPrimary,
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 11px;
+  padding: 12px 18px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.btnPrimary {
+  border: 1px solid var(--color-brand-dark);
+  background: var(--color-brand-dark);
+  color: var(--color-surface);
+}
+
+.btnPrimary:hover,
+.btnPrimary:focus-visible {
+  background: var(--color-brand-hover);
+  border-color: var(--color-brand-hover);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.btnSecondary {
+  border: 1px solid #cbd5e1;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.btnSecondary:hover,
+.btnSecondary:focus-visible {
+  background: var(--color-surface-soft);
+  border-color: var(--color-text-light);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+@media (max-width: 560px) {
+  .wrapper {
+    padding: 18px;
+  }
+
+  .card {
+    padding: 38px 22px;
+    border-radius: 18px;
+  }
+
+  .actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .btnPrimary,
+  .btnSecondary {
+    width: 100%;
+  }
+}

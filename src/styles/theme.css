@@ -1,0 +1,151 @@
+::selection {
+  background: var(--color-brand-soft);
+  color: var(--color-brand-dark);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  color: var(--color-text);
+}
+
+:is(h1, h2, h3, h4, h5, h6) {
+  color: var(--color-text);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+:is(p, span, label, small, td, th, input, select, textarea, button) {
+  letter-spacing: 0;
+}
+
+:is(input, select, textarea, .form-control, .form-select) {
+  background: var(--color-surface-soft) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: var(--radius-sm) !important;
+  color: var(--color-text) !important;
+  min-height: 42px;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
+}
+
+:is(input, select, textarea, .form-control, .form-select)::placeholder {
+  color: var(--color-text-light);
+}
+
+:is(input, select, textarea, .form-control, .form-select):focus {
+  background: var(--color-surface) !important;
+  border-color: var(--color-brand) !important;
+  box-shadow: 0 0 0 3px rgba(111, 174, 149, 0.14) !important;
+  outline: none !important;
+}
+
+:is(input, select, textarea):disabled {
+  color: var(--color-text-light) !important;
+  background: var(--color-border-soft) !important;
+}
+
+:is(input[type="checkbox"], input[type="radio"]) {
+  accent-color: var(--color-brand);
+  min-height: auto;
+}
+
+:is(
+  [class*="_btnPrimary_"],
+  [class*="_submitButton_"],
+  [class*="_primaryButton_"],
+  .btn-primary
+) {
+  background: var(--color-brand-dark) !important;
+  border: 1px solid var(--color-brand-dark) !important;
+  color: var(--color-surface) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: none !important;
+  font-weight: 500 !important;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+:is(
+  [class*="_btnPrimary_"],
+  [class*="_submitButton_"],
+  [class*="_primaryButton_"],
+  .btn-primary
+):hover,
+:is(
+  [class*="_btnPrimary_"],
+  [class*="_submitButton_"],
+  [class*="_primaryButton_"],
+  .btn-primary
+):focus-visible {
+  background: var(--color-brand-hover) !important;
+  border-color: var(--color-brand-hover) !important;
+  outline: none !important;
+}
+
+:is([class*="_btnSecondary_"], [class*="_secondaryButton_"], .btn-secondary) {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-text-muted) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: none !important;
+  font-weight: 500 !important;
+}
+
+:is([class*="_btnSecondary_"], [class*="_secondaryButton_"], .btn-secondary):hover,
+:is([class*="_btnSecondary_"], [class*="_secondaryButton_"], .btn-secondary):focus-visible {
+  background: var(--color-surface-soft) !important;
+  border-color: var(--color-brand) !important;
+  color: var(--color-brand-dark) !important;
+  outline: none !important;
+}
+
+:is([class*="_btnDanger_"], [class*="_dangerButton_"], .btn-danger) {
+  background: var(--color-danger-soft) !important;
+  border: 1px solid var(--color-danger-soft) !important;
+  color: #b42318 !important;
+  box-shadow: none !important;
+}
+
+:is([class*="_card_"], [class*="_tableCard_"], .card) {
+  border-color: var(--color-border) !important;
+}
+
+:is([class*="_badge_"], .badge) {
+  border-radius: var(--radius-pill);
+  font-weight: 500;
+}
+
+:is([class*="_empty"], [class*="_notFound"], [class*="_feedback"]) {
+  color: var(--color-text-muted);
+}
+
+:is([class*="_pageTitle_"], [class*="_cardTitle_"], [class*="_modalTitle_"]) {
+  color: var(--color-text) !important;
+  font-weight: 600 !important;
+}
+
+:is([class*="_pageSubtitle_"], [class*="_cardSubtitle_"], [class*="_modalSubtitle_"], [class*="_hint_"]) {
+  color: var(--color-text-muted) !important;
+}
+
+:is([class*="_backBtn_"], [class*="_closeBtn_"], [class*="_button_"]) {
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+:is([class*="_grid_"], [class*="_Grid_"], [class*="_sectionBlock_"], [class*="_tableSection_"]) {
+  min-width: 0;
+}
+
+:is([class*="_card_"], [class*="_Card_"], [class*="_tableCard_"]) {
+  max-width: 100%;
+}
