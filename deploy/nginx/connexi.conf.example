@@ -13,11 +13,11 @@ server {
     # Ative depois de configurar SSL com Certbot.
     # return 301 https://$host$request_uri;
 
-    root /var/www/my-consultorio-front/my-consultorio/dist;
+    root /var/www/connexi-front/connexi/dist;
     index index.html;
 
-    access_log /var/log/nginx/my_consultorio_access.log;
-    error_log /var/log/nginx/my_consultorio_error.log warn;
+    access_log /var/log/nginx/connexi_access.log;
+    error_log /var/log/nginx/connexi_error.log warn;
 
     gzip on;
     gzip_types text/plain text/css application/json application/javascript application/xml image/svg+xml;
@@ -59,7 +59,7 @@ server {
 #     ssl_certificate_key /etc/letsencrypt/live/meudominio.com.br/privkey.pem;
 #     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 #
-#     root /var/www/my-consultorio-front/my-consultorio/dist;
+#     root /var/www/connexi-front/connexi/dist;
 #     index index.html;
 #
 #     location /api/ {

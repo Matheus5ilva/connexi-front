@@ -21,7 +21,7 @@ import {
 } from "../../../services/api";
 import styles from "./styles.module.css";
 
-const CHAVE_CREDENCIAL_ADMIN = "my-consultorio.admin.authorization";
+const CHAVE_CREDENCIAL_ADMIN = "connexi.admin.authorization";
 
 const NICHOS: Array<{ valor: NichoTenant; rotulo: string }> = [
   { valor: "SAUDE", rotulo: "Saúde" },

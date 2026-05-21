@@ -18,7 +18,7 @@ describe("Validador de texto cadastral seguro", () => {
   });
 
   it.each([
-    "DROP DATABASE my_consultorio",
+    "DROP DATABASE connexi",
     "DROP TABLE pacientes",
     "DELETE FROM usuarios",
     "TRUNCATE contas_receber",

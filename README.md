@@ -1,4 +1,4 @@
-# My Consultorio - Front-end
+# CONNEXI - Front-end
 
 Documentacao oficial do front-end para onboarding e manutencao.
 

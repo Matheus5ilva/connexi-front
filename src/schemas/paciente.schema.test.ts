@@ -48,7 +48,7 @@ describe("Schema do formulário de paciente", () => {
 
   it.each([
     "<script>alert('xss')</script>",
-    "DROP DATABASE my_consultorio",
+    "DROP DATABASE connexi",
   ])("bloqueia texto inseguro em nome cadastral: %s", (nome) => {
     const resultado = pacienteSchema.safeParse({
       nome,

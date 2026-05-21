@@ -148,7 +148,7 @@ export const apiConfig = Object.freeze({
   timeoutMs: parsePositiveInt(import.meta.env.VITE_API_TIMEOUT_MS, DEFAULT_API_TIMEOUT_MS),
   credentials: parseCredentials(import.meta.env.VITE_API_CREDENTIALS_MODE),
   authTokenStorageKey:
-    import.meta.env.VITE_AUTH_TOKEN_STORAGE_KEY || "my-consultorio.access-token",
+    import.meta.env.VITE_AUTH_TOKEN_STORAGE_KEY || "connexi.access-token",
 });
 
 export type ApiConfig = typeof apiConfig;

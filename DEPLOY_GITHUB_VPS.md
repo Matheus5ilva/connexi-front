@@ -35,7 +35,7 @@ Comandos iniciais:
 ```bash
 git init
 git branch -M main
-git remote add origin git@github.com:SEU_USUARIO/my-consultorio-front.git
+git remote add origin git@github.com:SEU_USUARIO/connexi-front.git
 git add .
 git commit -m "Preparar frontend para deploy"
 git push -u origin main
@@ -83,7 +83,7 @@ FRONTEND_DIST_PATH
 Use uma chave exclusiva para deploy:
 
 ```bash
-ssh-keygen -t ed25519 -C "github-actions-my-consultorio-front" -f ~/.ssh/my_consultorio_front_deploy
+ssh-keygen -t ed25519 -C "github-actions-connexi-front" -f ~/.ssh/connexi_front_deploy
 ```
 
 Adicione a chave publica em `~/.ssh/authorized_keys` na VPS e salve a chave privada em `VPS_SSH_KEY` no GitHub.
@@ -95,15 +95,15 @@ sudo apt update
 sudo apt install -y git nginx
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs
-sudo mkdir -p /var/www/my-consultorio-front
-sudo chown -R $USER:$USER /var/www/my-consultorio-front
-git clone git@github.com:SEU_USUARIO/my-consultorio-front.git /var/www/my-consultorio-front/my-consultorio
+sudo mkdir -p /var/www/connexi-front
+sudo chown -R $USER:$USER /var/www/connexi-front
+git clone git@github.com:SEU_USUARIO/connexi-front.git /var/www/connexi-front/connexi
 ```
 
 Configure o `.env` real na VPS:
 
 ```bash
-cd /var/www/my-consultorio-front/my-consultorio
+cd /var/www/connexi-front/connexi
 cp .env.example .env
 nano .env
 ```
@@ -120,8 +120,8 @@ npm run build
 Use o exemplo:
 
 ```bash
-sudo cp deploy/nginx/my-consultorio.conf.example /etc/nginx/sites-available/my-consultorio
-sudo ln -s /etc/nginx/sites-available/my-consultorio /etc/nginx/sites-enabled/my-consultorio
+sudo cp deploy/nginx/connexi.conf.example /etc/nginx/sites-available/connexi
+sudo ln -s /etc/nginx/sites-available/connexi /etc/nginx/sites-enabled/connexi
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -172,7 +172,7 @@ Fluxo:
 ## 10. Rollback simples
 
 ```bash
-cd /var/www/my-consultorio-front/my-consultorio
+cd /var/www/connexi-front/connexi
 git log --oneline -5
 git checkout SHA_ANTERIOR
 npm ci

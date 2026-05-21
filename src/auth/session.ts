@@ -6,7 +6,7 @@ import { ehErroTenantInexistente } from "../services/api/errors/error-helpers";
 import { httpClient } from "../services/api/http/http-client";
 import type { PerfilUsuario, RespostaLogin } from "../services/api/types/domain";
 
-const CHAVE_STORAGE_USUARIO_AUTENTICADO = "my-consultorio.auth-user";
+const CHAVE_STORAGE_USUARIO_AUTENTICADO = "connexi.auth-user";
 const ROTA_TENANT_INEXISTENTE = "/tenant-inexistente";
 const ouvintesSessaoAutenticada = new Set<() => void>();
 let snapshotSessaoAutenticadaAtual: SnapshotSessaoAutenticada | null = null;
