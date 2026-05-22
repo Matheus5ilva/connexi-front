@@ -20,6 +20,11 @@ const mapaRotulosCampos = {
   email: "E-mail",
 } satisfies Record<string, string>;
 
+const EMAIL_HABILITADO = import.meta.env.VITE_EMAIL_HABILITADO === "true";
+
+const MENSAGEM_EMAIL_INDISPONIVEL =
+  "O envio de e-mails est\u00e1 temporariamente indispon\u00edvel. Estamos realizando ajustes na infraestrutura.";
+
 export function PaginaEsqueciSenha() {
   const [formulario, setFormulario] = useState<FormularioEsqueciSenhaData>({
     email: "",
@@ -36,6 +41,11 @@ export function PaginaEsqueciSenha() {
     setMensagemErro(null);
     setMensagemSucesso(null);
     setErrosFormulario([]);
+
+    if (!EMAIL_HABILITADO) {
+      setMensagemErro(MENSAGEM_EMAIL_INDISPONIVEL);
+      return;
+    }
 
     const formularioValidado =
       formularioEsqueciSenhaSchema.safeParse(formulario);
@@ -111,6 +121,11 @@ export function PaginaEsqueciSenha() {
             <p className={styles.cardSubtitle}>
               Digite seu e-mail para solicitar a redefinição.
             </p>
+            {!EMAIL_HABILITADO ? (
+              <p className={styles.serviceNotice} role="status">
+                Serviço de e-mail temporariamente indisponível
+              </p>
+            ) : null}
           </header>
 
           <form onSubmit={handleSubmit} className={styles.form} noValidate>

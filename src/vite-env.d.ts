@@ -10,6 +10,7 @@ interface ImportMetaEnv {
   readonly VITE_API_CREDENTIALS_MODE?: "omit" | "same-origin" | "include";
   readonly VITE_AUTH_TOKEN_STORAGE_KEY?: string;
   readonly VITE_SUPPORT_WHATSAPP_NUMBER?: string;
+  readonly VITE_EMAIL_HABILITADO?: string;
 }
 
 interface ImportMeta {
