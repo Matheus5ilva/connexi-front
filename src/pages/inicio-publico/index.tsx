@@ -18,10 +18,10 @@ import { BrandLogo } from "../../components/brand-logo";
 import styles from "./styles.module.css";
 
 const whatsappContratar =
-  "https://wa.me/5500000000000?text=Ol%C3%A1%2C%20quero%20contratar%20o%20CONNEXI.";
+  "https://wa.me/5538988499084?text=Ol%C3%A1%2C%20quero%20contratar%20o%20CONNEXI.";
 
 const whatsappDuvidas =
-  "https://wa.me/5500000000000?text=Ol%C3%A1%2C%20tenho%20algumas%20d%C3%BAvidas%20sobre%20o%20CONNEXI.";
+  "https://wa.me/5538988499084?text=Ol%C3%A1%2C%20tenho%20algumas%20d%C3%BAvidas%20sobre%20o%20CONNEXI.";
 
 export function PaginaInicialPublica() {
   return (
