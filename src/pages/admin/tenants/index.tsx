@@ -6,6 +6,7 @@ import {
   FaPowerOff,
   FaShieldAlt,
   FaSignOutAlt,
+  FaTrash,
 } from "react-icons/fa";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
 import { Modal } from "../../../components/ui/modal";
@@ -132,11 +133,11 @@ function substituirTenantNaLista(
 }
 
 export function AdminTenants() {
-  const [credencial, setCredencial] =
-    useState<CredencialAdministrativa | null>(null);
+  const [credencial, setCredencial] = useState<CredencialAdministrativa | null>(
+    null,
+  );
   const [formularioLogin, setFormularioLogin] = useState(LOGIN_INICIAL);
-  const [formularioCriacao, setFormularioCriacao] =
-    useState(CRIACAO_INICIAL);
+  const [formularioCriacao, setFormularioCriacao] = useState(CRIACAO_INICIAL);
   const [tenants, setTenants] = useState<TenantAdministrativo[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
@@ -144,6 +145,9 @@ export function AdminTenants() {
   const [criacaoAberta, setCriacaoAberta] = useState(false);
   const [tenantParaInativar, setTenantParaInativar] =
     useState<TenantAdministrativo | null>(null);
+  const [tenantParaExcluir, setTenantParaExcluir] =
+    useState<TenantAdministrativo | null>(null);
+  const [confirmacaoExclusao, setConfirmacaoExclusao] = useState("");
 
   useEffect(() => {
     const credencialArmazenada = lerCredencialArmazenada();
@@ -187,8 +191,7 @@ export function AdminTenants() {
       setErro(null);
       setSucesso(null);
 
-      const proximaCredencial =
-        montarCredencialAdministrativa(formularioLogin);
+      const proximaCredencial = montarCredencialAdministrativa(formularioLogin);
       const lista = await adminTenantsService.listar(proximaCredencial);
 
       salvarCredencialAdministrativa(proximaCredencial);
@@ -197,7 +200,10 @@ export function AdminTenants() {
       setFormularioLogin(LOGIN_INICIAL);
     } catch (error) {
       setErro(
-        toErrorMessage(error, "Login administrativo inválido ou sem permissão."),
+        toErrorMessage(
+          error,
+          "Login administrativo inválido ou sem permissão.",
+        ),
       );
     } finally {
       setCarregando(false);
@@ -285,6 +291,50 @@ export function AdminTenants() {
     }
   }
 
+  async function confirmarExclusaoTenant() {
+    if (!credencial || !tenantParaExcluir) {
+      return;
+    }
+
+    if (confirmacaoExclusao.trim() !== tenantParaExcluir.slug) {
+      setErro(
+        "Digite o schema do tenant exatamente como exibido para confirmar.",
+      );
+      return;
+    }
+
+    try {
+      setCarregando(true);
+      setErro(null);
+      setSucesso(null);
+
+      await adminTenantsService.excluir(credencial, tenantParaExcluir.id);
+
+      setTenants((listaAtual) =>
+        listaAtual.filter((tenant) => tenant.id !== tenantParaExcluir.id),
+      );
+      setTenantParaExcluir(null);
+      setConfirmacaoExclusao("");
+      setSucesso("Tenant excluído com sucesso.");
+    } catch (error) {
+      setErro(toErrorMessage(error, "Não foi possível excluir o tenant."));
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  function abrirConfirmacaoExclusao(tenant: TenantAdministrativo) {
+    setTenantParaExcluir(tenant);
+    setConfirmacaoExclusao("");
+    setErro(null);
+    setSucesso(null);
+  }
+
+  function fecharConfirmacaoExclusao() {
+    setTenantParaExcluir(null);
+    setConfirmacaoExclusao("");
+  }
+
   function sair() {
     removerCredencialAdministrativa();
     setCredencial(null);
@@ -304,7 +354,9 @@ export function AdminTenants() {
 
   function renderizarNicho(tenant: TenantAdministrativo) {
     return (
-      <span className={styles.badgeNicho}>{obterRotuloNicho(tenant.nicho)}</span>
+      <span className={styles.badgeNicho}>
+        {obterRotuloNicho(tenant.nicho)}
+      </span>
     );
   }
 
@@ -322,15 +374,26 @@ export function AdminTenants() {
             Inativar
           </button>
         ) : (
-          <button
-            type="button"
-            className={styles.botaoSucesso}
-            onClick={() => void ativarTenant(tenant)}
-            disabled={carregando}
-          >
-            <FaCheck aria-hidden="true" />
-            Ativar
-          </button>
+          <>
+            <button
+              type="button"
+              className={styles.botaoSucesso}
+              onClick={() => void ativarTenant(tenant)}
+              disabled={carregando}
+            >
+              <FaCheck aria-hidden="true" />
+              Ativar
+            </button>
+            <button
+              type="button"
+              className={styles.botaoPerigo}
+              onClick={() => abrirConfirmacaoExclusao(tenant)}
+              disabled={carregando}
+            >
+              <FaTrash aria-hidden="true" />
+              Excluir
+            </button>
+          </>
         )}
       </div>
     );
@@ -404,7 +467,9 @@ export function AdminTenants() {
         <div>
           <span className={styles.etiqueta}>Área interna</span>
           <h1>Administração de Tenants</h1>
-          <p>Gerencie tenants no schema público sem acessar dados dos clientes.</p>
+          <p>
+            Gerencie tenants no schema público sem acessar dados dos clientes.
+          </p>
         </div>
 
         <div className={styles.botoesCabecalho}>
@@ -474,6 +539,14 @@ export function AdminTenants() {
               key: "atualizadoEm",
               label: "Atualizado em",
               render: (tenant) => formatarDataHora(tenant.atualizadoEm),
+            },
+            {
+              key: "dataInativacao",
+              label: "Inativado em",
+              render: (tenant) =>
+                tenant.dataInativacao
+                  ? formatarDataHora(tenant.dataInativacao)
+                  : "-",
             },
             {
               key: "acoes",
@@ -605,6 +678,53 @@ export function AdminTenants() {
             disabled={carregando}
           >
             Inativar tenant
+          </button>
+        </div>
+      </Modal>
+
+      <Modal
+        open={Boolean(tenantParaExcluir)}
+        onClose={fecharConfirmacaoExclusao}
+        title="Excluir tenant"
+        subtitle="Confirmação obrigatória para remoção permanente do schema."
+      >
+        <div className={styles.confirmacao}>
+          <p>
+            Atenção: esta ação irá excluir permanentemente o tenant e remover o
+            schema correspondente do banco de dados. Essa operação não poderá
+            ser desfeita.
+          </p>
+          <strong>{tenantParaExcluir?.nome}</strong>
+          <span>Schema: {tenantParaExcluir?.slug}</span>
+          <label className={styles.campoConfirmacao}>
+            Digite o schema do tenant para confirmar a exclusão.
+            <input
+              type="text"
+              value={confirmacaoExclusao}
+              onChange={(event) => setConfirmacaoExclusao(event.target.value)}
+              autoComplete="off"
+            />
+          </label>
+        </div>
+
+        <div className={styles.rodapeModal}>
+          <button
+            type="button"
+            className={styles.botaoSecundario}
+            onClick={fecharConfirmacaoExclusao}
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            className={styles.botaoPerigo}
+            onClick={() => void confirmarExclusaoTenant()}
+            disabled={
+              carregando ||
+              confirmacaoExclusao.trim() !== tenantParaExcluir?.slug
+            }
+          >
+            Excluir tenant
           </button>
         </div>
       </Modal>

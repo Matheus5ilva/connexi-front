@@ -26,6 +26,7 @@ const tenantAdministrativoSchema = z.object({
   nome: z.string().trim().min(1).max(255),
   nicho: nichoTenantSchema,
   ativo: z.boolean(),
+  dataInativacao: z.string().trim().min(1).nullable(),
   criadoEm: z.string().trim().min(1),
   atualizadoEm: z.string().trim().min(1),
 });
@@ -115,11 +116,15 @@ export const adminTenantsService = {
       opcoesAdministrativas(credencial),
     );
 
-    return parseWithSchema(tenantAdministrativoSchema, unwrapEnvelope(response), {
-      context: "admin.tenants.criar.response",
-      message: "Resposta inesperada ao criar tenant.",
-      code: "ADMIN_TENANT_CRIAR_RESPOSTA_INVALIDA",
-    });
+    return parseWithSchema(
+      tenantAdministrativoSchema,
+      unwrapEnvelope(response),
+      {
+        context: "admin.tenants.criar.response",
+        message: "Resposta inesperada ao criar tenant.",
+        code: "ADMIN_TENANT_CRIAR_RESPOSTA_INVALIDA",
+      },
+    );
   },
 
   async ativar(
@@ -134,11 +139,15 @@ export const adminTenantsService = {
       opcoesAdministrativas(credencial),
     );
 
-    return parseWithSchema(tenantAdministrativoSchema, unwrapEnvelope(response), {
-      context: "admin.tenants.ativar.response",
-      message: "Resposta inesperada ao ativar tenant.",
-      code: "ADMIN_TENANT_ATIVAR_RESPOSTA_INVALIDA",
-    });
+    return parseWithSchema(
+      tenantAdministrativoSchema,
+      unwrapEnvelope(response),
+      {
+        context: "admin.tenants.ativar.response",
+        message: "Resposta inesperada ao ativar tenant.",
+        code: "ADMIN_TENANT_ATIVAR_RESPOSTA_INVALIDA",
+      },
+    );
   },
 
   async inativar(
@@ -153,10 +162,24 @@ export const adminTenantsService = {
       opcoesAdministrativas(credencial),
     );
 
-    return parseWithSchema(tenantAdministrativoSchema, unwrapEnvelope(response), {
-      context: "admin.tenants.inativar.response",
-      message: "Resposta inesperada ao inativar tenant.",
-      code: "ADMIN_TENANT_INATIVAR_RESPOSTA_INVALIDA",
-    });
+    return parseWithSchema(
+      tenantAdministrativoSchema,
+      unwrapEnvelope(response),
+      {
+        context: "admin.tenants.inativar.response",
+        message: "Resposta inesperada ao inativar tenant.",
+        code: "ADMIN_TENANT_INATIVAR_RESPOSTA_INVALIDA",
+      },
+    );
+  },
+
+  async excluir(
+    credencial: CredencialAdministrativa,
+    id: string,
+  ): Promise<void> {
+    await httpClient.delete<unknown>(
+      `${CAMINHO_BASE_ADMIN_TENANTS}/${encodeURIComponent(id)}`,
+      opcoesAdministrativas(credencial),
+    );
   },
 };

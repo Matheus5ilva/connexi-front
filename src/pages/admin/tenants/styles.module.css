@@ -2,8 +2,17 @@
   min-height: 100vh;
   padding: 32px;
   background:
-    radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 34rem),
-    linear-gradient(135deg, #eef4f8 0%, var(--color-surface-soft) 42%, #eef6f1 100%);
+    radial-gradient(
+      circle at top left,
+      rgba(15, 118, 110, 0.12),
+      transparent 34rem
+    ),
+    linear-gradient(
+      135deg,
+      #eef4f8 0%,
+      var(--color-surface-soft) 42%,
+      #eef6f1 100%
+    );
   color: var(--color-text);
 }
 
@@ -197,6 +206,31 @@
 
 .confirmacao p {
   margin: 0;
+}
+
+.campoConfirmacao {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  color: #7c2d12;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.campoConfirmacao input {
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid rgba(154, 52, 18, 0.32);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  outline: none;
+}
+
+.campoConfirmacao input:focus {
+  border-color: #9a3412;
+  box-shadow: 0 0 0 4px rgba(154, 52, 18, 0.14);
 }
 
 .rodapeModal {
