@@ -23,6 +23,7 @@ import { encerrarSessaoAutenticada } from "../../auth/session";
 import { BrandLogo } from "../brand-logo";
 import { authService } from "../../services/api";
 import styles from "./styles.module.css";
+import { APP_NAME, APP_DOMAIN, APP_VERSION } from "../../config/version";
 
 type Props = {
   open: boolean;
@@ -366,7 +367,7 @@ export function Sidebar({ open, onClose }: Props) {
             </span>
           </button>
           <p className={styles.productVersion}>
-            CONNEXI • connexi.com.br • v1.0
+            {APP_NAME} • {APP_DOMAIN} • v{APP_VERSION}
           </p>
         </div>
       </aside>
