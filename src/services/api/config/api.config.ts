@@ -18,7 +18,7 @@ function parseCredentials(value: string | undefined): RequestCredentials {
     return value;
   }
 
-  return "same-origin";
+  return "include";
 }
 
 function normalizeBaseUrl(value: string): string {

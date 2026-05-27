@@ -89,14 +89,6 @@ export const redefinirSenhaRequestSchema = z
     }
   });
 
-export const renovarTokenRequestSchema = z.object({
-  refreshToken: z
-    .string()
-    .trim()
-    .min(1, "Refresh token obrigatório.")
-    .max(2048, "Refresh token inválido."),
-});
-
 export const alterarSenhaRequestSchema = z.object({
   currentPassword: z
     .string()

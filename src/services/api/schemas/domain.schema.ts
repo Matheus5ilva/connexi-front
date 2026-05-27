@@ -129,19 +129,19 @@ export const paginationRequestSchema = z.object({
 
 export const tokensAutenticacaoSchema = z.object({
   accessToken: z.string().trim().min(1).max(2048),
-  refreshToken: z.string().trim().min(1).max(2048),
   expiresIn: z.number().int().positive(),
 });
 
-export const respostaLoginSchema = z.object({
-  userId: entityIdSchema,
+export const respostaLoginUsuarioSchema = z.object({
   name: z.string().trim().min(1).max(120),
   email: z.string().trim().toLowerCase().email().max(160),
   role: z.enum(["MASTER", "PROFISSIONAL"]),
-  profissionalId: z.number().int().positive().nullable().optional(),
   deveTrocarSenha: z.boolean(),
   tenantId: entityIdSchema,
-  tokens: tokensAutenticacaoSchema,
+});
+
+export const respostaLoginSchema = tokensAutenticacaoSchema.extend({
+  usuario: respostaLoginUsuarioSchema,
 });
 
 export const minhaContaAutenticadaSchema = z.object({

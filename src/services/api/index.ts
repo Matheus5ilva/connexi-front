@@ -221,7 +221,6 @@ export type {
   RespostaProntuariosPaciente,
   RedefinirSenhaRequest,
   RegistrarRecebimentoAgendamentoRequest,
-  RenovarTokenRequest,
   RespostaLogin,
   RespostaMinhaContaAutenticada,
   RecebimentoTipo,
