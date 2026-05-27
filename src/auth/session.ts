@@ -4,7 +4,11 @@ import { apiConfig } from "../services/api/config/api.config";
 import type { ApiError } from "../services/api/errors/api-error";
 import { ehErroTenantInexistente } from "../services/api/errors/error-helpers";
 import { httpClient } from "../services/api/http/http-client";
-import type { PerfilUsuario, RespostaLogin } from "../services/api/types/domain";
+import type {
+  MinhaConta,
+  PerfilUsuario,
+  RespostaLogin,
+} from "../services/api/types/domain";
 
 const CHAVE_STORAGE_USUARIO_AUTENTICADO = "connexi.auth-user";
 const ROTA_TENANT_INEXISTENTE = "/tenant-inexistente";
@@ -222,19 +226,37 @@ export function inscreverSessaoAutenticada(listener: () => void): () => void {
 export function iniciarSessaoApi(
   respostaLogin: RespostaLogin,
 ): UsuarioAutenticado {
-  const accessToken = respostaLogin.tokens.accessToken.trim();
+  const accessToken = respostaLogin.accessToken.trim();
   if (accessToken) {
     httpClient.setAuthToken(accessToken);
   }
 
   const usuarioAutenticado: UsuarioAutenticado = {
-    id: respostaLogin.userId,
-    tenantId: respostaLogin.tenantId,
-    nome: respostaLogin.name.trim(),
-    email: respostaLogin.email.trim().toLowerCase(),
-    perfil: respostaLogin.role,
-    profissionalId: respostaLogin.profissionalId ?? undefined,
-    deveTrocarSenha: respostaLogin.deveTrocarSenha,
+    id: respostaLogin.usuario.email.trim().toLowerCase(),
+    tenantId: respostaLogin.usuario.tenantId,
+    nome: respostaLogin.usuario.name.trim(),
+    email: respostaLogin.usuario.email.trim().toLowerCase(),
+    perfil: respostaLogin.usuario.role,
+    deveTrocarSenha: respostaLogin.usuario.deveTrocarSenha,
+  };
+
+  salvarUsuarioAutenticado(usuarioAutenticado);
+  notificarMudancaSessaoAutenticada();
+
+  return usuarioAutenticado;
+}
+
+export function atualizarSessaoComMinhaConta(
+  minhaConta: MinhaConta,
+): UsuarioAutenticado {
+  const usuarioAutenticado: UsuarioAutenticado = {
+    id: minhaConta.email.trim().toLowerCase(),
+    tenantId: minhaConta.tenantId,
+    nome: minhaConta.nome.trim(),
+    email: minhaConta.email.trim().toLowerCase(),
+    perfil: minhaConta.perfil,
+    profissionalId: minhaConta.profissionalId ?? undefined,
+    deveTrocarSenha: minhaConta.deveTrocarSenha,
   };
 
   salvarUsuarioAutenticado(usuarioAutenticado);

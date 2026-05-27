@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { iniciarSessaoApi } from "../../../auth/session";
+import {
+  atualizarSessaoComMinhaConta,
+  iniciarSessaoApi,
+} from "../../../auth/session";
 import { BrandLogo } from "../../../components/brand-logo";
 import { AvisoErroFormulario } from "../../../components/ui/aviso-erro-formulario";
 import { FormField } from "../../../components/ui/form-field";
@@ -97,7 +100,9 @@ export function PaginaLogin() {
         mapFormularioLoginParaIniciarSessaoRequest(formularioValidado.data),
       );
 
-      const usuarioAutenticado = iniciarSessaoApi(respostaLogin);
+      let usuarioAutenticado = iniciarSessaoApi(respostaLogin);
+      const minhaConta = await authService.buscarMinhaConta();
+      usuarioAutenticado = atualizarSessaoComMinhaConta(minhaConta);
 
       const destino = usuarioAutenticado.deveTrocarSenha
         ? "/configuracoes/minha-conta"

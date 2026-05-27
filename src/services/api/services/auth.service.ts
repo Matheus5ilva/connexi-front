@@ -2,11 +2,10 @@ import {
   alterarSenhaRequestSchema,
   iniciarSessaoRequestSchema,
   redefinirSenhaRequestSchema,
-  renovarTokenRequestSchema,
   solicitarRecuperacaoSenhaRequestSchema,
 } from "../../../schemas/auth.schema";
-import { mapRespostaMinhaContaParaMinhaConta } from "../mappers/minha-conta.mapper";
 import { httpClient } from "../http/http-client";
+import { mapRespostaMinhaContaParaMinhaConta } from "../mappers/minha-conta.mapper";
 import {
   minhaContaAutenticadaSchema,
   respostaLoginSchema,
@@ -18,7 +17,6 @@ import type {
   IniciarSessaoRequest,
   MinhaConta,
   RedefinirSenhaRequest,
-  RenovarTokenRequest,
   RespostaLogin,
   RespostaMinhaContaAutenticada,
   SolicitarRecuperacaoSenhaRequest,
@@ -36,7 +34,7 @@ export const authService = {
       payload,
       {
         context: "auth.login.payload",
-        message: "Dados de login inválidos.",
+        message: "Dados de login invalidos.",
         code: "INVALID_LOGIN_PAYLOAD",
       },
     );
@@ -49,33 +47,21 @@ export const authService = {
 
     return parseWithSchema(respostaLoginSchema, unwrapEnvelope(response), {
       context: "auth.login.response",
-      message: "Resposta inesperada ao autenticar o usuário.",
+      message: "Resposta inesperada ao autenticar o usuario.",
       code: "INVALID_LOGIN_RESPONSE",
     });
   },
 
-  async renovarToken(
-    payload: RenovarTokenRequest,
-  ): Promise<TokensAutenticacao> {
-    const payloadNormalizado = parseWithSchema(
-      renovarTokenRequestSchema,
-      payload,
-      {
-        context: "auth.refresh.payload",
-        message: "Refresh token inválido.",
-        code: "INVALID_REFRESH_TOKEN",
-      },
-    );
-
+  async renovarToken(): Promise<TokensAutenticacao> {
     const response = await httpClient.post<
       ApiEnvelope<TokensAutenticacao> | TokensAutenticacao
-    >(`${AUTH_BASE_PATH}/refresh-token`, payloadNormalizado, {
+    >(`${AUTH_BASE_PATH}/refresh-token`, undefined, {
       auth: false,
     });
 
     return parseWithSchema(tokensAutenticacaoSchema, unwrapEnvelope(response), {
       context: "auth.refresh.response",
-      message: "Resposta inesperada ao renovar a sessão.",
+      message: "Resposta inesperada ao renovar a sessao.",
       code: "INVALID_REFRESH_RESPONSE",
     });
   },
@@ -88,7 +74,7 @@ export const authService = {
       payload,
       {
         context: "auth.forgot-password.payload",
-        message: "E-mail inválido para recuperação de senha.",
+        message: "E-mail invalido para recuperacao de senha.",
         code: "INVALID_FORGOT_PASSWORD_PAYLOAD",
       },
     );
@@ -109,7 +95,7 @@ export const authService = {
       payload,
       {
         context: "auth.reset-password.payload",
-        message: "Dados inválidos para redefinir a senha.",
+        message: "Dados invalidos para redefinir a senha.",
         code: "INVALID_RESET_PASSWORD_PAYLOAD",
       },
     );
@@ -134,7 +120,7 @@ export const authService = {
       unwrapEnvelope(response),
       {
         context: "auth.me.response",
-        message: "Não foi possível validar os dados do usuário autenticado.",
+        message: "Nao foi possivel validar os dados do usuario autenticado.",
         code: "INVALID_AUTH_ME_RESPONSE",
       },
     );

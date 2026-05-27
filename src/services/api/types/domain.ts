@@ -4,7 +4,6 @@ export type PerfilUsuario = "MASTER" | "PROFISSIONAL";
 
 export interface TokensAutenticacao {
   accessToken: string;
-  refreshToken: string;
   expiresIn: number;
 }
 
@@ -23,19 +22,16 @@ export interface RedefinirSenhaRequest {
   confirmNewPassword: string;
 }
 
-export interface RenovarTokenRequest {
-  refreshToken: string;
-}
-
 export interface RespostaLogin {
-  userId: string;
-  name: string;
-  email: string;
-  role: PerfilUsuario;
-  profissionalId?: number | null;
-  deveTrocarSenha: boolean;
-  tenantId: string;
-  tokens: TokensAutenticacao;
+  accessToken: string;
+  expiresIn: number;
+  usuario: {
+    name: string;
+    email: string;
+    role: PerfilUsuario;
+    deveTrocarSenha: boolean;
+    tenantId: string;
+  };
 }
 
 export interface RespostaMinhaContaAutenticada {

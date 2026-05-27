@@ -4,13 +4,12 @@ import { isApiError } from "../errors/api-error";
 import { httpClient } from "../http/http-client";
 import { tenantSchema } from "../schemas/domain.schema";
 import type { ApiEnvelope } from "../types/common";
-import type { RenovarTokenRequest, Tenant } from "../types/domain";
+import type { Tenant } from "../types/domain";
 import { parseWithSchema } from "../utils/parse-with-schema";
 import { unwrapEnvelope } from "../utils/unwrap-envelope";
 
 const AUTH_BASE_PATH = "/auth";
 const TENANT_BASE_PATH = "/tenants";
-const REFRESH_TOKEN_VALIDACAO_TENANT = "validacao-contexto-tenant";
 
 const tenantListSchema = z.array(tenantSchema);
 
@@ -41,9 +40,9 @@ export const tenantService = {
 
   async validarContextoAtual(): Promise<void> {
     try {
-      await httpClient.post<unknown, RenovarTokenRequest>(
+      await httpClient.post<unknown>(
         `${AUTH_BASE_PATH}/refresh-token`,
-        { refreshToken: REFRESH_TOKEN_VALIDACAO_TENANT },
+        undefined,
         {
           auth: false,
           aplicarInterceptorsErro: false,
