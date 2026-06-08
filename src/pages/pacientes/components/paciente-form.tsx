@@ -3,6 +3,7 @@ import { useForm, useWatch, type FieldErrors } from "react-hook-form";
 import { FaMapMarkerAlt, FaPhone, FaUser } from "react-icons/fa";
 import { AvisoErroFormulario } from "../../../components/ui/aviso-erro-formulario";
 import { FormField } from "../../../components/ui/form-field";
+import type { CamposPacienteVisiveis } from "../../../config/segmento-labels";
 import {
   pacienteSchema,
   type PacienteFormData,
@@ -60,24 +61,43 @@ const pacienteFormDefaultValues: PacienteFormData = {
 };
 
 type PacienteFormProps = {
+  camposVisiveis?: Partial<CamposPacienteVisiveis>;
   defaultValues?: Partial<PacienteFormData>;
   convenioAtual?: ConvenioListaItem | null;
   mostrarCamposConvenio?: boolean;
   onCancel: () => void;
   onSubmit: (formData: PacienteFormData) => Promise<void>;
+  parceriaLabel?: string;
+  pessoaLabel?: string;
+  numeroCarteirinhaLabel?: string;
   submitLabel: string;
   submittingLabel: string;
 };
 
 export function PacienteForm({
+  camposVisiveis,
   defaultValues,
   convenioAtual = null,
   mostrarCamposConvenio = true,
   onCancel,
   onSubmit,
+  parceriaLabel = "Convênio",
+  pessoaLabel = "Paciente",
+  numeroCarteirinhaLabel = "Número da carteirinha",
   submitLabel,
   submittingLabel,
 }: PacienteFormProps) {
+  const pessoaMinuscula = pessoaLabel.toLowerCase();
+  const camposFormulario = useMemo<CamposPacienteVisiveis>(
+    () => ({
+      nomeMae: camposVisiveis?.nomeMae ?? true,
+      convenio: mostrarCamposConvenio && (camposVisiveis?.convenio ?? true),
+      numeroCarteirinha:
+        mostrarCamposConvenio &&
+        (camposVisiveis?.numeroCarteirinha ?? true),
+    }),
+    [camposVisiveis, mostrarCamposConvenio],
+  );
   const [mensagemErroFormulario, setMensagemErroFormulario] =
     useState<string | null>(null);
   const [errosFormulario, setErrosFormulario] = useState<ErroFormularioAmigavel[]>([]);
@@ -155,7 +175,7 @@ export function PacienteForm({
     let mounted = true;
 
     async function carregarConvenios() {
-      if (!mostrarCamposConvenio) {
+      if (!camposFormulario.convenio) {
         if (mounted) {
           setConvenios([]);
         }
@@ -182,13 +202,17 @@ export function PacienteForm({
     return () => {
       mounted = false;
     };
-  }, [mostrarCamposConvenio]);
+  }, [camposFormulario.convenio]);
 
   useEffect(() => {
+    if (!camposFormulario.numeroCarteirinha) {
+      return;
+    }
+
     if (!convenioId) {
       setValue("numeroCarteirinha", "", { shouldDirty: true });
     }
-  }, [convenioId, setValue]);
+  }, [camposFormulario.numeroCarteirinha, convenioId, setValue]);
 
   async function handleCepBlur(event: React.FocusEvent<HTMLInputElement>) {
     try {
@@ -233,7 +257,11 @@ export function PacienteForm({
       frontendLogger.error("PacienteForm", "Falha ao salvar paciente", {
         erro: error,
       });
-      const resultadoErro = normalizarErroFormularioPaciente(error);
+      const resultadoErro = normalizarErroFormularioPaciente(error, {
+        numeroCarteirinhaLabel,
+        parceriaLabel,
+        pessoaLabel,
+      });
 
       Object.entries(resultadoErro.errosCampo).forEach(([campo, mensagem]) => {
         if (!mensagem) {
@@ -252,7 +280,10 @@ export function PacienteForm({
   }
 
   function handleInvalidSubmit(errosValidacao: FieldErrors<PacienteFormData>) {
-    const resultadoErro = normalizarErrosValidacaoPaciente(errosValidacao);
+    const resultadoErro = normalizarErrosValidacaoPaciente(errosValidacao, {
+      numeroCarteirinhaLabel,
+      parceriaLabel,
+    });
 
     setMensagemErroFormulario(resultadoErro.mensagemGlobal);
     setErrosFormulario(resultadoErro.erros);
@@ -282,7 +313,7 @@ export function PacienteForm({
       >
         <div className={styles.sectionTitle} id="dados-pessoais-title">
           <FaUser className={styles.sectionIcon} />
-          <span>Dados pessoais</span>
+          <span>Dados do {pessoaMinuscula}</span>
         </div>
 
         <div className={styles.grid}>
@@ -323,17 +354,21 @@ export function PacienteForm({
             />
           </FormField>
 
-          <FormField
-            id="paciente-nome-mae"
-            label="Nome da mãe"
-            error={errors.nomeMae?.message}
-          >
-            <input
-              className={styles.input}
-              placeholder="Ex: Maria Silva"
-              {...register("nomeMae")}
-            />
-          </FormField>
+          {camposFormulario.nomeMae ? (
+            <FormField
+              id="paciente-nome-mae"
+              label="Nome da mãe"
+              error={errors.nomeMae?.message}
+            >
+              <input
+                className={styles.input}
+                placeholder="Ex: Maria Silva"
+                {...register("nomeMae")}
+              />
+            </FormField>
+          ) : (
+            <input type="hidden" {...register("nomeMae")} />
+          )}
 
           <FormField
             id="paciente-sexo"
@@ -368,41 +403,50 @@ export function PacienteForm({
             </select>
           </FormField>
 
-          {mostrarCamposConvenio && (
-            <>
-              <FormField
-                id="paciente-convenio"
-                label="Convênio"
-                error={errors.convenioId?.message}
+          {camposFormulario.convenio ? (
+            <FormField
+              id="paciente-convenio"
+              label={parceriaLabel}
+              error={errors.convenioId?.message}
+            >
+              <select
+                className={`${styles.input} ${errors.convenioId ? styles.inputError : ""}`}
+                {...register("convenioId", {
+                  setValueAs: (value) => (value ? Number(value) : undefined),
+                })}
               >
-                <select
-                  className={`${styles.input} ${errors.convenioId ? styles.inputError : ""}`}
-                  {...register("convenioId", {
-                    setValueAs: (value) => (value ? Number(value) : undefined),
-                  })}
-                >
-                  <option value="">Selecione...</option>
-                  {conveniosDisponiveis.map((convenio) => (
-                    <option key={convenio.id} value={convenio.id}>
-                      {convenio.nome}
-                    </option>
-                  ))}
-                </select>
-              </FormField>
+                <option value="">Selecione...</option>
+                {conveniosDisponiveis.map((convenio) => (
+                  <option key={convenio.id} value={convenio.id}>
+                    {convenio.nome}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+          ) : (
+            <input
+              type="hidden"
+              {...register("convenioId", {
+                setValueAs: (value) => (value ? Number(value) : undefined),
+              })}
+            />
+          )}
 
-              <FormField
-                id="paciente-numero-carteirinha"
-                label="Número da carteirinha"
-                error={errors.numeroCarteirinha?.message}
-              >
-                <input
-                  className={styles.input}
-                  placeholder="Ex: 1234567890"
-                  disabled={!convenioId}
-                  {...register("numeroCarteirinha")}
-                />
-              </FormField>
-            </>
+          {camposFormulario.numeroCarteirinha ? (
+            <FormField
+              id="paciente-numero-carteirinha"
+              label={numeroCarteirinhaLabel}
+              error={errors.numeroCarteirinha?.message}
+            >
+              <input
+                className={styles.input}
+                placeholder="Ex: 1234567890"
+                disabled={!convenioId}
+                {...register("numeroCarteirinha")}
+              />
+            </FormField>
+          ) : (
+            <input type="hidden" {...register("numeroCarteirinha")} />
           )}
 
           <FormField label="Status">

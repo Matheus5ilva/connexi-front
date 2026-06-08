@@ -1,9 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import { FaChevronLeft } from "react-icons/fa";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useOutletContext,
+  useParams,
+} from "react-router-dom";
 import { PageHeader } from "../../../components/ui/page-header";
 import { PageLayout } from "../../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
+import {
+  getCamposPacienteVisiveis,
+  getSegmentoLabels,
+} from "../../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../../layout";
 import { resolveReturnTo } from "../../../routes/return-to";
 import type { PacienteFormData } from "../../../schemas/paciente.schema";
 import { parseRouteNumericId } from "../../../schemas/runtime-input.schema";
@@ -25,6 +35,10 @@ export function EditarPaciente() {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const camposVisiveis = getCamposPacienteVisiveis(segmento);
+  const pessoaMinuscula = labels.pessoa.toLowerCase();
   const pacienteId = parseRouteNumericId(id);
   const returnTo = resolveReturnTo(location, "/pacientes");
 
@@ -37,7 +51,7 @@ export function EditarPaciente() {
     if (!pacienteId) {
       setPaciente(null);
       setIsLoading(false);
-      setErroCarregamento(criarErroPacienteInvalido());
+      setErroCarregamento(criarErroPacienteInvalido(labels.pessoa));
       return;
     }
 
@@ -65,7 +79,8 @@ export function EditarPaciente() {
         setErroCarregamento(
           resolverErroCarregamentoPaciente(
             error,
-            "Não foi possível carregar os dados do paciente.",
+            `Não foi possível carregar os dados do ${pessoaMinuscula}.`,
+            labels.pessoa,
           ),
         );
       } finally {
@@ -80,11 +95,11 @@ export function EditarPaciente() {
     return () => {
       mounted = false;
     };
-  }, [pacienteId]);
+  }, [labels.pessoa, pacienteId, pessoaMinuscula]);
 
   async function handleUpdate(formData: PacienteFormData) {
     if (!pacienteId) {
-      throw new Error("Paciente inválido.");
+      throw new Error(`${labels.pessoa} inválido.`);
     }
 
     const atualizado = await pacienteService.atualizar(
@@ -123,8 +138,8 @@ export function EditarPaciente() {
 
   if (!paciente) {
     const estadoErro = erroCarregamento ?? {
-      titulo: "Paciente não encontrado",
-      descricao: "Verifique se o paciente existe para continuar a edição.",
+      titulo: `${labels.pessoa} não encontrado`,
+      descricao: `Verifique se o ${pessoaMinuscula} existe para continuar a edição.`,
     };
 
     return (
@@ -143,7 +158,7 @@ export function EditarPaciente() {
   return (
     <PageLayout>
       <PageHeader
-        title="Editar paciente"
+        title={`Editar ${pessoaMinuscula}`}
         subtitle="Atualize os dados cadastrais"
         left={
           <div className={styles.titleWithBack}>
@@ -151,12 +166,12 @@ export function EditarPaciente() {
               type="button"
               className={styles.backBtn}
               onClick={() => navigate(returnTo)}
-              aria-label="Voltar para a visualização do paciente"
+              aria-label={`Voltar para a visualização do ${pessoaMinuscula}`}
             >
               <FaChevronLeft />
             </button>
             <div>
-              <h1 className={styles.pageTitle}>Editar paciente</h1>
+              <h1 className={styles.pageTitle}>Editar {pessoaMinuscula}</h1>
               <p className={styles.pageSubtitle}>{paciente.nome}</p>
             </div>
           </div>
@@ -164,11 +179,15 @@ export function EditarPaciente() {
       />
 
       <PacienteForm
+        camposVisiveis={camposVisiveis}
         defaultValues={defaultValues}
         convenioAtual={convenioAtual}
         mostrarCamposConvenio
         onCancel={() => navigate(returnTo)}
         onSubmit={handleUpdate}
+        numeroCarteirinhaLabel={labels.numeroCarteirinha}
+        parceriaLabel={labels.parceria}
+        pessoaLabel={labels.pessoa}
         submitLabel="Salvar alterações"
         submittingLabel="Salvando..."
       />

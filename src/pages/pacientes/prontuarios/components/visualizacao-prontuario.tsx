@@ -29,6 +29,7 @@ type VisualizacaoProntuarioProps = {
   formatarData: (isoDate?: string) => string;
   formatarDataHora: (isoDate?: string) => string;
   formatarTamanhoArquivo: (bytes: number) => string;
+  pessoaLabel?: string;
   aoAbrirPaciente: () => void;
   aoAbrirConsulta?: () => void;
   aoAbrirAnexo: (anexo: ProntuarioAnexo) => void;
@@ -66,11 +67,14 @@ export function VisualizacaoProntuario({
   formatarData,
   formatarDataHora,
   formatarTamanhoArquivo,
+  pessoaLabel = "Paciente",
   aoAbrirPaciente,
   aoAbrirConsulta,
   aoAbrirAnexo,
   aoBaixarAnexo,
 }: VisualizacaoProntuarioProps) {
+  const pessoaMinuscula = pessoaLabel.toLowerCase();
+
   return (
     <section className={styles.detailPanel} aria-label="Detalhe do prontuário">
       <div className={styles.headerSummary}>
@@ -209,7 +213,7 @@ export function VisualizacaoProntuario({
         </div>
 
         <aside className={styles.sideColumn}>
-          <SecaoCartao titulo="Paciente">
+          <SecaoCartao titulo={pessoaLabel}>
             <strong className={styles.patientName}>{paciente.nome}</strong>
             <p className={styles.patientMeta}>CPF {paciente.cpf || "não informado"}</p>
             <p className={styles.patientMeta}>
@@ -223,7 +227,7 @@ export function VisualizacaoProntuario({
               className={styles.patientAction}
               onClick={aoAbrirPaciente}
             >
-              Ver ficha do paciente
+              Ver ficha do {pessoaMinuscula}
             </button>
           </SecaoCartao>
         </aside>

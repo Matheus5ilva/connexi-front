@@ -110,7 +110,10 @@ export function Pacientes() {
 
         setPacientes([]);
         setLoadError(
-          toErrorMessage(error, "Não foi possível carregar os pacientes."),
+          toErrorMessage(
+            error,
+            `Não foi possível carregar a lista de ${pessoasMinuscula}.`,
+          ),
         );
       } finally {
         if (active) {
@@ -124,7 +127,7 @@ export function Pacientes() {
     return () => {
       active = false;
     };
-  }, [filters]);
+  }, [filters, pessoasMinuscula]);
 
   function handleFilterChange<K extends keyof FiltersState>(
     key: K,
@@ -174,10 +177,10 @@ export function Pacientes() {
       <CompactFilters
         fields={
           <>
-            <CompactFilterField label="Nome do paciente" grow>
+            <CompactFilterField label={`Nome do ${pessoaMinuscula}`} grow>
               <input
                 value={filters.nome}
-                placeholder="Digite o nome do paciente"
+                placeholder={`Digite o nome do ${pessoaMinuscula}`}
                 onChange={(event) =>
                   handleFilterChange("nome", event.target.value)
                 }
@@ -226,7 +229,7 @@ export function Pacientes() {
             <CompactFilterField label="E-mail">
               <input
                 value={filters.email}
-                placeholder="paciente@exemplo.com"
+                placeholder={`${pessoaMinuscula}@exemplo.com`}
                 onChange={(event) =>
                   handleFilterChange("email", event.target.value)
                 }

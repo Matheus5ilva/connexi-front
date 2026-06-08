@@ -10,14 +10,24 @@ import {
   FaPlay,
   FaUser,
 } from "react-icons/fa";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useOutletContext,
+  useParams,
+} from "react-router-dom";
 import { PageHeader } from "../../../components/ui/page-header";
 import { PageLayout } from "../../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
 import {
+  getCamposPacienteVisiveis,
+  getSegmentoLabels,
+} from "../../../config/segmento-labels";
+import {
   descreverDistanciaDataSomenteDia,
   formatarDataSomenteDia,
 } from "../../../domain/data-somente-dia";
+import type { LayoutOutletContext } from "../../../layout";
 import {
   isAgendamentoStatusOperacional,
   shouldAutoStartConsultaOnOpen,
@@ -84,7 +94,7 @@ function formatProximoAgendamentoLabel(
   agendamento?: Pick<Agendamento, "data" | "horario"> | null,
 ): string {
   if (!agendamento) {
-    return "Sem agendamento em aberto";
+    return "Sem atendimento em aberto";
   }
 
   return `${formatDateBr(agendamento.data)} às ${agendamento.horario}`;
@@ -163,6 +173,11 @@ function sortAgendamentoOperacional(
 export function VisualizarPaciente() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const camposVisiveis = getCamposPacienteVisiveis(segmento);
+  const pessoaMinuscula = labels.pessoa.toLowerCase();
+  const pessoasMinuscula = labels.pessoas.toLowerCase();
   const returnTo = resolveReturnTo(location, "/pacientes");
   const { id } = useParams();
   const pacienteId = parseRouteNumericId(id);
@@ -184,7 +199,7 @@ export function VisualizarPaciente() {
     if (!pacienteId) {
       setPaciente(null);
       setLoadingPaciente(false);
-      setErroPaciente(criarErroPacienteInvalido());
+      setErroPaciente(criarErroPacienteInvalido(labels.pessoa));
       return;
     }
 
@@ -213,7 +228,8 @@ export function VisualizarPaciente() {
         setErroPaciente(
           resolverErroCarregamentoPaciente(
             error,
-            "Não foi possível carregar o paciente.",
+            `Não foi possível carregar o ${pessoaMinuscula}.`,
+            labels.pessoa,
           ),
         );
       } finally {
@@ -228,7 +244,7 @@ export function VisualizarPaciente() {
     return () => {
       active = false;
     };
-  }, [pacienteId]);
+  }, [labels.pessoa, pacienteId, pessoaMinuscula]);
 
   useEffect(() => {
     if (!pacienteId) {
@@ -258,7 +274,7 @@ export function VisualizarPaciente() {
         setHistoricoErro(
           toErrorMessage(
             error,
-            "Não foi possível carregar o histórico de prontuários.",
+            "Não foi possível carregar o histórico de atendimentos.",
           ),
         );
       }
@@ -302,7 +318,7 @@ export function VisualizarPaciente() {
         setAgendaErro(
           toErrorMessage(
             error,
-            "Não foi possível carregar os agendamentos do paciente.",
+            `Não foi possível carregar os agendamentos deste ${pessoaMinuscula}.`,
           ),
         );
       }
@@ -313,7 +329,7 @@ export function VisualizarPaciente() {
     return () => {
       active = false;
     };
-  }, [pacienteId]);
+  }, [pacienteId, pessoaMinuscula]);
 
   useEffect(() => {
     if (!pacienteId) {
@@ -424,8 +440,8 @@ export function VisualizarPaciente() {
 
   if (!paciente || erroPaciente) {
     const estadoErro = erroPaciente ?? {
-      titulo: "Paciente não encontrado",
-      descricao: "Verifique se o paciente existe e tente novamente.",
+      titulo: `${labels.pessoa} não encontrado`,
+      descricao: `Verifique se o ${pessoaMinuscula} existe e tente novamente.`,
     };
 
     return (
@@ -434,7 +450,7 @@ export function VisualizarPaciente() {
           <h2>{estadoErro.titulo}</h2>
           <p>{estadoErro.descricao}</p>
           <button type="button" onClick={() => navigate(returnTo)}>
-            Voltar para pacientes
+            Voltar para {pessoasMinuscula}
           </button>
         </div>
       </PageLayout>
@@ -486,13 +502,13 @@ export function VisualizarPaciente() {
       setActionError(
         toErrorMessage(
           error,
-          "Não foi possível iniciar o atendimento deste paciente.",
+          `Não foi possível iniciar o atendimento deste ${pessoaMinuscula}.`,
         ),
       );
     }
   }
 
-  function handleAgendarConsulta() {
+  function handleAgendarAtendimento() {
     navigate("/agenda", {
       state: {
         returnTo: nestedReturnTo,
@@ -505,14 +521,14 @@ export function VisualizarPaciente() {
   return (
     <PageLayout>
       <PageHeader
-        title="Paciente"
+        title={labels.pessoa}
         left={
           <div className={styles.titleWithBack}>
             <button
               type="button"
               className={styles.backBtn}
               onClick={() => navigate(returnTo)}
-              aria-label="Voltar para pacientes"
+              aria-label={`Voltar para ${pessoasMinuscula}`}
             >
               <FaChevronLeft />
             </button>
@@ -544,7 +560,7 @@ export function VisualizarPaciente() {
 
       <section
         className={styles.quickActions}
-        aria-label="Ações rápidas do paciente"
+        aria-label={`Ações rápidas do ${pessoaMinuscula}`}
       >
         <button
           type="button"
@@ -557,10 +573,10 @@ export function VisualizarPaciente() {
         <button
           type="button"
           className={styles.quickSecondary}
-          onClick={handleAgendarConsulta}
+          onClick={handleAgendarAtendimento}
         >
           <FaCalendarCheck />
-          <span>Agendar consulta</span>
+          <span>Agendar atendimento</span>
         </button>
         <button
           type="button"
@@ -572,7 +588,7 @@ export function VisualizarPaciente() {
           }
         >
           <FaFileMedical />
-          <span>Ver prontuários</span>
+          <span>Ver histórico</span>
         </button>
         <button
           type="button"
@@ -595,7 +611,7 @@ export function VisualizarPaciente() {
 
       <section
         className={styles.contextRow}
-        aria-label="Contexto rápido do paciente"
+        aria-label={`Contexto rápido do ${pessoaMinuscula}`}
       >
         <span className={styles.contextChip}>
           Cadastro {statusPaciente.toLowerCase()}
@@ -605,7 +621,7 @@ export function VisualizarPaciente() {
           {formatRelativePastLabel(ultimoAtendimento, "sem registro")}
         </span>
         <span className={styles.contextChip}>
-          Próximo agendamento{" "}
+          Próximo atendimento{" "}
           {formatProximoAgendamentoLabel(proximoAgendamentoOperacional)}
         </span>
       </section>
@@ -626,7 +642,7 @@ export function VisualizarPaciente() {
           </strong>
         </article>
         <article className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>Total de prontuários</span>
+          <span className={styles.kpiLabel}>Total de atendimentos</span>
           <strong className={styles.kpiValue}>
             {historicoOrdenado.length}
           </strong>
@@ -638,7 +654,7 @@ export function VisualizarPaciente() {
           </strong>
         </article>
         <article className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>Próximo agendamento</span>
+          <span className={styles.kpiLabel}>Próximo atendimento</span>
           <strong className={styles.kpiValue}>
             {proximoAgendamentoOperacional
               ? `${formatDateBr(proximoAgendamentoOperacional.data)} às ${proximoAgendamentoOperacional.horario}`
@@ -649,7 +665,7 @@ export function VisualizarPaciente() {
 
       <section
         className={styles.financeGrid}
-        aria-label="Resumo financeiro do paciente"
+        aria-label={`Resumo financeiro do ${pessoaMinuscula}`}
       >
         {financeiroErro ? (
           <p className={styles.notesText}>{financeiroErro}</p>
@@ -661,7 +677,7 @@ export function VisualizarPaciente() {
             {formatCurrency(financeiro.totalRecebido)}
           </strong>
           <span className={styles.financeMeta}>
-            {financeiro.consultasRecebidas} consulta(s) recebida(s)
+            {financeiro.consultasRecebidas} atendimento(s) recebido(s)
           </span>
         </article>
 
@@ -691,7 +707,7 @@ export function VisualizarPaciente() {
             {formatDateBr(financeiro.ultimoRecebimento)}
           </strong>
           <span className={styles.financeMeta}>
-            Baseado nas consultas realizadas
+            Baseado nos atendimentos realizados
           </span>
         </article>
       </section>
@@ -700,7 +716,7 @@ export function VisualizarPaciente() {
         <section className={styles.sectionCard}>
           <h2 className={styles.sectionTitle}>
             <FaUser className={styles.sectionIcon} />
-            Dados principais
+            Dados do {pessoaMinuscula}
           </h2>
           <div className={styles.infoGrid}>
             <div>
@@ -721,24 +737,32 @@ export function VisualizarPaciente() {
                 {pacienteAtual.genero || "Não informado"}
               </p>
             </div>
-            <div>
-              <span className={styles.infoLabel}>Nome da mãe</span>
-              <p className={styles.infoValue}>
-                {pacienteAtual.nomeMae || "Não informado"}
-              </p>
-            </div>
-            <div>
-              <span className={styles.infoLabel}>Convênio</span>
-              <p className={styles.infoValue}>
-                {pacienteAtual.convenio || "Não informado"}
-              </p>
-            </div>
-            <div>
-              <span className={styles.infoLabel}>Carteirinha</span>
-              <p className={styles.infoValue}>
-                {pacienteAtual.numeroCarteirinha || "Não informada"}
-              </p>
-            </div>
+            {camposVisiveis.nomeMae ? (
+              <div>
+                <span className={styles.infoLabel}>Nome da mãe</span>
+                <p className={styles.infoValue}>
+                  {pacienteAtual.nomeMae || "Não informado"}
+                </p>
+              </div>
+            ) : null}
+            {camposVisiveis.convenio ? (
+              <div>
+                <span className={styles.infoLabel}>{labels.parceria}</span>
+                <p className={styles.infoValue}>
+                  {pacienteAtual.convenio || "Não informado"}
+                </p>
+              </div>
+            ) : null}
+            {camposVisiveis.numeroCarteirinha ? (
+              <div>
+                <span className={styles.infoLabel}>
+                  {labels.numeroCarteirinha}
+                </span>
+                <p className={styles.infoValue}>
+                  {pacienteAtual.numeroCarteirinha || "Não informada"}
+                </p>
+              </div>
+            ) : null}
           </div>
         </section>
 
@@ -800,7 +824,7 @@ export function VisualizarPaciente() {
         </section>
 
         <section className={`${styles.sectionCard} ${styles.colSpan2}`}>
-          <h2 className={styles.sectionTitle}>Dados do cadastro</h2>
+          <h2 className={styles.sectionTitle}>Cadastro do {pessoaMinuscula}</h2>
           <div className={styles.infoGrid}>
             <div>
               <span className={styles.infoLabel}>Nome cadastrado</span>
@@ -828,7 +852,7 @@ export function VisualizarPaciente() {
         <section className={`${styles.sectionCard} ${styles.colSpan2}`}>
           <div className={styles.sectionHeaderWithAction}>
             <h2 className={styles.sectionTitle}>
-              Histórico resumido de prontuários
+              Histórico de atendimentos
             </h2>
             <button
               type="button"
@@ -847,7 +871,7 @@ export function VisualizarPaciente() {
             <p className={styles.notesText}>{historicoErro}</p>
           ) : prontuariosRecentes.length === 0 ? (
             <p className={styles.notesText}>
-              Este paciente ainda não possui prontuários.
+              Este {pessoaMinuscula} ainda não possui histórico de atendimentos.
             </p>
           ) : (
             <div className={styles.timelineList}>

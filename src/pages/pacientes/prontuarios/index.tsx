@@ -1,10 +1,17 @@
 ﻿import { useCallback, useEffect, useState } from "react";
 import { FaChevronLeft, FaEdit, FaFilePdf, FaPlay } from "react-icons/fa";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useOutletContext,
+  useParams,
+} from "react-router-dom";
 import { NotFoundCard } from "../../../components/ui/not-found-card";
 import { PageHeader } from "../../../components/ui/page-header";
 import { PageLayout } from "../../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
+import { getSegmentoLabels } from "../../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../../layout";
 import { resolveReturnTo } from "../../../routes/return-to";
 import { parseRouteNumericId } from "../../../schemas/runtime-input.schema";
 import {
@@ -27,23 +34,25 @@ type ErroHistoricoProntuario = {
 
 function resolverErroHistoricoProntuario(
   erro: unknown,
+  pessoaLabel = "Paciente",
 ): ErroHistoricoProntuario {
+  const pessoaMinuscula = pessoaLabel.toLowerCase();
+
   if (isApiError(erro)) {
     if (erro.status === 401 || erro.status === 403) {
       return {
         titulo: "Acesso não autorizado",
         descricao: toErrorMessage(
           erro,
-          "Você não tem permissão para acessar os prontuários deste paciente.",
+          `Você não tem permissão para acessar os prontuários deste ${pessoaMinuscula}.`,
         ),
       };
     }
 
     if (erro.status === 404) {
       return {
-        titulo: "Paciente não encontrado",
-        descricao:
-          "Não encontramos o paciente informado. Ele pode ter sido removido ou não pertencer ao tenant atual.",
+        titulo: `${pessoaLabel} não encontrado`,
+        descricao: `Não encontramos o ${pessoaMinuscula} informado. Ele pode ter sido removido ou não pertencer ao tenant atual.`,
       };
     }
 
@@ -155,6 +164,9 @@ export function ProntuariosPaciente() {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const pessoaMinuscula = labels.pessoa.toLowerCase();
   const pacienteId = parseRouteNumericId(id);
   const defaultReturnTo = pacienteId ? `/pacientes/${pacienteId}` : "/pacientes";
   const returnTo = resolveReturnTo(location, defaultReturnTo);
@@ -175,8 +187,8 @@ export function ProntuariosPaciente() {
     if (!pacienteId) {
       setLoadingHistorico(false);
       setErroHistorico({
-        titulo: "Paciente não encontrado",
-        descricao: "O identificador informado para o paciente é inválido.",
+        titulo: `${labels.pessoa} não encontrado`,
+        descricao: `O identificador informado para o ${pessoaMinuscula} é inválido.`,
       });
       return;
     }
@@ -194,11 +206,11 @@ export function ProntuariosPaciente() {
         return response.prontuarios[0]?.id ?? null;
       });
     } catch (error) {
-      setErroHistorico(resolverErroHistoricoProntuario(error));
+      setErroHistorico(resolverErroHistoricoProntuario(error, labels.pessoa));
     } finally {
       setLoadingHistorico(false);
     }
-  }, [pacienteId]);
+  }, [labels.pessoa, pacienteId, pessoaMinuscula]);
 
   const carregarDetalhe = useCallback(
     async (prontuarioId: number) => {
@@ -248,8 +260,8 @@ export function ProntuariosPaciente() {
     return (
       <PageLayout>
         <NotFoundCard
-          title="Paciente não encontrado"
-          description="O identificador informado para o paciente é inválido."
+          title={`${labels.pessoa} não encontrado`}
+          description={`O identificador informado para o ${pessoaMinuscula} é inválido.`}
           actionLabel="Voltar"
           onAction={() => navigate(returnTo)}
         />
@@ -366,7 +378,7 @@ export function ProntuariosPaciente() {
               type="button"
               className={styles.backBtn}
               onClick={() => navigate(returnTo)}
-              aria-label="Voltar para paciente"
+              aria-label={`Voltar para ${pessoaMinuscula}`}
             >
               <FaChevronLeft />
             </button>
@@ -390,7 +402,7 @@ export function ProntuariosPaciente() {
               }
             >
               <FaEdit />
-              <span>Editar paciente</span>
+              <span>Editar {pessoaMinuscula}</span>
             </button>
             {detalheResponse && (
               <button
@@ -429,7 +441,7 @@ export function ProntuariosPaciente() {
           {!prontuarios.length ? (
             <section className={styles.emptyCard}>
               <h2>Nenhum prontuário encontrado</h2>
-              <p>Este paciente ainda não possui histórico clínico registrado.</p>
+              <p>Este {pessoaMinuscula} ainda não possui histórico clínico registrado.</p>
             </section>
           ) : (
             <div className={styles.historyList}>
@@ -479,6 +491,7 @@ export function ProntuariosPaciente() {
             formatarData={formatDateBr}
             formatarDataHora={formatDateTimeBr}
             formatarTamanhoArquivo={formatFileSize}
+            pessoaLabel={labels.pessoa}
             aoAbrirPaciente={() =>
               navigate(`/pacientes/${pacienteAtual.id}`, {
                 state: { returnTo: currentPath },

@@ -9,6 +9,12 @@ import { normalizarTextoErroServidor } from "../../../services/api/errors/api-er
 
 type CampoFormularioPaciente = keyof PacienteFormData;
 
+type LabelsFormularioPaciente = {
+  numeroCarteirinhaLabel?: string;
+  parceriaLabel?: string;
+  pessoaLabel?: string;
+};
+
 const mapaCamposServidor: Partial<Record<string, CampoFormularioPaciente>> = {
   "pessoa.nome": "nome",
   "pessoa.contato.telefone": "telefone",
@@ -50,11 +56,60 @@ const mapaRotulosCampos: Partial<Record<CampoFormularioPaciente, string>> = {
   numeroCarteirinha: "Número da carteirinha",
 };
 
+function normalizarLabelsFormulario(
+  labels?: string | LabelsFormularioPaciente,
+): Required<LabelsFormularioPaciente> {
+  if (typeof labels === "string") {
+    return {
+      numeroCarteirinhaLabel: "Número da carteirinha",
+      parceriaLabel: "Convênio",
+      pessoaLabel: labels,
+    };
+  }
+
+  return {
+    numeroCarteirinhaLabel:
+      labels?.numeroCarteirinhaLabel || "Número da carteirinha",
+    parceriaLabel: labels?.parceriaLabel || "Convênio",
+    pessoaLabel: labels?.pessoaLabel || "Paciente",
+  };
+}
+
+function criarMapaRotulosCampos(
+  labels?: string | LabelsFormularioPaciente,
+): Partial<Record<CampoFormularioPaciente, string>> {
+  const labelsNormalizados = normalizarLabelsFormulario(labels);
+
+  return {
+    ...mapaRotulosCampos,
+    convenioId: labelsNormalizados.parceriaLabel,
+    numeroCarteirinha: labelsNormalizados.numeroCarteirinhaLabel,
+  };
+}
+
+function labelMinuscula(label: string): string {
+  return label.trim().toLowerCase();
+}
+
+function artigoIndefinido(label: string): "um" | "uma" {
+  return labelMinuscula(label).endsWith("a") ? "uma" : "um";
+}
+
+function adjetivoValido(label: string): "válido" | "válida" {
+  return labelMinuscula(label).endsWith("a") ? "válida" : "válido";
+}
+
 function traduzirMensagemCampoPaciente(
   campo: CampoFormularioPaciente,
   mensagem: string,
+  labels?: string | LabelsFormularioPaciente,
 ): string {
   const mensagemNormalizada = normalizarTextoErroServidor(mensagem);
+  const labelsNormalizados = normalizarLabelsFormulario(labels);
+  const parceriaMinuscula = labelMinuscula(labelsNormalizados.parceriaLabel);
+  const numeroCarteirinhaMinuscula = labelMinuscula(
+    labelsNormalizados.numeroCarteirinhaLabel,
+  );
 
   if (mensagemNormalizada.includes("ja cadastrado")) {
     if (campo === "email") {
@@ -132,7 +187,7 @@ function traduzirMensagemCampoPaciente(
   }
 
   if (campo === "convenioId") {
-    return "Selecione um convênio válido.";
+    return `Selecione ${artigoIndefinido(labelsNormalizados.parceriaLabel)} ${parceriaMinuscula} ${adjetivoValido(labelsNormalizados.parceriaLabel)}.`;
   }
 
   if (campo === "numeroCarteirinha") {
@@ -140,11 +195,11 @@ function traduzirMensagemCampoPaciente(
       mensagemNormalizada.includes("50 caracteres") ||
       mensagemNormalizada.includes("shorter than or equal to 50")
     ) {
-      return "O número da carteirinha deve ter até 50 caracteres.";
+      return `O ${numeroCarteirinhaMinuscula} deve ter até 50 caracteres.`;
     }
 
     if (mensagemNormalizada.includes("so pode ser informada com convenioid")) {
-      return "Informe o número da carteirinha apenas quando houver convênio.";
+      return `Informe o ${numeroCarteirinhaMinuscula} apenas quando houver ${parceriaMinuscula}.`;
     }
   }
 
@@ -185,6 +240,7 @@ function criarResultadoComCampo(
   campo: CampoFormularioPaciente,
   mensagem: string,
   mensagemGlobal = "Verifique os campos abaixo:",
+  rotulosCampos = mapaRotulosCampos,
 ): ResultadoErroFormulario<CampoFormularioPaciente> {
   return {
     mensagemGlobal,
@@ -193,24 +249,40 @@ function criarResultadoComCampo(
     },
     erros: [
       {
-        campo: mapaRotulosCampos[campo] ?? campo,
+        campo: rotulosCampos[campo] ?? campo,
         mensagem,
       },
     ],
   };
 }
 
+function normalizarPessoaMinuscula(pessoaLabel = "Paciente"): string {
+  const label = pessoaLabel.trim();
+  return (label.length > 0 ? label : "Paciente").toLowerCase();
+}
+
 export function normalizarErroFormularioPaciente(
   erro: unknown,
+  labels?: string | LabelsFormularioPaciente,
 ): ResultadoErroFormulario<CampoFormularioPaciente> {
+  const labelsNormalizados = normalizarLabelsFormulario(labels);
+  const pessoaMinuscula = normalizarPessoaMinuscula(
+    labelsNormalizados.pessoaLabel,
+  );
+  const rotulosCampos = criarMapaRotulosCampos(labelsNormalizados);
+  const parceriaMinuscula = labelMinuscula(labelsNormalizados.parceriaLabel);
+  const numeroCarteirinhaMinuscula = labelMinuscula(
+    labelsNormalizados.numeroCarteirinhaLabel,
+  );
+
   const resultado = normalizarErroFormulario<CampoFormularioPaciente>({
     erro,
     mapaCamposServidor,
-    mapaRotulosCampos,
-    traduzirMensagemCampo: traduzirMensagemCampoPaciente,
+    mapaRotulosCampos: rotulosCampos,
+    traduzirMensagemCampo: (campo, mensagem) =>
+      traduzirMensagemCampoPaciente(campo, mensagem, labelsNormalizados),
     mensagemCamposInvalidos: "Verifique os campos abaixo:",
-    mensagemPadrao:
-      "Não foi possível salvar os dados do paciente. Tente novamente em instantes.",
+    mensagemPadrao: `Não foi possível salvar os dados do ${pessoaMinuscula}. Tente novamente em instantes.`,
   });
 
   if (resultado.erros.length > 0) {
@@ -222,11 +294,21 @@ export function normalizarErroFormularioPaciente(
   );
 
   if (mensagemNormalizada.includes("email ja cadastrado")) {
-    return criarResultadoComCampo("email", "Este e-mail já está cadastrado.");
+    return criarResultadoComCampo(
+      "email",
+      "Este e-mail já está cadastrado.",
+      "Verifique os campos abaixo:",
+      rotulosCampos,
+    );
   }
 
   if (mensagemNormalizada.includes("cpf ja cadastrado")) {
-    return criarResultadoComCampo("cpf", "Este CPF já está cadastrado.");
+    return criarResultadoComCampo(
+      "cpf",
+      "Este CPF já está cadastrado.",
+      "Verifique os campos abaixo:",
+      rotulosCampos,
+    );
   }
 
   if (
@@ -235,6 +317,8 @@ export function normalizarErroFormularioPaciente(
     return criarResultadoComCampo(
       "codigoIbgeCidade",
       "Selecione uma cidade válida.",
+      "Verifique os campos abaixo:",
+      rotulosCampos,
     );
   }
 
@@ -244,7 +328,9 @@ export function normalizarErroFormularioPaciente(
   ) {
     return criarResultadoComCampo(
       "convenioId",
-      "Selecione um convênio válido.",
+      `Selecione ${artigoIndefinido(labelsNormalizados.parceriaLabel)} ${parceriaMinuscula} ${adjetivoValido(labelsNormalizados.parceriaLabel)}.`,
+      "Verifique os campos abaixo:",
+      rotulosCampos,
     );
   }
 
@@ -255,7 +341,9 @@ export function normalizarErroFormularioPaciente(
   ) {
     return criarResultadoComCampo(
       "numeroCarteirinha",
-      "Informe o número da carteirinha apenas quando houver convênio.",
+      `Informe o ${numeroCarteirinhaMinuscula} apenas quando houver ${parceriaMinuscula}.`,
+      "Verifique os campos abaixo:",
+      rotulosCampos,
     );
   }
 
@@ -264,9 +352,12 @@ export function normalizarErroFormularioPaciente(
 
 export function normalizarErrosValidacaoPaciente(
   errosFormulario: FieldErrors<PacienteFormData>,
+  labels?: string | LabelsFormularioPaciente,
 ): ResultadoErroFormulario<CampoFormularioPaciente> {
   const errosCampo: Partial<Record<CampoFormularioPaciente, string>> = {};
   const erros: ErroFormularioAmigavel[] = [];
+  const labelsNormalizados = normalizarLabelsFormulario(labels);
+  const rotulosCampos = criarMapaRotulosCampos(labelsNormalizados);
 
   Object.entries(errosFormulario).forEach(([campo, detalhe]) => {
     const campoTipado = campo as CampoFormularioPaciente;
@@ -279,11 +370,12 @@ export function normalizarErrosValidacaoPaciente(
     const mensagemAmigavel = traduzirMensagemCampoPaciente(
       campoTipado,
       mensagemOriginal,
+      labelsNormalizados,
     );
 
     errosCampo[campoTipado] = mensagemAmigavel;
     erros.push({
-      campo: mapaRotulosCampos[campoTipado] ?? campo,
+      campo: rotulosCampos[campoTipado] ?? campo,
       mensagem: mensagemAmigavel,
     });
   });

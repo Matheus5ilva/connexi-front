@@ -1,18 +1,31 @@
 import { describe, expect, it } from "vitest";
-import { getLabel, getSegmentoLabels, isSegmento } from "./segmento-labels";
+import {
+  getCamposPacienteVisiveis,
+  getLabel,
+  getSegmentoLabels,
+  isCampoPacienteVisivel,
+  isSegmento,
+} from "./segmento-labels";
 
 describe("segmento-labels", () => {
   it("usa labels de SAUDE como fallback quando segmento nao for informado", () => {
     expect(getSegmentoLabels().pessoas).toBe("Pacientes");
     expect(getSegmentoLabels().negocio).toBe("Consultório");
     expect(getSegmentoLabels().parcerias).toBe("Convênios");
+    expect(getSegmentoLabels().numeroCarteirinha).toBe(
+      "Número da carteirinha",
+    );
     expect(getLabel(undefined, "pessoa")).toBe("Paciente");
   });
 
   it("usa labels de ESTETICA para estética e bem-estar", () => {
     expect(getLabel("ESTETICA", "pessoa")).toBe("Cliente");
     expect(getLabel("ESTETICA", "pessoas")).toBe("Clientes");
+    expect(getLabel("ESTETICA", "parceria")).toBe("Parceria");
     expect(getLabel("ESTETICA", "parcerias")).toBe("Parcerias");
+    expect(getLabel("ESTETICA", "numeroCarteirinha")).toBe(
+      "Código/identificação da parceria",
+    );
     expect(getLabel("ESTETICA", "servico")).toBe("Procedimento");
     expect(getLabel("ESTETICA", "servicos")).toBe("Procedimentos");
     expect(getLabel("ESTETICA", "negocio")).toBe("Meu Negócio");
@@ -40,5 +53,26 @@ describe("segmento-labels", () => {
 
   it("retorna a chave quando o label nao existir", () => {
     expect(getLabel("SAUDE", "label-inexistente")).toBe("label-inexistente");
+  });
+
+  it("mantem todos os campos especificos visiveis para SAUDE", () => {
+    expect(getCamposPacienteVisiveis("SAUDE")).toEqual({
+      nomeMae: true,
+      convenio: true,
+      numeroCarteirinha: true,
+    });
+  });
+
+  it("oculta campos especificos de saude para ESTETICA", () => {
+    expect(getCamposPacienteVisiveis("ESTETICA")).toEqual({
+      nomeMae: false,
+      convenio: false,
+      numeroCarteirinha: false,
+    });
+  });
+
+  it("usa visibilidade de SAUDE como fallback", () => {
+    expect(isCampoPacienteVisivel("WELLNESS", "nomeMae")).toBe(true);
+    expect(isCampoPacienteVisivel(undefined, "convenio")).toBe(true);
   });
 });
