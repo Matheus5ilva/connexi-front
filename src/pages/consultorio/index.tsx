@@ -6,7 +6,7 @@ import {
   FaMapMarkerAlt,
   FaPhoneAlt,
 } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { PageHeader } from "../../components/ui/page-header";
 import { PageLayout } from "../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../components/ui/carregamento-central";
@@ -16,6 +16,8 @@ import {
   type Consultorio as ConsultorioDetalhe,
 } from "../../services/api";
 import styles from "./styles.module.css";
+import { getSegmentoLabels } from "../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../layout";
 
 function getCidadeResumo(consultorio: ConsultorioDetalhe): string {
   const cidade = consultorio.pessoa.cidade;
@@ -36,6 +38,9 @@ function getStatusLabel(ativo: boolean): string {
 
 export function Consultorio() {
   const navigate = useNavigate();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const negocioMinusculo = labels.negocio.toLowerCase();
   const [consultorio, setConsultorio] = useState<ConsultorioDetalhe | null>(
     null,
   );
@@ -65,7 +70,10 @@ export function Consultorio() {
 
         setConsultorio(null);
         setLoadError(
-          toErrorMessage(error, "Não foi possível carregar o consultório."),
+          toErrorMessage(
+            error,
+            `Não foi possível carregar ${negocioMinusculo}.`,
+          ),
         );
       } finally {
         if (isMounted) {
@@ -79,7 +87,7 @@ export function Consultorio() {
     return () => {
       isMounted = false;
     };
-  }, [reloadCounter]);
+  }, [negocioMinusculo, reloadCounter]);
 
   const pageAction = (
     <button
@@ -89,7 +97,9 @@ export function Consultorio() {
     >
       <FaEdit />
       <span>
-        {consultorio ? "Editar consultório" : "Cadastrar consultório"}
+        {consultorio
+          ? `Editar ${negocioMinusculo}`
+          : `Cadastrar ${negocioMinusculo}`}
       </span>
     </button>
   );
@@ -102,8 +112,8 @@ export function Consultorio() {
   return (
     <PageLayout>
       <PageHeader
-        title="Consultório"
-        subtitle="Consulte e mantenha atualizados os dados principais do consultório."
+        title={labels.negocio}
+        subtitle="Consulte e mantenha atualizados os dados principais do cadastro."
         right={pageAction}
       />
 
@@ -111,7 +121,9 @@ export function Consultorio() {
         <CarregamentoCentral />
       ) : loadError ? (
         <section className={styles.emptyCard}>
-          <h2 className={styles.emptyTitle}>Falha ao carregar o consultório</h2>
+          <h2 className={styles.emptyTitle}>
+            Falha ao carregar {negocioMinusculo}
+          </h2>
           <p className={styles.emptyDescription}>{loadError}</p>
           <div className={styles.buttonGroup}>
             <button
@@ -132,10 +144,11 @@ export function Consultorio() {
         </section>
       ) : !consultorio ? (
         <section className={styles.emptyCard}>
-          <h2 className={styles.emptyTitle}>Nenhum consultório cadastrado</h2>
+          <h2 className={styles.emptyTitle}>
+            Nenhum cadastro de {negocioMinusculo} encontrado
+          </h2>
           <p className={styles.emptyDescription}>
-            Cadastre o consultório principal para completar o perfil da
-            operação.
+            Cadastre {negocioMinusculo} para completar o perfil da operação.
           </p>
           <div className={styles.buttonGroup}>
             <button
@@ -143,7 +156,7 @@ export function Consultorio() {
               className={styles.btnPrimary}
               onClick={() => navigate("/consultorio/editar")}
             >
-              Cadastrar consultório
+              Cadastrar {negocioMinusculo}
             </button>
           </div>
         </section>
@@ -151,7 +164,7 @@ export function Consultorio() {
         <>
           <section
             className={styles.kpiGrid}
-            aria-label="Resumo do consultório"
+            aria-label={`Resumo de ${negocioMinusculo}`}
           >
             <article className={styles.kpiCard}>
               <span className={styles.kpiLabel}>Status</span>
@@ -185,7 +198,9 @@ export function Consultorio() {
               </h2>
               <div className={styles.infoGrid}>
                 <div>
-                  <span className={styles.infoLabel}>Nome do consultório</span>
+                  <span className={styles.infoLabel}>
+                    Nome do cadastro
+                  </span>
                   <p className={styles.infoValue}>{consultorio.pessoa.nome}</p>
                 </div>
                 <div>
@@ -284,7 +299,7 @@ export function Consultorio() {
                 Orientações cadastrais
               </h2>
               <p className={styles.notesText}>
-                Mantenha os dados do consultório sempre atualizados para
+                Mantenha os dados deste cadastro sempre atualizados para
                 garantir consistência nas operações administrativas e no uso
                 diário do sistema.
               </p>

@@ -5,7 +5,7 @@ import {
   FaArrowTrendUp,
   FaScaleBalanced,
 } from "react-icons/fa6";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { useSessaoAutenticada } from "../../auth/use-auth-session";
 import { CarregamentoCentral } from "../../components/ui/carregamento-central";
 import { Card } from "../../components/ui/card";
@@ -33,9 +33,13 @@ import {
   type StatusAgendamento,
 } from "../../services/api";
 import styles from "./styles.module.css";
+import {
+  getSegmentoLabels,
+  type SegmentoLabels,
+} from "../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../layout";
 
 const TEXTO_INDISPONIVEL = "-";
-const TITULO_CONSULTORIO_PADRAO = "Consultório";
 const SUBTITULO_PADRAO = "Bem-vindo";
 
 function formatarMoeda(valor?: number): string {
@@ -118,23 +122,25 @@ function obterVarianteStatusAgendamento(status: StatusAgendamento) {
 
 function montarSubtituloProximaConsulta(
   proximaConsulta?: ProximaConsultaPainel | null,
+  labels?: SegmentoLabels,
 ): string {
   if (!proximaConsulta) {
-    return "Não há consultas pendentes para hoje";
+    const consultas = labels?.consultas.toLowerCase() ?? "consultas";
+    return `Não há ${consultas} pendentes para hoje`;
   }
 
   const status = getAgendaStatusUi(proximaConsulta.status).label;
   return `${proximaConsulta.nomePaciente} - ${proximaConsulta.nomeServico} - ${status}`;
 }
 
-function obterNomeConsultorio(consultorio: Consultorio | null): string {
+function obterNomeConsultorio(consultorio: Consultorio | null): string | null {
   const nome =
     consultorio?.pessoa.nome.trim() || consultorio?.razaoSocial?.trim() || "";
 
-  return nome || TITULO_CONSULTORIO_PADRAO;
+  return nome || null;
 }
 
-async function buscarNomeConsultorioAtual(): Promise<string> {
+async function buscarNomeConsultorioAtual(): Promise<string | null> {
   const consultorio = await consultorioService.buscarPrincipal();
   return obterNomeConsultorio(consultorio);
 }
@@ -209,11 +215,13 @@ function SecaoResumoFinanceiro({ resumo, erro }: SecaoResumoFinanceiroProps) {
 
 type SecaoOperacaoHojeProps = {
   operacao?: OperacaoDeHojePainel;
+  labels: SegmentoLabels;
   onAbrirAgenda: () => void;
 };
 
 function SecaoOperacaoHoje({
   operacao,
+  labels,
   onAbrirAgenda,
 }: SecaoOperacaoHojeProps) {
   const proximaConsulta = operacao?.proximaConsulta;
@@ -231,7 +239,7 @@ function SecaoOperacaoHoje({
 
       <div className={styles.cardsGridDay}>
         <Card
-          title="Consultas hoje"
+          title={`${labels.consultas} hoje`}
           value={formatarNumero(operacao?.consultasHoje)}
           subtitle="Agendamentos do dia"
           icon={<FaUserClock />}
@@ -241,7 +249,7 @@ function SecaoOperacaoHoje({
         <Card
           title="Pendentes"
           value={formatarNumero(operacao?.pendentes)}
-          subtitle="Consultas aguardando atendimento"
+          subtitle={`${labels.consultas} aguardando atendimento`}
           icon={<FaClock />}
           iconColor="var(--color-warning)"
           iconBg="var(--color-surface)"
@@ -249,7 +257,7 @@ function SecaoOperacaoHoje({
         <Card
           title="Em atendimento"
           value={formatarNumero(operacao?.emAtendimento)}
-          subtitle="Consultas em andamento"
+          subtitle={`${labels.consultas} em andamento`}
           icon={<FaFileMedicalAlt />}
           iconColor="var(--color-text-muted)"
           iconBg="var(--color-surface)"
@@ -263,9 +271,9 @@ function SecaoOperacaoHoje({
           title="Abrir agenda"
         >
           <Card
-            title="Próxima consulta"
+            title={labels.proximoAgendamento}
             value={proximaConsulta?.horario ?? "Sem pendências"}
-            subtitle={montarSubtituloProximaConsulta(proximaConsulta)}
+            subtitle={montarSubtituloProximaConsulta(proximaConsulta, labels)}
             icon={<FaFileMedicalAlt />}
             iconColor={
               proximaConsulta
@@ -286,12 +294,14 @@ function SecaoOperacaoHoje({
 
 type TabelaFilaAtendimentoProps = {
   fila: ItemFilaAtendimentoPainel[];
+  labels: SegmentoLabels;
   onAbrirAgenda: () => void;
   onAbrirAtendimento: (item: ItemFilaAtendimentoPainel) => void;
 };
 
 function TabelaFilaAtendimento({
   fila,
+  labels,
   onAbrirAgenda,
 }: TabelaFilaAtendimentoProps) {
   return (
@@ -318,8 +328,8 @@ function TabelaFilaAtendimento({
         emptyMessage="Nenhum atendimento encontrado para hoje."
         columns={[
           { key: "horario", label: "Horário" },
-          { key: "nomePaciente", label: "Paciente" },
-          { key: "nomeServico", label: "Serviço" },
+          { key: "nomePaciente", label: labels.pessoa },
+          { key: "nomeServico", label: labels.servico },
           {
             key: "status",
             label: "Status",
@@ -354,11 +364,11 @@ function TabelaFilaAtendimento({
 
 export function Home() {
   const navigate = useNavigate();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
   const { user } = useSessaoAutenticada();
   const [painel, setPainel] = useState<Painel | null>(null);
-  const [nomeConsultorio, setNomeConsultorio] = useState(
-    TITULO_CONSULTORIO_PADRAO,
-  );
+  const [nomeConsultorio, setNomeConsultorio] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -435,7 +445,7 @@ export function Home() {
   return (
     <PageLayout>
       <PageHeader
-        title={nomeConsultorio}
+        title={nomeConsultorio ?? labels.negocio}
         subtitle={montarSubtituloBoasVindas(user?.nome)}
       />
 
@@ -443,11 +453,13 @@ export function Home() {
 
       <SecaoOperacaoHoje
         operacao={painel?.operacaoDeHoje}
+        labels={labels}
         onAbrirAgenda={abrirAgenda}
       />
 
       <TabelaFilaAtendimento
         fila={painel?.filaDeAtendimento ?? []}
+        labels={labels}
         onAbrirAgenda={abrirAgenda}
         onAbrirAtendimento={(item) => void abrirAtendimento(item)}
       />

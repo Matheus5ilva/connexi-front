@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { Modal } from "../../components/ui/modal";
 import { NotFoundCard } from "../../components/ui/not-found-card";
 import { PageHeader } from "../../components/ui/page-header";
@@ -13,6 +13,8 @@ import {
   type ServicoListaItem,
 } from "../../services/api";
 import styles from "./styles.module.css";
+import { getSegmentoLabels } from "../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../layout";
 
 function formatarMoeda(valor: number): string {
   return valor.toLocaleString("pt-BR", {
@@ -24,6 +26,10 @@ function formatarMoeda(valor: number): string {
 export function Servicos() {
   const servicosPath = "/financeiro/servicos";
   const navigate = useNavigate();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const servicoMinusculo = labels.servico.toLowerCase();
+  const servicosMinusculo = labels.servicos.toLowerCase();
   const [servicos, setServicos] = useState<ServicoListaItem[]>([]);
   const [selectedDeleteId, setSelectedDeleteId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +41,7 @@ export function Servicos() {
     [servicos, selectedDeleteId],
   );
 
-  async function carregarServicos() {
+  const carregarServicos = useCallback(async () => {
     setIsLoading(true);
     setLoadError(null);
 
@@ -46,17 +52,20 @@ export function Servicos() {
       );
     } catch (error) {
       setLoadError(
-        toErrorMessage(error, "Não foi possível carregar os serviços."),
+        toErrorMessage(
+          error,
+          `Não foi possível carregar os ${servicosMinusculo}.`,
+        ),
       );
       setServicos([]);
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [servicosMinusculo]);
 
   useEffect(() => {
     void carregarServicos();
-  }, []);
+  }, [carregarServicos]);
 
   async function handleDeleteConfirmed() {
     if (!selectedDeleteId) {
@@ -70,7 +79,7 @@ export function Servicos() {
       await carregarServicos();
     } catch (error) {
       setActionError(
-        toErrorMessage(error, "Não foi possível excluir o serviço."),
+        toErrorMessage(error, `Não foi possível excluir o ${servicoMinusculo}.`),
       );
     }
   }
@@ -87,7 +96,7 @@ export function Servicos() {
     return (
       <PageLayout>
         <NotFoundCard
-          title="Falha ao carregar serviços"
+          title={`Falha ao carregar ${servicosMinusculo}`}
           description={loadError}
           actionLabel="Atualizar página"
           onAction={() => window.location.reload()}
@@ -101,13 +110,13 @@ export function Servicos() {
       <Modal
         open={!!servicoParaExcluir}
         onClose={() => setSelectedDeleteId(null)}
-        title="Excluir serviço"
-        subtitle="Essa ação remove o serviço da base atual."
+        title={`Excluir ${servicoMinusculo}`}
+        subtitle={`Essa ação remove o ${servicoMinusculo} da base atual.`}
         maxWidth="480px"
       >
         <div className={styles.confirmBody}>
           <p>
-            Tem certeza que deseja excluir o serviço{" "}
+            Tem certeza que deseja excluir o {servicoMinusculo}{" "}
             <strong>{servicoParaExcluir?.nome}</strong>?
           </p>
           <p>Essa ação não pode ser desfeita.</p>
@@ -125,15 +134,15 @@ export function Servicos() {
               className={styles.btnDanger}
               onClick={() => void handleDeleteConfirmed()}
             >
-              Excluir serviço
+              Excluir {servicoMinusculo}
             </button>
           </div>
         </div>
       </Modal>
 
       <PageHeader
-        title="Serviços"
-        subtitle="Gerencie os serviços cadastrados e seus valores."
+        title={labels.servicos}
+        subtitle={`Gerencie os ${servicosMinusculo} cadastrados e seus valores.`}
         right={
           <button
             className={styles.btnPrimary}
@@ -141,7 +150,7 @@ export function Servicos() {
             type="button"
           >
             <FaPlus />
-            <span>Novo serviço</span>
+            <span>Novo {servicoMinusculo}</span>
           </button>
         }
       />
@@ -150,15 +159,15 @@ export function Servicos() {
 
       <Table
         data={servicos}
-        caption="Tabela de serviços cadastrados"
-        emptyMessage="Nenhum serviço cadastrado."
+        caption={`Tabela de ${servicosMinusculo} cadastrados`}
+        emptyMessage={`Nenhum ${servicoMinusculo} cadastrado.`}
         onRowClick={(row) =>
           navigate(`/financeiro/servicos/${row.id}`, {
             state: { returnTo: servicosPath },
           })
         }
         columns={[
-          { key: "nome", label: "Serviço" },
+          { key: "nome", label: labels.servico },
           {
             key: "valorParticular",
             label: "Valor particular",

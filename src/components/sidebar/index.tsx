@@ -24,15 +24,18 @@ import { BrandLogo } from "../brand-logo";
 import { authService } from "../../services/api";
 import styles from "./styles.module.css";
 import { APP_NAME, APP_DOMAIN, APP_VERSION } from "../../config/version";
+import { getSegmentoLabels, type Segmento } from "../../config/segmento-labels";
 
 type Props = {
   open: boolean;
   onClose: () => void;
+  segmento: Segmento;
 };
 
-export function Sidebar({ open, onClose }: Props) {
+export function Sidebar({ open, onClose, segmento }: Props) {
   const location = useLocation();
   const navigate = useNavigate();
+  const labels = getSegmentoLabels(segmento);
   const [dropdownOpen, setDropdownOpen] = useState({
     pacientes: false,
     profissional: false,
@@ -172,7 +175,7 @@ export function Sidebar({ open, onClose }: Props) {
             onClick={closeOnMobile}
           >
             <FaUsers className={styles.icon} />
-            <span className={styles.linkText}>Pacientes</span>
+            <span className={styles.linkText}>{labels.pessoas}</span>
           </NavLink>
           <div
             className={`${styles.navItemMed} ${isProfissionalSubmenuOpen ? styles.open : ""}`}
@@ -223,7 +226,7 @@ export function Sidebar({ open, onClose }: Props) {
             onClick={closeOnMobile}
           >
             <FaBuilding className={styles.icon} />
-            <span className={styles.linkText}>Consultório</span>
+            <span className={styles.linkText}>{labels.negocio}</span>
           </NavLink>
 
           <div
@@ -294,7 +297,7 @@ export function Sidebar({ open, onClose }: Props) {
                 onClick={closeOnMobile}
               >
                 <FaIdCard className={styles.icon} />
-                <span className={styles.linkText}>Convênios</span>
+                <span className={styles.linkText}>{labels.parcerias}</span>
               </NavLink>
 
               <NavLink
@@ -305,7 +308,7 @@ export function Sidebar({ open, onClose }: Props) {
                 onClick={closeOnMobile}
               >
                 <FaStethoscope className={styles.icon} />
-                <span className={styles.linkText}>Serviços</span>
+                <span className={styles.linkText}>{labels.servicos}</span>
               </NavLink>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import type { PaginationRequest } from "./common";
+import type { Segmento } from "../../../config/segmento-labels";
 
 export type PerfilUsuario = "MASTER" | "PROFISSIONAL";
 
@@ -66,6 +67,7 @@ export interface Tenant {
   id: string;
   slug: string;
   nome: string;
+  nicho?: Segmento;
   ativo: boolean;
   createdAt: string;
 }

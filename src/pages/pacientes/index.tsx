@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FaEdit, FaFileMedical, FaPlus } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import {
   CompactFilterField,
   CompactFilters,
@@ -19,6 +19,8 @@ import {
   type PacienteListaItem,
 } from "../../services/api";
 import styles from "./styles.module.css";
+import { getSegmentoLabels } from "../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../layout";
 
 const pacientesPath = "/pacientes";
 
@@ -59,6 +61,10 @@ function mapStatusFilterToAtivo(filter: StatusFilter): boolean | undefined {
 
 export function Pacientes() {
   const navigate = useNavigate();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const pessoaMinuscula = labels.pessoa.toLowerCase();
+  const pessoasMinuscula = labels.pessoas.toLowerCase();
   const [pacientes, setPacientes] = useState<PacienteListaItem[]>([]);
   const [filters, setFilters] = useState<FiltersState>(initialFilters);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -141,13 +147,14 @@ export function Pacientes() {
   }
 
   const emptyMessage =
-    loadError || "Nenhum paciente encontrado para os filtros selecionados.";
+    loadError ||
+    `Nenhum ${pessoaMinuscula} encontrado para os filtros selecionados.`;
 
   return (
     <PageLayout>
       <PageHeader
-        title="Pacientes"
-        subtitle="Gestão de pacientes cadastrados"
+        title={labels.pessoas}
+        subtitle={`Gestão de ${pessoasMinuscula} cadastrados`}
         right={
           <button
             className={styles.btnPrimary}
@@ -159,7 +166,7 @@ export function Pacientes() {
             type="button"
           >
             <FaPlus />
-            <span>Cadastrar paciente</span>
+            <span>Cadastrar {pessoaMinuscula}</span>
           </button>
         }
       />
@@ -242,7 +249,7 @@ export function Pacientes() {
       ) : (
         <Table
           data={pacientes}
-          caption="Tabela de pacientes cadastrados"
+          caption={`Tabela de ${pessoasMinuscula} cadastrados`}
           emptyMessage={emptyMessage}
           onRowClick={(row) =>
             navigate(`/pacientes/${row.id}`, {
@@ -254,7 +261,7 @@ export function Pacientes() {
           columns={[
           {
             key: "paciente",
-            label: "Paciente",
+            label: labels.pessoa,
             render: (row) => (
               <TableTextCell
                 primary={row.nome}

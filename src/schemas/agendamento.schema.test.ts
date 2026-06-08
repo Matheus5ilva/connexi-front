@@ -29,8 +29,7 @@ describe("Schema do formulário de agendamento", () => {
   });
 
   it("exibe mensagem amigavel quando servico nao foi selecionado", () => {
-    const { servicoId: _servicoId, ...agendamentoSemServico } =
-      agendamentoBase;
+    const { ...agendamentoSemServico } = agendamentoBase;
     const resultado = formularioAgendamentoSchema.safeParse(
       agendamentoSemServico,
     );
@@ -44,8 +43,7 @@ describe("Schema do formulário de agendamento", () => {
   });
 
   it("exibe mensagem amigavel quando paciente nao foi selecionado", () => {
-    const { pacienteId: _pacienteId, ...agendamentoSemPaciente } =
-      agendamentoBase;
+    const { ...agendamentoSemPaciente } = agendamentoBase;
     const resultado = formularioAgendamentoSchema.safeParse(
       agendamentoSemPaciente,
     );
@@ -80,16 +78,18 @@ describe("Schema do formulário de agendamento", () => {
     expect(resultado.success).toBe(true);
   });
 
-  it.each([
-    "<script>alert('xss')</script>",
-    "DELETE FROM agendamentos",
-  ])("bloqueia observação insegura: %s", (observacao) => {
-    const resultado = formularioAgendamentoSchema.safeParse({
-      ...agendamentoBase,
-      observacao,
-    });
+  it.each(["<script>alert('xss')</script>", "DELETE FROM agendamentos"])(
+    "bloqueia observação insegura: %s",
+    (observacao) => {
+      const resultado = formularioAgendamentoSchema.safeParse({
+        ...agendamentoBase,
+        observacao,
+      });
 
-    expect(resultado.success).toBe(false);
-    expect(mensagensDoResultado(resultado)).toContain(MENSAGEM_TEXTO_SEM_HTML);
-  });
+      expect(resultado.success).toBe(false);
+      expect(mensagensDoResultado(resultado)).toContain(
+        MENSAGEM_TEXTO_SEM_HTML,
+      );
+    },
+  );
 });

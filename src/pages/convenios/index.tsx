@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { Modal } from "../../components/ui/modal";
 import { NotFoundCard } from "../../components/ui/not-found-card";
 import { PageHeader } from "../../components/ui/page-header";
@@ -13,11 +13,17 @@ import {
   type ConvenioListaItem,
 } from "../../services/api";
 import styles from "./styles.module.css";
+import { getSegmentoLabels } from "../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../layout";
 
 const conveniosPath = "/financeiro/convenios";
 
 export function Convenios() {
   const navigate = useNavigate();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const parceriaMinuscula = labels.parceria.toLowerCase();
+  const parceriasMinuscula = labels.parcerias.toLowerCase();
   const [convenios, setConvenios] = useState<ConvenioListaItem[]>([]);
   const [selectedDeleteId, setSelectedDeleteId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +35,7 @@ export function Convenios() {
     [convenios, selectedDeleteId],
   );
 
-  async function carregarConvenios() {
+  const carregarConvenios = useCallback(async () => {
     setIsLoading(true);
     setLoadError(null);
 
@@ -40,17 +46,20 @@ export function Convenios() {
       );
     } catch (error) {
       setLoadError(
-        toErrorMessage(error, "Não foi possível carregar os convênios."),
+        toErrorMessage(
+          error,
+          `Não foi possível carregar ${parceriasMinuscula}.`,
+        ),
       );
       setConvenios([]);
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [parceriasMinuscula]);
 
   useEffect(() => {
     void carregarConvenios();
-  }, []);
+  }, [carregarConvenios]);
 
   async function handleDeleteConfirmed() {
     if (!selectedDeleteId) {
@@ -64,7 +73,7 @@ export function Convenios() {
       await carregarConvenios();
     } catch (error) {
       setActionError(
-        toErrorMessage(error, "Não foi possível excluir o convênio."),
+        toErrorMessage(error, `Não foi possível excluir ${parceriaMinuscula}.`),
       );
     }
   }
@@ -81,7 +90,7 @@ export function Convenios() {
     return (
       <PageLayout>
         <NotFoundCard
-          title="Falha ao carregar convênios"
+          title={`Falha ao carregar ${parceriasMinuscula}`}
           description={loadError}
           actionLabel="Atualizar página"
           onAction={() => window.location.reload()}
@@ -95,13 +104,13 @@ export function Convenios() {
       <Modal
         open={!!convenioToDelete}
         onClose={() => setSelectedDeleteId(null)}
-        title="Excluir convênio"
-        subtitle="Essa ação remove o convênio da base atual."
+        title={`Excluir ${parceriaMinuscula}`}
+        subtitle={`Essa ação remove ${parceriaMinuscula} da base atual.`}
         maxWidth="480px"
       >
         <div className={styles.confirmBody}>
           <p>
-            Tem certeza que deseja excluir o convênio{" "}
+            Tem certeza que deseja excluir {parceriaMinuscula}{" "}
             <strong>{convenioToDelete?.nome}</strong>?
           </p>
           <p>Essa ação não pode ser desfeita.</p>
@@ -119,15 +128,15 @@ export function Convenios() {
               className={styles.btnDanger}
               onClick={() => void handleDeleteConfirmed()}
             >
-              Excluir convênio
+              Excluir {parceriaMinuscula}
             </button>
           </div>
         </div>
       </Modal>
 
       <PageHeader
-        title="Convênios"
-        subtitle="Gerencie os convênios cadastrados."
+        title={labels.parcerias}
+        subtitle={`Gerencie cadastros de ${parceriasMinuscula}.`}
         right={
           <button
             className={styles.btnPrimary}
@@ -135,7 +144,7 @@ export function Convenios() {
             type="button"
           >
             <FaPlus />
-            <span>Novo convênio</span>
+            <span>Cadastrar {parceriaMinuscula}</span>
           </button>
         }
       />
@@ -144,15 +153,15 @@ export function Convenios() {
 
       <Table
         data={convenios}
-        caption="Tabela de convênios cadastrados"
-        emptyMessage="Nenhum convênio cadastrado."
+        caption={`Tabela de ${parceriasMinuscula}`}
+        emptyMessage={`Nenhum cadastro de ${parceriaMinuscula} encontrado.`}
         onRowClick={(row) =>
           navigate(`/financeiro/convenios/${row.id}`, {
             state: { returnTo: conveniosPath },
           })
         }
         columns={[
-          { key: "nome", label: "Convênio" },
+          { key: "nome", label: labels.parceria },
           {
             key: "ativo",
             label: "Status",

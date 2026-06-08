@@ -4,6 +4,7 @@ import {
   MENSAGEM_TEXTO_SEM_HTML,
   validarTextoSemHtml,
 } from "../../../schemas/texto-seguro.schema";
+import { SEGMENTOS_SUPORTADOS } from "../../../config/segmento-labels";
 
 const DATA_ISO_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -159,6 +160,7 @@ export const tenantSchema = z.object({
   id: entityIdSchema,
   slug: z.string().trim().min(1).max(63),
   nome: z.string().trim().min(1).max(255),
+  nicho: z.enum(SEGMENTOS_SUPORTADOS).optional(),
   ativo: z.boolean(),
   createdAt: z.string().trim().min(1),
 });
