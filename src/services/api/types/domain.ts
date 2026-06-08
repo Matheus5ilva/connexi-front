@@ -438,11 +438,14 @@ export interface CriarAgendamentoRequest {
   formaPagamentoId?: number;
   horario: string;
   duracaoMinutos: number;
+  status?: StatusAgendamento;
   tipoConsulta?: TipoConsulta;
   observacao?: string;
 }
 
-export type AtualizarAgendamentoRequest = Partial<CriarAgendamentoRequest>;
+export type AtualizarAgendamentoRequest = Partial<
+  Omit<CriarAgendamentoRequest, "status">
+>;
 
 export interface ListarAgendamentosRequest extends PaginationRequest {
   agendaId?: number;

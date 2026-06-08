@@ -28,6 +28,36 @@ describe("Schema do formulário de agendamento", () => {
     expect(resultado.success).toBe(true);
   });
 
+  it("exibe mensagem amigavel quando servico nao foi selecionado", () => {
+    const { servicoId: _servicoId, ...agendamentoSemServico } =
+      agendamentoBase;
+    const resultado = formularioAgendamentoSchema.safeParse(
+      agendamentoSemServico,
+    );
+    const mensagens = mensagensDoResultado(resultado);
+
+    expect(resultado.success).toBe(false);
+    expect(mensagens).toContain("Selecione um serviço.");
+    expect(mensagens).not.toContain(
+      "Invalid input: expected number, received undefined",
+    );
+  });
+
+  it("exibe mensagem amigavel quando paciente nao foi selecionado", () => {
+    const { pacienteId: _pacienteId, ...agendamentoSemPaciente } =
+      agendamentoBase;
+    const resultado = formularioAgendamentoSchema.safeParse(
+      agendamentoSemPaciente,
+    );
+    const mensagens = mensagensDoResultado(resultado);
+
+    expect(resultado.success).toBe(false);
+    expect(mensagens).toContain("Selecione um paciente.");
+    expect(mensagens).not.toContain(
+      "Invalid input: expected number, received undefined",
+    );
+  });
+
   it("exige convênio quando atendimento é por convênio", () => {
     const resultado = formularioAgendamentoSchema.safeParse({
       ...agendamentoBase,

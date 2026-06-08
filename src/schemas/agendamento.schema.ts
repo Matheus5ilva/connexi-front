@@ -20,7 +20,7 @@ function numeroObrigatorio(message: string) {
 
     const convertido = Number(value);
     return Number.isNaN(convertido) ? value : convertido;
-  }, z.number().int().positive(message));
+  }, z.number({ message }).int(message).positive(message));
 }
 
 function numeroOpcional() {
