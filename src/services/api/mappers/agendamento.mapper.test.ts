@@ -23,7 +23,6 @@ describe("Mapper de agendamento", () => {
       },
       {
         profissionalId: 10,
-        agora: new Date(2026, 5, 1, 8, 30, 0),
       },
     );
 
@@ -36,36 +35,34 @@ describe("Mapper de agendamento", () => {
     expect(payload).not.toHaveProperty("status");
   });
 
-  it("envia status REALIZADO para agendamento em data passada sem bloquear o payload", () => {
-    expect(() =>
-      mapFormularioAgendamentoParaCriarRequest(agendamentoBase, {
-        profissionalId: 10,
-        agora: new Date(2026, 5, 1, 9, 30, 0),
-      }),
-    ).not.toThrow();
-
+  it("mantem agendamento retroativo sem status no payload de criacao", () => {
     const payload = mapFormularioAgendamentoParaCriarRequest(agendamentoBase, {
       profissionalId: 10,
-      agora: new Date(2026, 5, 1, 9, 30, 0),
     });
 
     expect(payload).toMatchObject({
       data: "2026-06-01",
       horario: "09:00",
-      status: "REALIZADO",
+      profissionalId: 10,
+      pacienteId: 1,
+      servicoId: 5,
+      formaPagamentoId: 2,
+      duracaoMinutos: 30,
     });
-    expect(criarAgendamentoRequestSchema.parse(payload)).toMatchObject({
-      status: "REALIZADO",
-    });
+    expect(payload).not.toHaveProperty("status");
+    expect(criarAgendamentoRequestSchema.parse(payload)).not.toHaveProperty(
+      "status",
+    );
   });
 
-  it("permite desativar status automatico em fluxos que nao sao novo agendamento", () => {
-    const payload = mapFormularioAgendamentoParaCriarRequest(agendamentoBase, {
-      profissionalId: 10,
-      agora: new Date(2026, 5, 1, 9, 30, 0),
-      registrarRetroativoRealizado: false,
-    });
+  it("schema de criacao rejeita status enviado pelo cliente", () => {
+    const payload = {
+      ...mapFormularioAgendamentoParaCriarRequest(agendamentoBase, {
+        profissionalId: 10,
+      }),
+      status: "REALIZADO",
+    };
 
-    expect(payload).not.toHaveProperty("status");
+    expect(criarAgendamentoRequestSchema.safeParse(payload).success).toBe(false);
   });
 });

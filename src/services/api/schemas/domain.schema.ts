@@ -1093,16 +1093,15 @@ export const criarAgendamentoRequestSchema = z.object({
     .trim()
     .regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
   duracaoMinutos: z.number().int().min(5).max(240),
-  status: statusAgendamentoSchema.optional(),
   tipoConsulta: tipoConsultaSchema.optional(),
   observacao: z.preprocess(
     toOptionalTrimmedString,
     textoSemHtml(z.string().trim().max(2000)).optional(),
   ),
-});
+}).strict();
 
 export const atualizarAgendamentoRequestSchema =
-  criarAgendamentoRequestSchema.omit({ status: true }).partial();
+  criarAgendamentoRequestSchema.partial();
 
 export const listarAgendamentosRequestSchema = paginationRequestSchema.extend({
   agendaId: optionalPositiveIntSchema,

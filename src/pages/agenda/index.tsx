@@ -534,7 +534,6 @@ export function Agenda() {
     const agendamentoCriado = await agendamentoService.criarConsultaAvulsa(
       mapFormularioAgendamentoParaCriarRequest(payload, {
         profissionalId: profissionalOperacionalId,
-        registrarRetroativoRealizado: false,
       }),
     );
 
