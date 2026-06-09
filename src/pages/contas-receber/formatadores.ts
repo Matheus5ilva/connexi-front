@@ -27,8 +27,11 @@ export function formatarPercentualTaxa(valor: number): string {
   })}%`;
 }
 
-export function formatarTipoAtendimento(tipo: TipoAtendimento): string {
-  return tipo === "CONVENIO" ? "Convênio" : "Particular";
+export function formatarTipoAtendimento(
+  tipo: TipoAtendimento,
+  parceriaLabel = "Convênio",
+): string {
+  return tipo === "CONVENIO" ? parceriaLabel : "Particular";
 }
 
 export function formatarTipoRecebimento(tipo: RecebimentoTipo): string {

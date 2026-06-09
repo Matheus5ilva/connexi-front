@@ -8,12 +8,19 @@ import {
   FaUndo,
   FaUser,
 } from "react-icons/fa";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useOutletContext,
+  useParams,
+} from "react-router-dom";
 import { Modal } from "../../../components/ui/modal";
 import { NotFoundCard } from "../../../components/ui/not-found-card";
 import { PageHeader } from "../../../components/ui/page-header";
 import { PageLayout } from "../../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
+import { getSegmentoLabels } from "../../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../../layout";
 import { resolveReturnTo } from "../../../routes/return-to";
 import { parseRouteNumericId } from "../../../schemas/runtime-input.schema";
 import {
@@ -96,6 +103,9 @@ function obterMensagemErroCampo(
 export function VisualizarContaReceber() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const pessoaMinuscula = labels.pessoa.toLowerCase();
   const returnTo = resolveReturnTo(location, "/financeiro/contas-a-receber");
   const { id } = useParams();
   const documentoId = parseRouteNumericId(id);
@@ -459,7 +469,7 @@ export function VisualizarContaReceber() {
           <div className={styles.headerActions}>
             <button type="button" className={styles.btnSecondary} onClick={abrirPaciente}>
               <FaUser />
-              <span>Ver paciente</span>
+              <span>Ver {pessoaMinuscula}</span>
             </button>
             {podeRegistrarRecebimento ? (
               <button
@@ -532,11 +542,11 @@ export function VisualizarContaReceber() {
           </h2>
           <div className={styles.infoGrid}>
             <div>
-              <span className={styles.infoLabel}>Paciente</span>
+              <span className={styles.infoLabel}>{labels.pessoa}</span>
               <p className={styles.infoValue}>{documentoAtual.pacienteNome}</p>
             </div>
             <div>
-              <span className={styles.infoLabel}>Serviço</span>
+              <span className={styles.infoLabel}>{labels.servico}</span>
               <p className={styles.infoValue}>{documentoAtual.servicoNome}</p>
             </div>
             <div>
@@ -546,11 +556,14 @@ export function VisualizarContaReceber() {
             <div>
               <span className={styles.infoLabel}>Tipo de atendimento</span>
               <p className={styles.infoValue}>
-                {formatarTipoAtendimento(documentoAtual.tipoAtendimento)}
+                {formatarTipoAtendimento(
+                  documentoAtual.tipoAtendimento,
+                  labels.parceria,
+                )}
               </p>
             </div>
             <div>
-              <span className={styles.infoLabel}>Convênio</span>
+              <span className={styles.infoLabel}>{labels.parceria}</span>
               <p className={styles.infoValue}>{documentoAtual.convenioNome || "-"}</p>
             </div>
             <div>

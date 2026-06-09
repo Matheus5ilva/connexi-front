@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import {
   CompactFilterField,
   CompactFilters,
@@ -11,6 +11,8 @@ import { StatusBadge } from "../../components/ui/status-badge";
 import { SummaryMetrics } from "../../components/ui/summary-metrics";
 import { Table } from "../../components/ui/table";
 import { TableTextCell } from "../../components/ui/table-text-cell";
+import { getSegmentoLabels } from "../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../layout";
 import { parseOptionalSearchText } from "../../schemas/runtime-input.schema";
 import {
   filtrosDocumentoReceberSchema,
@@ -73,10 +75,13 @@ function renderizarBadgeSituacao(situacao: DocumentoReceber["situacao"]) {
   return <StatusBadge label="Previsto" variant="warning" />;
 }
 
-function obterDescricaoSecundaria(documento: DocumentoReceber): string {
+function obterDescricaoSecundaria(
+  documento: DocumentoReceber,
+  parceriaLabel: string,
+): string {
   const parts = [
     documento.servicoNome,
-    formatarTipoAtendimento(documento.tipoAtendimento),
+    formatarTipoAtendimento(documento.tipoAtendimento, parceriaLabel),
   ];
 
   if (documento.convenioNome) {
@@ -120,6 +125,10 @@ function normalizarFiltros(
 export function ContasReceber() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const pessoaMinuscula = labels.pessoa.toLowerCase();
+  const servicoMinusculo = labels.servico.toLowerCase();
   const estadoNavegacao = location.state as EstadoNavegacaoContasReceber | null;
   const pacientePreenchidoBusca = parseOptionalSearchText(
     new URLSearchParams(location.search).get("paciente"),
@@ -315,7 +324,7 @@ export function ContasReceber() {
             <CompactFilterField label="Buscar" grow>
               <input
                 value={filters.busca}
-                placeholder="Paciente, serviço ou descrição"
+                placeholder={`${labels.pessoa}, ${servicoMinusculo} ou descrição`}
                 onChange={(event) =>
                   atualizarFiltro("busca", event.target.value)
                 }
@@ -407,16 +416,16 @@ export function ContasReceber() {
           onRowClick={(row) => abrirContaDetalhe(row)}
           getRowClassName={() => styles.accountRow}
           getRowAriaLabel={(row) =>
-            `Abrir detalhes da conta a receber de ${row.pacienteNome}`
+            `Abrir detalhes da conta a receber de ${pessoaMinuscula} ${row.pacienteNome}`
           }
           columns={[
             {
               key: "paciente",
-              label: "Paciente",
+              label: labels.pessoa,
               render: (row) => (
                 <TableTextCell
                   primary={row.pacienteNome}
-                  secondary={obterDescricaoSecundaria(row)}
+                  secondary={obterDescricaoSecundaria(row, labels.parceria)}
                 />
               ),
             },

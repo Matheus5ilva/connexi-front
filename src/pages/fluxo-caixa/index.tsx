@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from "react";
 import { FaArrowDown, FaArrowUp, FaScaleBalanced } from "react-icons/fa6";
+import { useOutletContext } from "react-router-dom";
 import {
   CompactFilterField,
   CompactFilters,
@@ -11,7 +12,9 @@ import { StatusBadge } from "../../components/ui/status-badge";
 import { SummaryMetrics } from "../../components/ui/summary-metrics";
 import { Table } from "../../components/ui/table";
 import { TableTextCell } from "../../components/ui/table-text-cell";
+import { getSegmentoLabels } from "../../config/segmento-labels";
 import { formatarDataSomenteDia } from "../../domain/data-somente-dia";
+import type { LayoutOutletContext } from "../../layout";
 import {
   filtrosFluxoCaixaSchema,
   type FiltrosFluxoCaixaFormData,
@@ -78,13 +81,16 @@ function formatarOrigem(origem: OrigemFluxoCaixa): string {
   return origem === "CONTA_RECEBER" ? "Conta a receber" : "Conta a pagar";
 }
 
-function formatarGrupoFinanceiro(grupoFinanceiro?: string): string | undefined {
+function formatarGrupoFinanceiro(
+  grupoFinanceiro?: string,
+  parceriaLabel = "Convênio",
+): string | undefined {
   if (!grupoFinanceiro) {
     return undefined;
   }
 
   if (grupoFinanceiro === "Convenio") {
-    return "Convênio";
+    return parceriaLabel;
   }
 
   return grupoFinanceiro;
@@ -152,9 +158,10 @@ function obterDetalhesMovimentacao(
 
 function obterDetalhesOrigem(
   movimentacao: MovimentacaoFluxoCaixa,
+  parceriaLabel: string,
 ): string | undefined {
   const detalhes = [
-    formatarGrupoFinanceiro(movimentacao.grupoFinanceiro),
+    formatarGrupoFinanceiro(movimentacao.grupoFinanceiro, parceriaLabel),
     movimentacao.formaPagamentoDescricao,
     movimentacao.categoria,
   ].filter(Boolean);
@@ -163,6 +170,8 @@ function obterDetalhesOrigem(
 }
 
 export function FluxoCaixa() {
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
   const [filtros, setFiltros] =
     useState<FiltrosFluxoCaixaFormData>(filtrosIniciais);
   const [mostrarFiltrosAvancados, setMostrarFiltrosAvancados] = useState(false);
@@ -489,7 +498,7 @@ export function FluxoCaixa() {
               render: (row) => (
                 <TableTextCell
                   primary={formatarOrigem(row.origemTipo)}
-                  secondary={obterDetalhesOrigem(row)}
+                  secondary={obterDetalhesOrigem(row, labels.parceria)}
                 />
               ),
             },
