@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { FaChevronLeft, FaEdit, FaTrash } from "react-icons/fa";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { Modal } from "../../../components/ui/modal";
 import { NotFoundCard } from "../../../components/ui/not-found-card";
 import { PageHeader } from "../../../components/ui/page-header";
 import { PageLayout } from "../../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
+import { getSegmentoLabels } from "../../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../../layout";
 import { parseRouteNumericId } from "../../../schemas/runtime-input.schema";
 import { convenioService, toErrorMessage, type Convenio } from "../../../services/api";
 import styles from "./styles.module.css";
@@ -25,6 +27,14 @@ function formatarCnpj(cnpj: string): string {
 
 export function VisualizarConvenio() {
   const navigate = useNavigate();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const parceriaMinuscula = labels.parceria.toLowerCase();
+  const parceriasMinuscula = labels.parcerias.toLowerCase();
+  const artigoParceria = parceriaMinuscula.endsWith("a") ? "da" : "do";
+  const encontradaParceria = parceriaMinuscula.endsWith("a")
+    ? "encontrada"
+    : "encontrado";
   const { id } = useParams();
   const convenioId = parseRouteNumericId(id);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -61,7 +71,10 @@ export function VisualizarConvenio() {
         }
 
         setLoadError(
-          toErrorMessage(error, "Não foi possível carregar os dados do convênio."),
+          toErrorMessage(
+            error,
+            `Não foi possível carregar os dados ${artigoParceria} ${parceriaMinuscula}.`,
+          ),
         );
         setConvenio(null);
       } finally {
@@ -76,7 +89,7 @@ export function VisualizarConvenio() {
     return () => {
       isMounted = false;
     };
-  }, [convenioId]);
+  }, [artigoParceria, convenioId, parceriaMinuscula]);
 
   if (isLoading) {
     return (
@@ -90,9 +103,16 @@ export function VisualizarConvenio() {
     return (
       <PageLayout>
         <NotFoundCard
-          title={loadError ? "Falha ao carregar convênio" : "Convênio não encontrado"}
-          description={loadError || "Verifique se o convênio existe para continuar."}
-          actionLabel="Voltar para convênios"
+          title={
+            loadError
+              ? `Falha ao carregar ${parceriaMinuscula}`
+              : `${labels.parceria} não ${encontradaParceria}`
+          }
+          description={
+            loadError ||
+            `Verifique se ${artigoParceria} ${parceriaMinuscula} existe para continuar.`
+          }
+          actionLabel={`Voltar para ${parceriasMinuscula}`}
           onAction={() => navigate("/financeiro/convenios")}
         />
       </PageLayout>
@@ -108,7 +128,7 @@ export function VisualizarConvenio() {
       navigate("/financeiro/convenios");
     } catch (error) {
       setActionError(
-        toErrorMessage(error, "Não foi possível excluir o convênio."),
+        toErrorMessage(error, `Não foi possível excluir ${artigoParceria} ${parceriaMinuscula}.`),
       );
       setConfirmDeleteOpen(false);
     }
@@ -119,8 +139,8 @@ export function VisualizarConvenio() {
       <Modal
         open={confirmDeleteOpen}
         onClose={() => setConfirmDeleteOpen(false)}
-        title="Excluir convênio"
-        subtitle="Essa ação remove o convênio da base atual."
+        title={`Excluir ${parceriaMinuscula}`}
+        subtitle={`Essa ação remove ${artigoParceria} ${parceriaMinuscula} da base atual.`}
         maxWidth="480px"
       >
         <div className={styles.confirmBody}>
@@ -138,27 +158,29 @@ export function VisualizarConvenio() {
               Cancelar
             </button>
             <button type="button" className={styles.btnDanger} onClick={() => void handleDelete()}>
-              Excluir convênio
+              Excluir {parceriaMinuscula}
             </button>
           </div>
         </div>
       </Modal>
 
       <PageHeader
-        title="Convênio"
+        title={labels.parceria}
         left={
           <div className={styles.titleWithBack}>
             <button
               type="button"
               className={styles.backBtn}
               onClick={() => navigate("/financeiro/convenios")}
-              aria-label="Voltar para a lista de convênios"
+              aria-label={`Voltar para a lista de ${parceriasMinuscula}`}
             >
               <FaChevronLeft />
             </button>
             <div>
               <h1 className={styles.pageTitle}>{convenioAtual.nome}</h1>
-              <p className={styles.pageSubtitle}>Detalhes do convênio</p>
+              <p className={styles.pageSubtitle}>
+                Detalhes {artigoParceria} {parceriaMinuscula}
+              </p>
             </div>
           </div>
         }
@@ -208,7 +230,9 @@ export function VisualizarConvenio() {
           <h2 className={styles.sectionTitle}>Dados principais</h2>
           <div className={styles.infoGrid}>
             <div>
-              <span className={styles.infoLabel}>Nome</span>
+              <span className={styles.infoLabel}>
+                Nome {artigoParceria} {parceriaMinuscula}
+              </span>
               <p className={styles.infoValue}>{convenioAtual.nome}</p>
             </div>
             <div>

@@ -1,23 +1,15 @@
 import { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
-  FaBuilding,
-  FaCalendarAlt,
   FaChartLine,
   FaChevronDown,
-  FaCog,
   FaCreditCard,
-  FaFileInvoiceDollar,
-  FaIdCard,
   FaList,
   FaMoneyBillWave,
   FaMoneyCheckAlt,
   FaPowerOff,
-  FaStethoscope,
   FaThLarge,
   FaUserCog,
-  FaUserMd,
-  FaUsers,
 } from "react-icons/fa";
 import { encerrarSessaoAutenticada } from "../../auth/session";
 import { BrandLogo } from "../brand-logo";
@@ -25,6 +17,7 @@ import { authService } from "../../services/api";
 import styles from "./styles.module.css";
 import { APP_NAME, APP_DOMAIN, APP_VERSION } from "../../config/version";
 import { getSegmentoLabels, type Segmento } from "../../config/segmento-labels";
+import { getSegmentoIcons } from "../../config/segmento-icons";
 
 type Props = {
   open: boolean;
@@ -36,6 +29,15 @@ export function Sidebar({ open, onClose, segmento }: Props) {
   const location = useLocation();
   const navigate = useNavigate();
   const labels = getSegmentoLabels(segmento);
+  const icons = getSegmentoIcons(segmento);
+  const AgendaIcon = icons.agenda;
+  const PessoaIcon = icons.pessoa;
+  const ProfissionalIcon = icons.profissional;
+  const NegocioIcon = icons.negocio;
+  const FinanceiroIcon = icons.financeiro;
+  const ParceriaIcon = icons.parceria;
+  const ServicoIcon = icons.servico;
+  const ConfiguracaoIcon = icons.configuracao;
   const [dropdownOpen, setDropdownOpen] = useState({
     pacientes: false,
     profissional: false,
@@ -163,7 +165,7 @@ export function Sidebar({ open, onClose, segmento }: Props) {
             }
             onClick={closeOnMobile}
           >
-            <FaCalendarAlt className={styles.icon} />
+            <AgendaIcon className={styles.icon} />
             <span className={styles.linkText}>Agenda</span>
           </NavLink>
 
@@ -174,7 +176,7 @@ export function Sidebar({ open, onClose, segmento }: Props) {
             }
             onClick={closeOnMobile}
           >
-            <FaUsers className={styles.icon} />
+            <PessoaIcon className={styles.icon} />
             <span className={styles.linkText}>{labels.pessoas}</span>
           </NavLink>
           <div
@@ -187,7 +189,7 @@ export function Sidebar({ open, onClose, segmento }: Props) {
               aria-expanded={isProfissionalSubmenuOpen}
               aria-controls="submenu-profissional"
             >
-              <FaUserMd className={styles.icon} />
+              <ProfissionalIcon className={styles.icon} />
               <span className={styles.linkText}>Profissional</span>
               <FaChevronDown className={styles.submenuArrow} />
             </button>
@@ -201,7 +203,7 @@ export function Sidebar({ open, onClose, segmento }: Props) {
                 }
                 onClick={closeOnMobile}
               >
-                <FaUserMd className={styles.icon} />
+                <ProfissionalIcon className={styles.icon} />
                 <span className={styles.linkText}>Meu Perfil</span>
               </NavLink>
 
@@ -225,7 +227,7 @@ export function Sidebar({ open, onClose, segmento }: Props) {
             }
             onClick={closeOnMobile}
           >
-            <FaBuilding className={styles.icon} />
+            <NegocioIcon className={styles.icon} />
             <span className={styles.linkText}>{labels.negocio}</span>
           </NavLink>
 
@@ -239,7 +241,7 @@ export function Sidebar({ open, onClose, segmento }: Props) {
               aria-expanded={isFinanceiroSubmenuOpen}
               aria-controls="submenu-financeiro"
             >
-              <FaFileInvoiceDollar className={styles.icon} />
+              <FinanceiroIcon className={styles.icon} />
               <span className={styles.linkText}>Financeiro</span>
               <FaChevronDown className={styles.submenuArrow} />
             </button>
@@ -296,7 +298,7 @@ export function Sidebar({ open, onClose, segmento }: Props) {
                 }
                 onClick={closeOnMobile}
               >
-                <FaIdCard className={styles.icon} />
+                <ParceriaIcon className={styles.icon} />
                 <span className={styles.linkText}>{labels.parcerias}</span>
               </NavLink>
 
@@ -307,7 +309,7 @@ export function Sidebar({ open, onClose, segmento }: Props) {
                 }
                 onClick={closeOnMobile}
               >
-                <FaStethoscope className={styles.icon} />
+                <ServicoIcon className={styles.icon} />
                 <span className={styles.linkText}>{labels.servicos}</span>
               </NavLink>
             </div>
@@ -323,7 +325,7 @@ export function Sidebar({ open, onClose, segmento }: Props) {
               aria-expanded={isConfiguracaoSubmenuOpen}
               aria-controls="submenu-configuracao"
             >
-              <FaCog className={styles.icon} />
+              <ConfiguracaoIcon className={styles.icon} />
               <span className={styles.linkText}>Configuração</span>
               <FaChevronDown className={styles.submenuArrow} />
             </button>
@@ -336,7 +338,7 @@ export function Sidebar({ open, onClose, segmento }: Props) {
                 }
                 onClick={closeOnMobile}
               >
-                <FaCog className={styles.icon} />
+                <ConfiguracaoIcon className={styles.icon} />
                 <span className={styles.linkText}>Configurações</span>
               </NavLink>
 

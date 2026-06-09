@@ -3,6 +3,7 @@ import { useForm, useWatch, type FieldErrors } from "react-hook-form";
 import { criarResolvedorZod } from "schemas/resolvedor-zod";
 import { AvisoErroFormulario } from "../../../components/ui/aviso-erro-formulario";
 import { FormField } from "../../../components/ui/form-field";
+import type { SegmentoLabels } from "../../../config/segmento-labels";
 import {
   abrangenciaConvenioEnum,
   formularioConvenioSchema,
@@ -18,18 +19,35 @@ import styles from "./formulario-convenio.module.css";
 
 const opcoesAbrangencia = abrangenciaConvenioEnum.options;
 
-const mapaRotulosCampos = {
-  nome: "Nome do convênio",
-  cnpj: "CNPJ",
-  abrangencia: "Abrangência",
-  diasPagamento: "Prazo para pagamento",
-  ativo: "Status",
-  telefone: "Telefone",
-  whatsapp: "WhatsApp",
-  email: "E-mail",
-} satisfies Record<string, string>;
+function obterArtigoParceria(label: string): "do" | "da" {
+  return label.toLowerCase().endsWith("a") ? "da" : "do";
+}
+
+function normalizarParaEmail(label: string): string {
+  return label
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function criarMapaRotulosCampos(labels: SegmentoLabels) {
+  const parceriaMinuscula = labels.parceria.toLowerCase();
+  const artigoParceria = obterArtigoParceria(labels.parceria);
+
+  return {
+    nome: `Nome ${artigoParceria} ${parceriaMinuscula}`,
+    cnpj: "CNPJ",
+    abrangencia: "Abrangência",
+    diasPagamento: "Prazo para pagamento",
+    ativo: "Status",
+    telefone: "Telefone",
+    whatsapp: "WhatsApp",
+    email: "E-mail",
+  } satisfies Record<string, string>;
+}
 
 type FormularioConvenioProps = {
+  labels: SegmentoLabels;
   valoresIniciais: ConvenioFormularioData;
   textoBotaoSubmit: string;
   onSubmit: (values: ConvenioFormularioData) => Promise<void> | void;
@@ -37,11 +55,19 @@ type FormularioConvenioProps = {
 };
 
 export function FormularioConvenio({
+  labels,
   valoresIniciais,
   textoBotaoSubmit,
   onSubmit,
   onCancel,
 }: FormularioConvenioProps) {
+  const parceriaMinuscula = labels.parceria.toLowerCase();
+  const artigoParceria = obterArtigoParceria(labels.parceria);
+  const mapaRotulosCampos = useMemo(
+    () => criarMapaRotulosCampos(labels),
+    [labels],
+  );
+  const placeholderEmail = `contato@${normalizarParaEmail(labels.parceria)}.com.br`;
   const [mensagemErroFormulario, setMensagemErroFormulario] = useState<
     string | null
   >(null);
@@ -81,7 +107,7 @@ export function FormularioConvenio({
         erro: error,
         mapaRotulosCampos,
         mapaCamposServidor: criarMapaCamposServidor(mapaRotulosCampos),
-        mensagemPadrao: "Não foi possível salvar o convênio.",
+        mensagemPadrao: `Não foi possível salvar ${artigoParceria} ${parceriaMinuscula}.`,
       });
 
       Object.entries(resultadoErro.errosCampo).forEach(([campo, mensagem]) => {
@@ -139,20 +165,20 @@ export function FormularioConvenio({
         aria-labelledby="convenio-dados-title"
       >
         <h2 className={styles.sectionTitle} id="convenio-dados-title">
-          {"Dados do convênio"}
+          {`Dados ${artigoParceria} ${parceriaMinuscula}`}
         </h2>
 
         <div className={styles.grid}>
           <FormField
             id="convenio-nome"
-            label={"Nome do convênio"}
+            label={`Nome ${artigoParceria} ${parceriaMinuscula}`}
             required
             error={errors.nome?.message}
             colSpan="full"
           >
             <input
               className={`${styles.input} ${errors.nome ? styles.inputError : ""}`}
-              placeholder="Ex.: Unimed"
+              placeholder={`Ex.: ${labels.parceria} Principal`}
               {...register("nome")}
             />
           </FormField>
@@ -267,7 +293,7 @@ export function FormularioConvenio({
             <input
               className={`${styles.input} ${errors.email ? styles.inputError : ""}`}
               type="email"
-              placeholder="contato@convenio.com.br"
+              placeholder={placeholderEmail}
               {...register("email")}
             />
           </FormField>

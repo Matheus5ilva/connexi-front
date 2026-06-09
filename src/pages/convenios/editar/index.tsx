@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { FormPageHeader } from "../../../components/ui/form-page-header";
 import { NotFoundCard } from "../../../components/ui/not-found-card";
 import { PageHeader } from "../../../components/ui/page-header";
 import { PageLayout } from "../../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
+import { getSegmentoLabels } from "../../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../../layout";
 import type { ConvenioFormularioData } from "../../../schemas/convenio.schema";
 import { parseRouteNumericId } from "../../../schemas/runtime-input.schema";
 import {
@@ -29,6 +31,14 @@ const valoresVazios: ConvenioFormularioData = {
 
 export function EditarConvenio() {
   const navigate = useNavigate();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const parceriaMinuscula = labels.parceria.toLowerCase();
+  const parceriasMinuscula = labels.parcerias.toLowerCase();
+  const artigoParceria = parceriaMinuscula.endsWith("a") ? "da" : "do";
+  const encontradaParceria = parceriaMinuscula.endsWith("a")
+    ? "encontrada"
+    : "encontrado";
   const { id } = useParams();
   const convenioId = parseRouteNumericId(id);
   const [convenio, setConvenio] = useState<Convenio | null>(null);
@@ -63,7 +73,10 @@ export function EditarConvenio() {
         }
 
         setLoadError(
-          toErrorMessage(error, "Não foi possível carregar os dados do convênio."),
+          toErrorMessage(
+            error,
+            `Não foi possível carregar os dados ${artigoParceria} ${parceriaMinuscula}.`,
+          ),
         );
         setConvenio(null);
       } finally {
@@ -78,7 +91,7 @@ export function EditarConvenio() {
     return () => {
       isMounted = false;
     };
-  }, [convenioId]);
+  }, [artigoParceria, convenioId, parceriaMinuscula]);
 
   const valoresIniciais = useMemo<ConvenioFormularioData>(() => {
     if (!convenio) {
@@ -100,9 +113,16 @@ export function EditarConvenio() {
     return (
       <PageLayout>
         <NotFoundCard
-          title={loadError ? "Falha ao carregar convênio" : "Convênio não encontrado"}
-          description={loadError || "Verifique se o convênio existe para continuar a edição."}
-          actionLabel="Voltar para convênios"
+          title={
+            loadError
+              ? `Falha ao carregar ${parceriaMinuscula}`
+              : `${labels.parceria} não ${encontradaParceria}`
+          }
+          description={
+            loadError ||
+            `Verifique se ${artigoParceria} ${parceriaMinuscula} existe para continuar a edição.`
+          }
+          actionLabel={`Voltar para ${parceriasMinuscula}`}
           onAction={() => navigate("/financeiro/convenios")}
         />
       </PageLayout>
@@ -124,19 +144,20 @@ export function EditarConvenio() {
   return (
     <PageLayout>
       <PageHeader
-        title="Editar convênio"
+        title={`Editar ${parceriaMinuscula}`}
         subtitle="Atualize os dados principais e de contato."
         left={
           <FormPageHeader
-            title="Editar convênio"
+            title={`Editar ${parceriaMinuscula}`}
             subtitle={convenioAtual.nome}
             onBack={() => navigate(`/financeiro/convenios/${convenioIdAtual}`)}
-            backLabel="Voltar para a visualização do convênio"
+            backLabel={`Voltar para a visualização ${artigoParceria} ${parceriaMinuscula}`}
           />
         }
       />
 
       <FormularioConvenio
+        labels={labels}
         valoresIniciais={valoresIniciais}
         textoBotaoSubmit="Salvar alterações"
         onSubmit={handleSubmit}
