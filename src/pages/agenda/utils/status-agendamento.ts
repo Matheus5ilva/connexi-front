@@ -34,9 +34,10 @@ export function canTransitionStatusAgendamento(
 export function formatarTipoAtendimento(
   tipoAtendimento: Agendamento["tipoAtendimento"],
   convenio?: string | null,
+  convenioLabel = "Convênio",
 ): string {
   if (tipoAtendimento === "CONVENIO") {
-    return convenio ? `Convênio • ${convenio}` : "Convênio";
+    return convenio ? `${convenioLabel} • ${convenio}` : convenioLabel;
   }
 
   return "Particular";
@@ -45,5 +46,9 @@ export function formatarTipoAtendimento(
 export function formatarTipoConsulta(
   tipoConsulta?: Agendamento["tipoConsulta"] | null,
 ): string {
-  return tipoConsulta ?? "Consulta";
+  if (!tipoConsulta || tipoConsulta === "Consulta") {
+    return "Atendimento";
+  }
+
+  return tipoConsulta;
 }

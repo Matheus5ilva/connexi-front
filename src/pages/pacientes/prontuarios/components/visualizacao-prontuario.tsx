@@ -30,6 +30,7 @@ type VisualizacaoProntuarioProps = {
   formatarDataHora: (isoDate?: string) => string;
   formatarTamanhoArquivo: (bytes: number) => string;
   pessoaLabel?: string;
+  servicoLabel?: string;
   aoAbrirPaciente: () => void;
   aoAbrirConsulta?: () => void;
   aoAbrirAnexo: (anexo: ProntuarioAnexo) => void;
@@ -100,6 +101,7 @@ export function VisualizacaoProntuario({
   aoAbrirConsulta,
   aoAbrirAnexo,
   aoBaixarAnexo,
+  servicoLabel = "Serviço",
 }: VisualizacaoProntuarioProps) {
   const pessoaMinuscula = pessoaLabel.toLowerCase();
 
@@ -125,7 +127,7 @@ export function VisualizacaoProntuario({
           </strong>
         </div>
         <div className={styles.headerMetaItem}>
-          <span>Serviço</span>
+          <span>{servicoLabel}</span>
           <strong>
             <FaStethoscope /> {consulta.servicoNome}
           </strong>

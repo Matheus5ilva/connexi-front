@@ -509,6 +509,7 @@ export function ProntuariosPaciente() {
               formatarDataHora={formatDateTimeBr}
               formatarTamanhoArquivo={formatFileSize}
               pessoaLabel={labels.pessoa}
+              servicoLabel={labels.servico}
               aoAbrirPaciente={() =>
                 navigate(`/pacientes/${pacienteAtual.id}`, {
                   state: { returnTo: currentPath },

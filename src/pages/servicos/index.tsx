@@ -159,7 +159,7 @@ export function Servicos() {
 
       <Table
         data={servicos}
-        caption={`Tabela de ${servicosMinusculo} cadastrados`}
+        caption={`Lista de ${servicosMinusculo}`}
         emptyMessage={`Nenhum ${servicoMinusculo} cadastrado.`}
         onRowClick={(row) =>
           navigate(`/financeiro/servicos/${row.id}`, {
@@ -170,7 +170,7 @@ export function Servicos() {
           { key: "nome", label: labels.servico },
           {
             key: "valorParticular",
-            label: "Valor particular",
+            label: `Valor particular do ${servicoMinusculo}`,
             align: "center",
             render: (row) => <span>{formatarMoeda(row.valorParticular)}</span>,
           },

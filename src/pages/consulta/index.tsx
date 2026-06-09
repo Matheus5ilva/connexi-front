@@ -1,4 +1,5 @@
 ﻿import { useCallback, useEffect, useRef, useState, type ChangeEvent } from "react";
+import type { ReactNode } from "react";
 import {
   FaCalendarAlt,
   FaCheckCircle,
@@ -68,6 +69,94 @@ const mapaRotulosCamposConsulta = {
   observacoes: "Observações",
   receitaDigitada: "Recomendações",
 } satisfies Record<string, string>;
+
+const camposAvancadosConsulta = [
+  "queixaPrincipal",
+  "conduta",
+  "observacoes",
+  "receitaDigitada",
+] satisfies Array<keyof ConsultaFormData>;
+
+type FormTextareaProps = {
+  id: string;
+  label: string;
+  value?: string | null;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  rows?: number;
+  maxLength?: number;
+  error?: string;
+  helperText?: string;
+  disabled?: boolean;
+  className?: string;
+};
+
+function FormTextarea({
+  id,
+  label,
+  value,
+  onChange,
+  placeholder,
+  required,
+  rows = 4,
+  maxLength,
+  error,
+  helperText,
+  disabled,
+  className,
+}: FormTextareaProps) {
+  return (
+    <div className={className}>
+      <FormField
+        id={id}
+        label={label}
+        required={required}
+        error={error}
+        hint={helperText}
+        colSpan="full"
+      >
+        <textarea
+          rows={rows}
+          maxLength={maxLength}
+          value={value ?? ""}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={placeholder}
+          disabled={disabled}
+        />
+      </FormField>
+    </div>
+  );
+}
+
+type AdvancedSectionProps = {
+  title: string;
+  open: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+};
+
+function AdvancedSection({
+  title,
+  open,
+  onToggle,
+  children,
+}: AdvancedSectionProps) {
+  return (
+    <section className={styles.advancedSection} aria-label={title}>
+      <button
+        type="button"
+        className={styles.advancedToggle}
+        aria-expanded={open}
+        onClick={onToggle}
+      >
+        {open ? "− Ocultar informações avançadas" : "+ Informações avançadas"}
+      </button>
+
+      {open && <div className={styles.advancedFields}>{children}</div>}
+    </section>
+  );
+}
 
 function formatDateBr(value?: string): string {
   if (!value) {
@@ -233,6 +322,26 @@ function createInitialForm(
   };
 }
 
+function possuiValorTexto(value?: string | null): boolean {
+  return Boolean(value?.trim());
+}
+
+function possuiInformacoesAvancadas(formulario: ConsultaFormData): boolean {
+  return camposAvancadosConsulta.some((campo) =>
+    possuiValorTexto(formulario[campo] as string | null | undefined),
+  );
+}
+
+function erroPossuiCampoAvancado(
+  issues: Array<{ path: Array<string | number | symbol> }>,
+): boolean {
+  return issues.some((issue) =>
+    camposAvancadosConsulta.includes(
+      issue.path[0] as (typeof camposAvancadosConsulta)[number],
+    ),
+  );
+}
+
 function downloadBlob(blob: Blob, fileName: string): void {
   const objectUrl = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -276,6 +385,7 @@ export function ConsultaAtendimento() {
   const [form, setForm] = useState<ConsultaFormData>(() =>
     createInitialForm(null),
   );
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [erroCarregamento, setErroCarregamento] =
     useState<ErroCarregamentoConsulta | null>(null);
@@ -313,8 +423,10 @@ export function ConsultaAtendimento() {
       setErroCarregamento(null);
       const response =
         await consultaService.obterContexto(numericAgendamentoId);
+      const initialForm = createInitialForm(response);
       setContextoConsulta(response);
-      setForm(createInitialForm(response));
+      setForm(initialForm);
+      setAdvancedOpen(possuiInformacoesAvancadas(initialForm));
     } catch (error) {
       setErroCarregamento(resolverErroCarregamentoConsulta(error));
     } finally {
@@ -456,6 +568,10 @@ export function ConsultaAtendimento() {
     const formularioComTempoAtual = montarFormularioComTempoAtual();
     const parsed = salvarConsultaSchema.safeParse(formularioComTempoAtual);
     if (!parsed.success) {
+      if (erroPossuiCampoAvancado(parsed.error.issues)) {
+        setAdvancedOpen(true);
+      }
+
       const resultadoErro = normalizarErroZodFormulario(parsed.error, {
         mapaRotulosCampos: mapaRotulosCamposConsulta,
         mensagemPadrao: "Revise os campos do atendimento.",
@@ -494,6 +610,10 @@ export function ConsultaAtendimento() {
     const formularioComTempoAtual = montarFormularioComTempoAtual();
     const parsed = finalizarConsultaSchema.safeParse(formularioComTempoAtual);
     if (!parsed.success) {
+      if (erroPossuiCampoAvancado(parsed.error.issues)) {
+        setAdvancedOpen(true);
+      }
+
       const resultadoErro = normalizarErroZodFormulario(parsed.error, {
         mapaRotulosCampos: mapaRotulosCamposConsulta,
         mensagemPadrao: "Revise os campos do atendimento.",
@@ -670,7 +790,7 @@ export function ConsultaAtendimento() {
           </strong>
         </div>
         <div className={styles.headerMetaItem}>
-          <span>Serviço</span>
+          <span>{labels.servico}</span>
           <strong>
             <ServicoIcon /> {exibirTexto(consulta.servicoNome)}
           </strong>
@@ -735,95 +855,76 @@ export function ConsultaAtendimento() {
               </span>
             </div>
 
-            <FormField
-              id="consulta-queixa-principal"
-              label="Motivo do atendimento"
-              hint="Opcional. Máximo de 500 caracteres."
-              colSpan="full"
+            <FormTextarea
+              id="consulta-registro"
+              label="Registro do atendimento"
+              helperText="Opcional. Máximo de 20.000 caracteres."
+              rows={9}
+              maxLength={20000}
+              value={form.registroConsulta}
+              onChange={(value) => handleFormChange("registroConsulta", value)}
+              placeholder="Registre a evolução do atendimento."
+              disabled={!consultaEditavel}
+              className={styles.primaryTextarea}
+            />
+
+            <AdvancedSection
+              title="Informações avançadas do atendimento"
+              open={advancedOpen}
+              onToggle={() => setAdvancedOpen((current) => !current)}
             >
-              <textarea
+              <FormTextarea
+                id="consulta-queixa-principal"
+                label="Motivo do atendimento"
+                helperText="Opcional. Máximo de 500 caracteres."
                 rows={3}
                 maxLength={500}
-                value={form.queixaPrincipal ?? ""}
-                onChange={(event) =>
-                  handleFormChange("queixaPrincipal", event.target.value)
+                value={form.queixaPrincipal}
+                onChange={(value) =>
+                  handleFormChange("queixaPrincipal", value)
                 }
                 placeholder="Descreva o motivo do atendimento."
                 disabled={!consultaEditavel}
               />
-            </FormField>
 
-            <FormField
-              id="consulta-registro"
-              label="Registro do atendimento"
-              hint="Opcional. Máximo de 20.000 caracteres."
-              colSpan="full"
-            >
-              <textarea
-                rows={6}
-                maxLength={20000}
-                value={form.registroConsulta ?? ""}
-                onChange={(event) =>
-                  handleFormChange("registroConsulta", event.target.value)
-                }
-                placeholder="Registre a evolução do atendimento."
-                disabled={!consultaEditavel}
-              />
-            </FormField>
-
-            <FormField
-              id="consulta-conduta"
-              label="Ações realizadas"
-              hint="Opcional. Máximo de 5.000 caracteres."
-              colSpan="full"
-            >
-              <textarea
+              <FormTextarea
+                id="consulta-conduta"
+                label="Ações realizadas"
+                helperText="Opcional. Máximo de 5.000 caracteres."
                 rows={4}
                 maxLength={5000}
-                value={form.conduta ?? ""}
-                onChange={(event) =>
-                  handleFormChange("conduta", event.target.value)
-                }
+                value={form.conduta}
+                onChange={(value) => handleFormChange("conduta", value)}
                 placeholder="Descreva as ações realizadas."
                 disabled={!consultaEditavel}
               />
-            </FormField>
 
-            <FormField
-              id="consulta-observacoes"
-              label="Observações"
-              hint="Opcional. Máximo de 5.000 caracteres."
-              colSpan="full"
-            >
-              <textarea
+              <FormTextarea
+                id="consulta-observacoes"
+                label="Observações"
+                helperText="Opcional. Máximo de 5.000 caracteres."
                 rows={4}
                 maxLength={5000}
-                value={form.observacoes ?? ""}
-                onChange={(event) =>
-                  handleFormChange("observacoes", event.target.value)
-                }
+                value={form.observacoes}
+                onChange={(value) => handleFormChange("observacoes", value)}
                 placeholder="Inclua observações complementares, se necessário."
                 disabled={!consultaEditavel}
               />
-            </FormField>
 
-            <FormField
-              id="consulta-receita-digitada"
-              label="Recomendações"
-              hint="Opcional. Máximo de 5.000 caracteres."
-              colSpan="full"
-            >
-              <textarea
+              <FormTextarea
+                id="consulta-receita-digitada"
+                label="Recomendações"
+                helperText="Opcional. Máximo de 5.000 caracteres."
                 rows={4}
                 maxLength={5000}
-                value={form.receitaDigitada ?? ""}
-                onChange={(event) =>
-                  handleFormChange("receitaDigitada", event.target.value)
+                value={form.receitaDigitada}
+                onChange={(value) =>
+                  handleFormChange("receitaDigitada", value)
                 }
                 placeholder="Digite recomendações ou orientações que deverão ficar registradas."
                 disabled={!consultaEditavel}
               />
-            </FormField>
+            </AdvancedSection>
           </div>
 
           <section
@@ -1030,7 +1131,7 @@ export function ConsultaAtendimento() {
                         {exibirTexto(item.profissionalNome)}
                       </p>
                       <p>
-                        <strong>Serviço:</strong>{" "}
+                        <strong>{labels.servico}:</strong>{" "}
                         {exibirTexto(item.servicoNome)}
                       </p>
                       <p>

@@ -3,15 +3,19 @@ import { z } from "zod";
 import {
   FaCalendarAlt,
   FaClock,
-  FaFileMedicalAlt,
   FaMoneyBillWave,
-  FaStethoscope,
   FaUser,
   FaUserPlus,
 } from "react-icons/fa";
 import { AvisoErroFormulario } from "../../../components/ui/aviso-erro-formulario";
 import { FormField } from "../../../components/ui/form-field";
 import { Modal } from "../../../components/ui/modal";
+import { getSegmentoIcons } from "../../../config/segmento-icons";
+import {
+  getSegmentoLabels,
+  type Segmento,
+  type SegmentoLabels,
+} from "../../../config/segmento-labels";
 import { adicionarDiasDataSomenteDia } from "../../../domain/data-somente-dia";
 import type {
   Agendamento,
@@ -60,6 +64,7 @@ type ModalNovoProps = {
   defaultPacienteNome?: string;
   catalogos: CatalogosAgendamento;
   configuracaoFuncionamento: Configuracao | null;
+  segmento: Segmento;
 };
 
 type ModalConsultaAvulsaProps = ModalNovoProps;
@@ -74,6 +79,7 @@ type ModalVisualizarProps = {
   onFaltou: (agendamentoId: string) => void;
   onRemarcar: (agendamentoId: string) => void;
   onCancelar: (agendamentoId: string) => void;
+  segmento: Segmento;
 };
 
 type ModalRemarcarProps = {
@@ -89,6 +95,7 @@ type ModalRemarcarProps = {
     "servicos" | "convenios" | "formasPagamento"
   >;
   configuracaoFuncionamento: Configuracao | null;
+  segmento: Segmento;
 };
 
 type ErrosFormulario<T> = Partial<Record<keyof T, string>>;
@@ -105,16 +112,27 @@ const TIPO_CONSULTA_OPTIONS: readonly TipoConsulta[] = [
 ] as const;
 
 const mapaRotulosCamposAgendamento = {
-  pacienteId: "Paciente",
+  pacienteId: "Pessoa atendida",
   data: "Data",
   horario: "Horário",
   duracaoMinutos: "Duração",
   convenioId: "Convênio",
   servicoId: "Serviço",
   formaPagamentoId: "Forma de pagamento",
-  tipoConsulta: "Tipo de consulta",
+  tipoConsulta: "Tipo de atendimento",
   observacao: "Observações",
 } satisfies Record<string, string>;
+
+function criarMapaRotulosCamposAgendamento(
+  labels: SegmentoLabels,
+): Record<string, string> {
+  return {
+    ...mapaRotulosCamposAgendamento,
+    pacienteId: labels.pessoa,
+    convenioId: labels.parceria,
+    servicoId: labels.servico,
+  };
+}
 
 const valoresPadraoAgendamento: AgendamentoFormularioData = {
   pacienteId: undefined as never,
@@ -282,7 +300,12 @@ function validarConvenioDoServico(params: {
   servicoId?: number;
   convenioId?: number;
   servicos: ServicoListaItem[];
+  labels?: SegmentoLabels;
 }) {
+  const labels = params.labels ?? getSegmentoLabels();
+  const servicoMinusculo = labels.servico.toLowerCase();
+  const parceriaMinuscula = labels.parceria.toLowerCase();
+
   if (params.tipoAtendimento === "PARTICULAR" || !params.servicoId) {
     return null;
   }
@@ -290,7 +313,7 @@ function validarConvenioDoServico(params: {
   const servico = obterServicoSelecionado(params.servicos, params.servicoId);
 
   if (!servico || servico.servicosConvenios.length === 0) {
-    return "Este serviço não possui convênios disponíveis.";
+    return `Este ${servicoMinusculo} não possui ${labels.parcerias.toLowerCase()} disponíveis.`;
   }
 
   if (!params.convenioId) {
@@ -298,16 +321,19 @@ function validarConvenioDoServico(params: {
   }
 
   if (!convenioPertenceAoServico(servico, params.convenioId)) {
-    return "O convênio selecionado não está vinculado ao serviço escolhido.";
+    return `A opção de ${parceriaMinuscula} selecionada não está vinculada ao ${servicoMinusculo} escolhido.`;
   }
 
   return null;
 }
 
-function montarErroConvenioServico(mensagem: string): ErroFormularioAmigavel[] {
+function montarErroConvenioServico(
+  mensagem: string,
+  labels = getSegmentoLabels(),
+): ErroFormularioAmigavel[] {
   return [
     {
-      campo: mapaRotulosCamposAgendamento.convenioId,
+      campo: labels.parceria,
       mensagem,
     },
   ];
@@ -319,6 +345,7 @@ function renderCoverageSelector(
     | RemarcacaoAgendamentoFormularioData["tipoAtendimento"],
   onChange: (value: "PARTICULAR" | "CONVENIO") => void,
   titleId: string,
+  convenioLabel = "Convênio",
 ) {
   return (
     <section className={styles.coverageSection} aria-labelledby={titleId}>
@@ -349,7 +376,7 @@ function renderCoverageSelector(
             checked={tipoAtendimento === "CONVENIO"}
             onChange={() => onChange("CONVENIO")}
           />
-          <span>Convênio</span>
+          <span>{convenioLabel}</span>
         </label>
       </div>
     </section>
@@ -366,6 +393,7 @@ function AgendamentoFormModal({
   defaultPacienteNome,
   catalogos,
   configuracaoFuncionamento,
+  segmento,
   title,
   subtitle,
   submitLabel,
@@ -376,6 +404,11 @@ function AgendamentoFormModal({
   submitLabel: string;
   submitErrorMessage: string;
 }) {
+  const labels = getSegmentoLabels(segmento);
+  const mapaRotulosCampos = criarMapaRotulosCamposAgendamento(labels);
+  const pessoaMinuscula = labels.pessoa.toLowerCase();
+  const servicoMinusculo = labels.servico.toLowerCase();
+  const parceriaMinuscula = labels.parceria.toLowerCase();
   const [form, setForm] = useState<AgendamentoFormularioData>(() =>
     createInitialAgendamentoForm(
       defaultDate,
@@ -476,6 +509,7 @@ function AgendamentoFormModal({
       servicoId: form.servicoId,
       convenioId: form.convenioId,
       servicos: catalogos.servicos,
+      labels,
     });
 
     if (erroConvenioServicoAntesDoSchema) {
@@ -485,7 +519,7 @@ function AgendamentoFormModal({
       }));
       setFormError("Revise os campos destacados antes de continuar.");
       setErrosFormulario(
-        montarErroConvenioServico(erroConvenioServicoAntesDoSchema),
+        montarErroConvenioServico(erroConvenioServicoAntesDoSchema, labels),
       );
       return;
     }
@@ -494,7 +528,7 @@ function AgendamentoFormModal({
     if (!parsed.success) {
       setFieldErrors(mapZodErrors(parsed.error));
       const resultadoErro = normalizarErroZodFormulario(parsed.error, {
-        mapaRotulosCampos: mapaRotulosCamposAgendamento,
+        mapaRotulosCampos,
         mensagemPadrao: "Revise os campos destacados antes de continuar.",
       });
       setFormError(resultadoErro.mensagemGlobal);
@@ -521,6 +555,7 @@ function AgendamentoFormModal({
       servicoId: parsed.data.servicoId,
       convenioId: parsed.data.convenioId,
       servicos: catalogos.servicos,
+      labels,
     });
 
     if (erroConvenioServico) {
@@ -529,7 +564,7 @@ function AgendamentoFormModal({
         convenioId: erroConvenioServico,
       }));
       setFormError("Revise os campos destacados antes de continuar.");
-      setErrosFormulario(montarErroConvenioServico(erroConvenioServico));
+      setErrosFormulario(montarErroConvenioServico(erroConvenioServico, labels));
       return;
     }
 
@@ -557,10 +592,10 @@ function AgendamentoFormModal({
   );
   const dicaConvenio =
     !form.servicoId
-      ? "Selecione um serviço antes de escolher o convênio."
+      ? `Selecione um ${servicoMinusculo} antes de escolher ${parceriaMinuscula}.`
       : conveniosDisponiveis.length === 0
-        ? "Este serviço não possui convênios disponíveis."
-        : "Mostrando apenas convênios vinculados ao serviço selecionado.";
+        ? `Este ${servicoMinusculo} não possui ${labels.parcerias.toLowerCase()} disponíveis.`
+        : `Mostrando apenas opções de ${parceriaMinuscula} vinculadas ao ${servicoMinusculo} selecionado.`;
 
   return (
     <Modal
@@ -583,12 +618,12 @@ function AgendamentoFormModal({
           />
         ) : null}
 
-        <div className={styles.sectionLabel}>Paciente e atendimento</div>
+        <div className={styles.sectionLabel}>{labels.pessoa} e atendimento</div>
 
         <div className={styles.fieldWithAction}>
           <FormField
             id="agendamento-paciente"
-            label="Paciente"
+            label={labels.pessoa}
             required
             error={fieldErrors.pacienteId}
           >
@@ -602,7 +637,7 @@ function AgendamentoFormModal({
                 )
               }
             >
-              <option value="">Selecione um paciente...</option>
+              <option value="">Selecione {pessoaMinuscula}...</option>
               {catalogos.pacientes.map((paciente) => (
                 <option key={paciente.id} value={paciente.id}>
                   {paciente.nome}
@@ -616,8 +651,8 @@ function AgendamentoFormModal({
             type="button"
             className={styles.newPatientBtn}
             onClick={() => onNovoPaciente(pacienteSelecionado)}
-            title="Cadastrar novo paciente"
-            aria-label="Cadastrar novo paciente"
+            title={`Cadastrar novo ${pessoaMinuscula}`}
+            aria-label={`Cadastrar novo ${pessoaMinuscula}`}
           >
             <FaUserPlus />
             <span>Novo</span>
@@ -625,18 +660,19 @@ function AgendamentoFormModal({
         </div>
 
         <p className={styles.selectHint}>
-          Você pode cadastrar um novo paciente sem sair do fluxo de agendamento.
+          Você pode cadastrar um novo {pessoaMinuscula} sem sair do fluxo de agendamento.
         </p>
 
         {renderCoverageSelector(
           form.tipoAtendimento,
           atualizarTipoAtendimento,
           "agendamento-tipo-atendimento-title",
+          labels.parceria,
         )}
 
         <FormField
           id="agendamento-servico"
-          label="Serviço"
+          label={labels.servico}
           required
           error={fieldErrors.servicoId}
         >
@@ -649,7 +685,7 @@ function AgendamentoFormModal({
               )
             }
           >
-            <option value="">Selecione o serviço...</option>
+            <option value="">Selecione {servicoMinusculo}...</option>
             {catalogos.servicos.map((servico) => (
               <option key={servico.id} value={servico.id}>
                 {servico.nome}
@@ -661,7 +697,7 @@ function AgendamentoFormModal({
         {form.tipoAtendimento === "CONVENIO" && (
           <FormField
             id="agendamento-convenio"
-            label="Convênio"
+            label={labels.parceria}
             required
             hint={dicaConvenio}
             error={fieldErrors.convenioId}
@@ -679,7 +715,7 @@ function AgendamentoFormModal({
             >
               <option value="">
                 {conveniosDisponiveis.length
-                  ? "Selecione o convênio..."
+                  ? `Selecione ${parceriaMinuscula}...`
                   : dicaConvenio}
               </option>
               {conveniosDisponiveis.map((convenio) => (
@@ -745,7 +781,7 @@ function AgendamentoFormModal({
         <div className={styles.gridTriple}>
           <FormField
             id="agendamento-tipo-consulta"
-            label="Tipo de consulta"
+            label="Tipo de atendimento"
             error={fieldErrors.tipoConsulta}
           >
             <select
@@ -762,7 +798,7 @@ function AgendamentoFormModal({
               <option value="">Selecione...</option>
               {TIPO_CONSULTA_OPTIONS.map((tipoConsulta) => (
                 <option key={tipoConsulta} value={tipoConsulta}>
-                  {tipoConsulta}
+                  {formatarTipoConsulta(tipoConsulta)}
                 </option>
               ))}
             </select>
@@ -773,10 +809,10 @@ function AgendamentoFormModal({
             label="Forma de pagamento"
             hint={
               form.tipoConsulta === "Retorno"
-                ? "Consulta de retorno não gera cobrança."
+                ? "Atendimento de retorno não gera cobrança."
                 : form.tipoAtendimento === "PARTICULAR"
                   ? "Campo opcional."
-                : "Opcional para convênios."
+                : `Opcional para ${labels.parcerias.toLowerCase()}.`
             }
             error={fieldErrors.formaPagamentoId}
             colSpan="wide"
@@ -811,7 +847,7 @@ function AgendamentoFormModal({
             className={styles.textarea}
             value={form.observacao ?? ""}
             onChange={(event) => updateField("observacao", event.target.value)}
-            placeholder="Ex.: paciente prefere atendimento no início do horário."
+            placeholder={`Ex.: ${pessoaMinuscula} prefere atendimento no início do horário.`}
             rows={3}
           />
         </FormField>
@@ -853,10 +889,10 @@ export function ModalConsultaAvulsa(props: ModalConsultaAvulsaProps) {
   return (
     <AgendamentoFormModal
       {...props}
-      title="Consulta avulsa"
+      title="Atendimento avulso"
       subtitle="Inicie um atendimento sem depender de agendamento prévio."
-      submitLabel="Iniciar consulta"
-      submitErrorMessage="Não foi possível iniciar a consulta avulsa."
+      submitLabel="Iniciar atendimento"
+      submitErrorMessage="Não foi possível iniciar o atendimento avulso."
     />
   );
 }
@@ -871,11 +907,18 @@ export function ModalVisualizarAgendamento({
   onFaltou,
   onRemarcar,
   onCancelar,
+  segmento,
 }: ModalVisualizarProps) {
   if (!agendamento) {
     return null;
   }
 
+  const labels = getSegmentoLabels(segmento);
+  const icons = getSegmentoIcons(segmento);
+  const ServicoIcon = icons.servico;
+  const AtendimentoIcon = icons.atendimento;
+  const HistoricoIcon = icons.historico;
+  const pessoaMinuscula = labels.pessoa.toLowerCase();
   const statusUi = getStatusAgendamentoUi(agendamento.status);
   const podeEditar = isAgendamentoEditavel(agendamento.status);
   const nomeProfissional = obterNomeProfissional(agendamento);
@@ -891,7 +934,7 @@ export function ModalVisualizarAgendamento({
       <div className={styles.detailsRoot}>
         <div className={styles.detailsHeader}>
           <div>
-            <p className={styles.detailsLabel}>Paciente</p>
+            <p className={styles.detailsLabel}>{labels.pessoa}</p>
             <strong className={styles.detailsPatient}>
               {agendamento.paciente}
             </strong>
@@ -936,9 +979,9 @@ export function ModalVisualizarAgendamento({
           </div>
 
           <div className={styles.detailsItem}>
-            <FaStethoscope className={styles.detailsIcon} />
+            <ServicoIcon className={styles.detailsIcon} />
             <div>
-              <span className={styles.detailsItemLabel}>Serviço</span>
+              <span className={styles.detailsItemLabel}>{labels.servico}</span>
               <span className={styles.detailsItemValue}>
                 {agendamento.servico}
               </span>
@@ -946,22 +989,23 @@ export function ModalVisualizarAgendamento({
           </div>
 
           <div className={styles.detailsItem}>
-            <FaFileMedicalAlt className={styles.detailsIcon} />
+            <AtendimentoIcon className={styles.detailsIcon} />
             <div>
               <span className={styles.detailsItemLabel}>Atendimento</span>
               <span className={styles.detailsItemValue}>
                 {formatarTipoAtendimento(
                   agendamento.tipoAtendimento,
                   agendamento.convenio,
+                  labels.parceria,
                 )}
               </span>
             </div>
           </div>
 
           <div className={styles.detailsItem}>
-            <FaFileMedicalAlt className={styles.detailsIcon} />
+            <HistoricoIcon className={styles.detailsIcon} />
             <div>
-              <span className={styles.detailsItemLabel}>Tipo de consulta</span>
+              <span className={styles.detailsItemLabel}>Tipo de atendimento</span>
               <span className={styles.detailsItemValue}>
                 {formatarTipoConsulta(agendamento.tipoConsulta)}
               </span>
@@ -969,7 +1013,7 @@ export function ModalVisualizarAgendamento({
           </div>
 
           <div className={styles.detailsItem}>
-            <FaFileMedicalAlt className={styles.detailsIcon} />
+            <AtendimentoIcon className={styles.detailsIcon} />
             <div>
               <span className={styles.detailsItemLabel}>
                 Forma de pagamento
@@ -983,7 +1027,9 @@ export function ModalVisualizarAgendamento({
           <div className={styles.detailsItem}>
             <FaMoneyBillWave className={styles.detailsIcon} />
             <div>
-              <span className={styles.detailsItemLabel}>Valor do serviço</span>
+              <span className={styles.detailsItemLabel}>
+                Valor do {labels.servico.toLowerCase()}
+              </span>
               <span className={styles.detailsItemValue}>
                 {formatarMoeda(agendamento.valorServico)}
               </span>
@@ -993,7 +1039,7 @@ export function ModalVisualizarAgendamento({
 
         <div className={styles.notesCard}>
           <div className={styles.notesHeader}>
-            <FaFileMedicalAlt className={styles.detailsIcon} />
+            <HistoricoIcon className={styles.detailsIcon} />
             <span>Observações</span>
           </div>
           <p className={styles.notesText}>
@@ -1008,7 +1054,7 @@ export function ModalVisualizarAgendamento({
               className={`${styles.btnPrimary} ${styles.detailsPrimaryAction}`}
               onClick={() => onConfirmar(agendamento.id)}
             >
-              Confirmar consulta
+              Confirmar atendimento
             </button>
           )}
 
@@ -1028,7 +1074,7 @@ export function ModalVisualizarAgendamento({
               className={`${styles.btnPrimary} ${styles.detailsPrimaryAction}`}
               onClick={() => void onAbrirConsulta(agendamento.id)}
             >
-              Abrir consulta
+              Abrir atendimento
             </button>
           )}
 
@@ -1037,7 +1083,7 @@ export function ModalVisualizarAgendamento({
             className={styles.btnGhost}
             onClick={() => onAbrirPaciente(agendamento.pacienteId)}
           >
-            Ver paciente
+            Ver {pessoaMinuscula}
           </button>
 
           {podeEditar && (
@@ -1086,7 +1132,13 @@ export function ModalRemarcarAgendamento({
   onSubmit,
   catalogos,
   configuracaoFuncionamento,
+  segmento,
 }: ModalRemarcarProps) {
+  const labels = getSegmentoLabels(segmento);
+  const mapaRotulosCampos = criarMapaRotulosCamposAgendamento(labels);
+  const pessoaMinuscula = labels.pessoa.toLowerCase();
+  const servicoMinusculo = labels.servico.toLowerCase();
+  const parceriaMinuscula = labels.parceria.toLowerCase();
   const [form, setForm] = useState<RemarcacaoAgendamentoFormularioData>(() =>
     createInitialRemarcarForm(agendamento),
   );
@@ -1162,6 +1214,7 @@ export function ModalRemarcarAgendamento({
       servicoId: agendamentoAtual.servicoId,
       convenioId: form.convenioId,
       servicos: catalogos.servicos,
+      labels,
     });
 
     if (erroConvenioServicoAntesDoSchema) {
@@ -1171,7 +1224,7 @@ export function ModalRemarcarAgendamento({
       }));
       setFormError("Revise os campos destacados antes de confirmar a remarcação.");
       setErrosFormulario(
-        montarErroConvenioServico(erroConvenioServicoAntesDoSchema),
+        montarErroConvenioServico(erroConvenioServicoAntesDoSchema, labels),
       );
       return;
     }
@@ -1180,7 +1233,7 @@ export function ModalRemarcarAgendamento({
     if (!parsed.success) {
       setFieldErrors(mapZodErrors(parsed.error));
       const resultadoErro = normalizarErroZodFormulario(parsed.error, {
-        mapaRotulosCampos: mapaRotulosCamposAgendamento,
+        mapaRotulosCampos,
         mensagemPadrao:
           "Revise os campos destacados antes de confirmar a remarcação.",
       });
@@ -1208,6 +1261,7 @@ export function ModalRemarcarAgendamento({
       servicoId: agendamentoAtual.servicoId,
       convenioId: parsed.data.convenioId,
       servicos: catalogos.servicos,
+      labels,
     });
 
     if (erroConvenioServico) {
@@ -1216,7 +1270,7 @@ export function ModalRemarcarAgendamento({
         convenioId: erroConvenioServico,
       }));
       setFormError("Revise os campos destacados antes de confirmar a remarcação.");
-      setErrosFormulario(montarErroConvenioServico(erroConvenioServico));
+      setErrosFormulario(montarErroConvenioServico(erroConvenioServico, labels));
       return;
     }
 
@@ -1242,8 +1296,8 @@ export function ModalRemarcarAgendamento({
   );
   const dicaConvenioRemarcacao =
     conveniosDisponiveisRemarcacao.length === 0
-      ? "Este serviço não possui convênios disponíveis."
-      : "Mostrando apenas convênios vinculados ao serviço selecionado.";
+      ? `Este ${servicoMinusculo} não possui ${labels.parcerias.toLowerCase()} disponíveis.`
+      : `Mostrando apenas opções de ${parceriaMinuscula} vinculadas ao ${servicoMinusculo} selecionado.`;
 
   return (
     <Modal
@@ -1282,6 +1336,7 @@ export function ModalRemarcarAgendamento({
             {formatarTipoAtendimento(
               agendamentoAtual.tipoAtendimento,
               agendamentoAtual.convenio,
+              labels.parceria,
             )}
           </small>
           <div className={styles.acoesRapidasRemarcacao}>
@@ -1367,13 +1422,14 @@ export function ModalRemarcarAgendamento({
           form.tipoAtendimento,
           atualizarTipoAtendimentoRemarcacao,
           "remarcar-tipo-atendimento-title",
+          labels.parceria,
         )}
 
         {form.tipoAtendimento === "CONVENIO" && (
           <FormField
             id="remarcar-convenio"
             hint={dicaConvenioRemarcacao}
-            label="Convênio"
+            label={labels.parceria}
             required
             error={fieldErrors.convenioId}
           >
@@ -1390,7 +1446,7 @@ export function ModalRemarcarAgendamento({
             >
               <option value="">
                 {conveniosDisponiveisRemarcacao.length
-                  ? "Selecione o convênio..."
+                  ? `Selecione ${parceriaMinuscula}...`
                   : dicaConvenioRemarcacao}
               </option>
               {conveniosDisponiveisRemarcacao.map((convenio) => (
@@ -1405,7 +1461,7 @@ export function ModalRemarcarAgendamento({
         <div className={styles.gridTriple}>
           <FormField
             id="remarcar-tipo-consulta"
-            label="Tipo de consulta"
+            label="Tipo de atendimento"
             error={fieldErrors.tipoConsulta}
           >
             <select
@@ -1422,7 +1478,7 @@ export function ModalRemarcarAgendamento({
               <option value="">Selecione...</option>
               {TIPO_CONSULTA_OPTIONS.map((tipoConsulta) => (
                 <option key={tipoConsulta} value={tipoConsulta}>
-                  {tipoConsulta}
+                  {formatarTipoConsulta(tipoConsulta)}
                 </option>
               ))}
             </select>
@@ -1433,7 +1489,7 @@ export function ModalRemarcarAgendamento({
             label="Forma de pagamento"
             hint={
               form.tipoConsulta === "Retorno"
-                ? "Consulta de retorno não gera cobrança."
+                ? "Atendimento de retorno não gera cobrança."
                 : "Campo opcional."
             }
             error={fieldErrors.formaPagamentoId}
@@ -1469,7 +1525,7 @@ export function ModalRemarcarAgendamento({
             className={styles.textarea}
             value={form.observacao ?? ""}
             onChange={(event) => updateField("observacao", event.target.value)}
-            placeholder="Ex.: paciente solicitou mudança para o período da tarde."
+            placeholder={`Ex.: ${pessoaMinuscula} solicitou mudança para o período da tarde.`}
             rows={3}
           />
         </FormField>

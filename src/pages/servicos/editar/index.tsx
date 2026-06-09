@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { FormPageHeader } from "../../../components/ui/form-page-header";
 import { NotFoundCard } from "../../../components/ui/not-found-card";
 import { PageHeader } from "../../../components/ui/page-header";
 import { PageLayout } from "../../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
+import { getSegmentoLabels } from "../../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../../layout";
 import { parseRouteNumericId } from "../../../schemas/runtime-input.schema";
 import type { ServicoFormularioData } from "../../../schemas/servico.schema";
 import {
@@ -26,6 +28,10 @@ const valoresVazios: ServicoFormularioData = {
 
 export function EditarServico() {
   const navigate = useNavigate();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const servicoMinusculo = labels.servico.toLowerCase();
+  const servicosMinusculo = labels.servicos.toLowerCase();
   const { id } = useParams();
   const servicoId = parseRouteNumericId(id);
   const [servico, setServico] = useState<Servico | null>(null);
@@ -60,7 +66,10 @@ export function EditarServico() {
         }
 
         setLoadError(
-          toErrorMessage(error, "Não foi possível carregar os dados do serviço."),
+          toErrorMessage(
+            error,
+            `Não foi possível carregar os dados do ${servicoMinusculo}.`,
+          ),
         );
         setServico(null);
       } finally {
@@ -75,7 +84,7 @@ export function EditarServico() {
     return () => {
       isMounted = false;
     };
-  }, [servicoId]);
+  }, [servicoId, servicoMinusculo]);
 
   const valoresIniciais = useMemo<ServicoFormularioData>(() => {
     if (!servico) {
@@ -97,11 +106,16 @@ export function EditarServico() {
     return (
       <PageLayout>
         <NotFoundCard
-          title={loadError ? "Falha ao carregar serviço" : "Serviço não encontrado"}
-          description={
-            loadError || "Verifique se o serviço existe para continuar a edição."
+          title={
+            loadError
+              ? `Falha ao carregar ${servicoMinusculo}`
+              : `${labels.servico} não encontrado`
           }
-          actionLabel="Voltar para serviços"
+          description={
+            loadError ||
+            `Verifique se o ${servicoMinusculo} existe para continuar a edição.`
+          }
+          actionLabel={`Voltar para ${servicosMinusculo}`}
           onAction={() => navigate("/financeiro/servicos")}
         />
       </PageLayout>
@@ -124,14 +138,14 @@ export function EditarServico() {
   return (
     <PageLayout>
       <PageHeader
-        title="Editar serviço"
-        subtitle="Atualize os dados principais do serviço."
+        title={`Editar ${servicoMinusculo}`}
+        subtitle={`Atualize os dados principais do ${servicoMinusculo}.`}
         left={
           <FormPageHeader
-            title="Editar serviço"
+            title={`Editar ${servicoMinusculo}`}
             subtitle={servicoAtual.nome}
             onBack={() => navigate(`/financeiro/servicos/${servicoIdAtual}`)}
-            backLabel="Voltar para a visualização do serviço"
+            backLabel={`Voltar para a visualização do ${servicoMinusculo}`}
           />
         }
       />
@@ -142,6 +156,7 @@ export function EditarServico() {
         onSubmit={handleSubmit}
         onCancel={() => navigate(`/financeiro/servicos/${servicoIdAtual}`)}
         conveniosVinculados={servicoAtual.servicosConvenios ?? []}
+        labels={labels}
       />
     </PageLayout>
   );

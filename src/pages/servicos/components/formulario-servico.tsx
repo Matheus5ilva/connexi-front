@@ -3,6 +3,7 @@ import { useForm, useWatch, type FieldErrors } from "react-hook-form";
 import { criarResolvedorZod } from "schemas/resolvedor-zod";
 import { AvisoErroFormulario } from "../../../components/ui/aviso-erro-formulario";
 import { FormField } from "../../../components/ui/form-field";
+import type { SegmentoLabels } from "../../../config/segmento-labels";
 import {
   formularioServicoSchema,
   type ServicoFormularioData,
@@ -25,21 +26,25 @@ type FormularioServicoProps = {
   textoBotaoSubmit: string;
   onSubmit: (values: ServicoFormularioData) => Promise<void> | void;
   onCancel: () => void;
+  labels: SegmentoLabels;
   conveniosVinculados?: ServicoConvenio[];
 };
 
-const mapaRotulosCampos = {
-  nome: "Nome do serviço",
-  valorParticular: "Valor particular",
-  descricao: "Descrição",
-  convenios: "Convênios",
-} satisfies Record<string, string>;
+function criarMapaRotulosCampos(labels: SegmentoLabels) {
+  return {
+    nome: `Nome do ${labels.servico.toLowerCase()}`,
+    valorParticular: `Valor particular do ${labels.servico.toLowerCase()}`,
+    descricao: `Descrição do ${labels.servico.toLowerCase()}`,
+    convenios: labels.parcerias,
+  } satisfies Record<string, string>;
+}
 
 const conveniosVinculadosVazios: ServicoConvenio[] = [];
 
 function montarConveniosDisponiveis(
   convenios: ConvenioListaItem[],
   vinculados: ServicoConvenio[],
+  parceriaLabel: string,
 ): ConvenioListaItem[] {
   const porId = new Map<number, ConvenioListaItem>();
 
@@ -54,7 +59,7 @@ function montarConveniosDisponiveis(
 
     porId.set(vinculo.convenioId, {
       id: vinculo.convenioId,
-      nome: vinculo.convenioNome ?? `Convênio ${vinculo.convenioId}`,
+      nome: vinculo.convenioNome ?? `${parceriaLabel} ${vinculo.convenioId}`,
       ativo: true,
     });
   });
@@ -69,8 +74,16 @@ export function FormularioServico({
   textoBotaoSubmit,
   onSubmit,
   onCancel,
+  labels,
   conveniosVinculados = conveniosVinculadosVazios,
 }: FormularioServicoProps) {
+  const mapaRotulosCampos = useMemo(
+    () => criarMapaRotulosCampos(labels),
+    [labels],
+  );
+  const servicoMinusculo = labels.servico.toLowerCase();
+  const parceriaMinuscula = labels.parceria.toLowerCase();
+  const parceriasMinusculo = labels.parcerias.toLowerCase();
   const [mensagemErroFormulario, setMensagemErroFormulario] = useState<
     string | null
   >(null);
@@ -112,7 +125,11 @@ export function FormularioServico({
         }
 
         setConveniosDisponiveis(
-          montarConveniosDisponiveis(resposta, conveniosVinculados),
+          montarConveniosDisponiveis(
+            resposta,
+            conveniosVinculados,
+            labels.parceria,
+          ),
         );
         setErroConvenios(null);
       } catch (error) {
@@ -123,7 +140,7 @@ export function FormularioServico({
         setConveniosDisponiveis([]);
         const resultadoErro = normalizarErroFormularioPadrao({
           erro: error,
-          mensagemPadrao: "Não foi possível carregar os convênios.",
+          mensagemPadrao: `Não foi possível carregar ${parceriasMinusculo}.`,
         });
         setErroConvenios(resultadoErro.mensagemGlobal);
       }
@@ -134,7 +151,7 @@ export function FormularioServico({
     return () => {
       ativo = false;
     };
-  }, [conveniosVinculados]);
+  }, [conveniosVinculados, labels.parceria, parceriasMinusculo]);
 
   const ativo = useWatch({ control, name: "ativo", defaultValue: true });
   const conveniosSelecionados = useWatch({
@@ -167,7 +184,7 @@ export function FormularioServico({
   function obterNomeConvenio(convenioId: number): string {
     return (
       conveniosDisponiveis.find((convenio) => convenio.id === convenioId)
-        ?.nome ?? `Convênio ${convenioId}`
+        ?.nome ?? `${labels.parceria} ${convenioId}`
     );
   }
 
@@ -212,7 +229,7 @@ export function FormularioServico({
         erro: error,
         mapaRotulosCampos,
         mapaCamposServidor: criarMapaCamposServidor(mapaRotulosCampos),
-        mensagemPadrao: "Não foi possível salvar o serviço.",
+        mensagemPadrao: `Não foi possível salvar o ${servicoMinusculo}.`,
       });
 
       Object.entries(resultadoErro.errosCampo).forEach(([campo, mensagem]) => {
@@ -247,8 +264,8 @@ export function FormularioServico({
           const indice = Number(convenios[1]);
           const convenio = conveniosSelecionados[indice];
           return convenio
-            ? `Valor do convênio ${obterNomeConvenio(convenio.convenioId)}`
-            : `Valor do convênio ${indice + 1}`;
+            ? `Valor para ${parceriaMinuscula} ${obterNomeConvenio(convenio.convenioId)}`
+            : `Valor para ${parceriaMinuscula} ${indice + 1}`;
         },
       },
     );
@@ -279,27 +296,27 @@ export function FormularioServico({
 
       <section className={styles.section} aria-labelledby="servico-dados-title">
         <h2 className={styles.sectionTitle} id="servico-dados-title">
-          Dados do serviço
+          Dados do {servicoMinusculo}
         </h2>
 
         <div className={styles.grid}>
           <FormField
             id="servico-nome"
-            label="Nome do serviço"
+            label={`Nome do ${servicoMinusculo}`}
             required
             error={errors.nome?.message}
             colSpan="full"
           >
             <input
               className={`${styles.input} ${errors.nome ? styles.inputError : ""}`}
-              placeholder="Ex.: Consulta clínica geral"
+              placeholder="Ex.: Avaliação inicial"
               {...register("nome")}
             />
           </FormField>
 
           <FormField
             id="servico-valor-particular"
-            label="Valor particular (R$)"
+            label={`Valor particular do ${servicoMinusculo} (R$)`}
             required
             error={errors.valorParticular?.message}
           >
@@ -334,14 +351,14 @@ export function FormularioServico({
 
           <FormField
             id="servico-descricao"
-            label="Descrição"
+            label={`Descrição do ${servicoMinusculo}`}
             error={errors.descricao?.message}
             colSpan="full"
           >
             <textarea
               className={`${styles.textarea} ${errors.descricao ? styles.inputError : ""}`}
               rows={4}
-              placeholder="Descreva o serviço oferecido."
+              placeholder={`Descreva o ${servicoMinusculo} oferecido.`}
               {...register("descricao")}
             />
           </FormField>
@@ -353,14 +370,14 @@ export function FormularioServico({
         aria-labelledby="servico-convenios-title"
       >
         <h2 className={styles.sectionTitle} id="servico-convenios-title">
-          Convênios
+          {labels.parcerias}
         </h2>
 
         {erroConvenios ? <AvisoErroFormulario mensagem={erroConvenios} /> : null}
 
         {conveniosDisponiveis.length === 0 ? (
           <p className={styles.emptyConvenio}>
-            Nenhum convênio ativo disponível para vincular.
+            Nenhum item de {parceriasMinusculo} ativo disponível para vincular.
           </p>
         ) : (
           <div className={styles.convenioList}>
@@ -386,7 +403,7 @@ export function FormularioServico({
                   {marcado ? (
                     <div className={styles.convenioInputGroup}>
                       <span className={styles.convenioInputLabel}>
-                        Valor para convênio
+                        Valor para {parceriaMinuscula}
                       </span>
                       <input
                         className={`${styles.convenioValueInput} ${erroConvenio ? styles.inputError : ""}`}

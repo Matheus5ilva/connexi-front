@@ -29,7 +29,10 @@ describe("Schema do formulário de agendamento", () => {
   });
 
   it("exibe mensagem amigavel quando servico nao foi selecionado", () => {
-    const { ...agendamentoSemServico } = agendamentoBase;
+    const agendamentoSemServico = {
+      ...agendamentoBase,
+      servicoId: undefined,
+    };
     const resultado = formularioAgendamentoSchema.safeParse(
       agendamentoSemServico,
     );
@@ -43,7 +46,10 @@ describe("Schema do formulário de agendamento", () => {
   });
 
   it("exibe mensagem amigavel quando paciente nao foi selecionado", () => {
-    const { ...agendamentoSemPaciente } = agendamentoBase;
+    const agendamentoSemPaciente = {
+      ...agendamentoBase,
+      pacienteId: undefined,
+    };
     const resultado = formularioAgendamentoSchema.safeParse(
       agendamentoSemPaciente,
     );

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { FaChevronLeft, FaEdit, FaMoneyCheckAlt, FaTrash } from "react-icons/fa";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { Modal } from "../../../components/ui/modal";
 import { NotFoundCard } from "../../../components/ui/not-found-card";
 import { PageHeader } from "../../../components/ui/page-header";
 import { PageLayout } from "../../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
+import { getSegmentoLabels } from "../../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../../layout";
 import { parseRouteNumericId } from "../../../schemas/runtime-input.schema";
 import { servicoService, toErrorMessage, type Servico } from "../../../services/api";
 import styles from "./styles.module.css";
@@ -19,6 +21,12 @@ function formatarMoeda(valor: number): string {
 
 export function VisualizarServico() {
   const navigate = useNavigate();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const servicoMinusculo = labels.servico.toLowerCase();
+  const servicosMinusculo = labels.servicos.toLowerCase();
+  const parceriaMinuscula = labels.parceria.toLowerCase();
+  const parceriasMinusculo = labels.parcerias.toLowerCase();
   const { id } = useParams();
   const servicoId = parseRouteNumericId(id);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -55,7 +63,10 @@ export function VisualizarServico() {
         }
 
         setLoadError(
-          toErrorMessage(error, "Não foi possível carregar os dados do serviço."),
+          toErrorMessage(
+            error,
+            `Não foi possível carregar os dados do ${servicoMinusculo}.`,
+          ),
         );
         setServico(null);
       } finally {
@@ -70,7 +81,7 @@ export function VisualizarServico() {
     return () => {
       isMounted = false;
     };
-  }, [servicoId]);
+  }, [servicoId, servicoMinusculo]);
 
   async function handleDelete() {
     if (!servico) {
@@ -83,7 +94,9 @@ export function VisualizarServico() {
       await servicoService.remover(servico.id);
       navigate("/financeiro/servicos");
     } catch (error) {
-      setActionError(toErrorMessage(error, "Não foi possível excluir o serviço."));
+      setActionError(
+        toErrorMessage(error, `Não foi possível excluir o ${servicoMinusculo}.`),
+      );
       setConfirmDeleteOpen(false);
     }
   }
@@ -100,9 +113,15 @@ export function VisualizarServico() {
     return (
       <PageLayout>
         <NotFoundCard
-          title={loadError ? "Falha ao carregar serviço" : "Serviço não encontrado"}
-          description={loadError || "Verifique se o serviço existe para continuar."}
-          actionLabel="Voltar para serviços"
+          title={
+            loadError
+              ? `Falha ao carregar ${servicoMinusculo}`
+              : `${labels.servico} não encontrado`
+          }
+          description={
+            loadError || `Verifique se o ${servicoMinusculo} existe para continuar.`
+          }
+          actionLabel={`Voltar para ${servicosMinusculo}`}
           onAction={() => navigate("/financeiro/servicos")}
         />
       </PageLayout>
@@ -118,8 +137,8 @@ export function VisualizarServico() {
       <Modal
         open={confirmDeleteOpen}
         onClose={() => setConfirmDeleteOpen(false)}
-        title="Excluir serviço"
-        subtitle="Essa ação remove o serviço da base atual."
+        title={`Excluir ${servicoMinusculo}`}
+        subtitle={`Essa ação remove o ${servicoMinusculo} da base atual.`}
         maxWidth="480px"
       >
         <div className={styles.confirmBody}>
@@ -141,27 +160,29 @@ export function VisualizarServico() {
               className={styles.btnDanger}
               onClick={() => void handleDelete()}
             >
-              Excluir serviço
+              Excluir {servicoMinusculo}
             </button>
           </div>
         </div>
       </Modal>
 
       <PageHeader
-        title="Serviço"
+        title={labels.servico}
         left={
           <div className={styles.titleWithBack}>
             <button
               type="button"
               className={styles.backBtn}
               onClick={() => navigate("/financeiro/servicos")}
-              aria-label="Voltar para lista de serviços"
+              aria-label={`Voltar para lista de ${servicosMinusculo}`}
             >
               <FaChevronLeft />
             </button>
             <div>
               <h1 className={styles.pageTitle}>{servicoAtual.nome}</h1>
-              <p className={styles.pageSubtitle}>Detalhes do serviço</p>
+              <p className={styles.pageSubtitle}>
+                Detalhes do {servicoMinusculo}
+              </p>
             </div>
           </div>
         }
@@ -197,20 +218,26 @@ export function VisualizarServico() {
           </strong>
         </article>
         <article className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>Valor particular</span>
+          <span className={styles.kpiLabel}>
+            Valor particular do {servicoMinusculo}
+          </span>
           <strong className={styles.kpiValue}>
             {formatarMoeda(servicoAtual.valorParticular)}
           </strong>
         </article>
         <article className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>Convênios vinculados</span>
+          <span className={styles.kpiLabel}>
+            Vínculos de {parceriasMinusculo}
+          </span>
           <strong className={styles.kpiValue}>{quantidadeConvenios}</strong>
         </article>
       </section>
 
       <div className={styles.contentGrid}>
         <section className={styles.sectionCard}>
-          <h2 className={styles.sectionTitle}>Dados principais</h2>
+          <h2 className={styles.sectionTitle}>
+            Dados do {servicoMinusculo}
+          </h2>
           <div className={styles.infoGrid}>
             <div>
               <span className={styles.infoLabel}>Nome</span>
@@ -223,13 +250,17 @@ export function VisualizarServico() {
               </p>
             </div>
             <div>
-              <span className={styles.infoLabel}>Valor particular</span>
+              <span className={styles.infoLabel}>
+                Valor particular do {servicoMinusculo}
+              </span>
               <p className={styles.infoValue}>
                 {formatarMoeda(servicoAtual.valorParticular)}
               </p>
             </div>
             <div>
-              <span className={styles.infoLabel}>Convênios vinculados</span>
+              <span className={styles.infoLabel}>
+                Vínculos de {parceriasMinusculo}
+              </span>
               <p className={styles.infoValue}>{quantidadeConvenios}</p>
             </div>
           </div>
@@ -238,19 +269,19 @@ export function VisualizarServico() {
         <section className={styles.sectionCard}>
           <h2 className={styles.sectionTitle}>
             <FaMoneyCheckAlt className={styles.sectionIcon} />
-            Valores por convênio
+            Valores por {parceriaMinuscula}
           </h2>
 
           {quantidadeConvenios === 0 ? (
             <p className={styles.emptyPrice}>
-              Nenhum convênio vinculado a este serviço.
+              Nenhum item de {parceriasMinusculo} vinculado a este {servicoMinusculo}.
             </p>
           ) : (
             <div className={styles.pricingList}>
               {servicoAtual.servicosConvenios?.map((item) => (
                 <article key={item.convenioId} className={styles.pricingItem}>
                   <span className={styles.pricingName}>
-                    {item.convenioNome || `Convênio #${item.convenioId}`}
+                    {item.convenioNome || `${labels.parceria} #${item.convenioId}`}
                   </span>
                   <span className={styles.pricingValue}>
                     {formatarMoeda(item.valor)}
@@ -262,9 +293,12 @@ export function VisualizarServico() {
         </section>
 
         <section className={`${styles.sectionCard} ${styles.colSpan2}`}>
-          <h2 className={styles.sectionTitle}>Descrição</h2>
+          <h2 className={styles.sectionTitle}>
+            Descrição do {servicoMinusculo}
+          </h2>
           <p className={styles.notesText}>
-            {servicoAtual.descricao || "Nenhuma descrição cadastrada para este serviço."}
+            {servicoAtual.descricao ||
+              `Nenhuma descrição cadastrada para este ${servicoMinusculo}.`}
           </p>
         </section>
       </div>

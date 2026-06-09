@@ -4,13 +4,12 @@ import {
   FaChevronLeft,
   FaChevronRight,
   FaEye,
-  FaFileMedicalAlt,
   FaPlay,
   FaPlus,
   FaRegCalendarCheck,
   FaTimes,
 } from "react-icons/fa";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import {
   obterContextoAcessoUsuarioAutenticado,
 } from "../../auth/session";
@@ -20,7 +19,10 @@ import { PageHeader } from "../../components/ui/page-header";
 import { PageLayout } from "../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../components/ui/carregamento-central";
 import { Table } from "../../components/ui/table";
+import { getSegmentoIcons } from "../../config/segmento-icons";
+import { getSegmentoLabels } from "../../config/segmento-labels";
 import { obterDataSomenteDiaAtual } from "../../domain/data-somente-dia";
+import type { LayoutOutletContext } from "../../layout";
 import {
   agendamentoService,
   configuracaoService,
@@ -126,7 +128,11 @@ function criarDataLocalDaAgenda(dataIso: string): Date | null {
 export function Agenda() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
   const sessaoAutenticada = useSessaoAutenticada();
+  const labels = getSegmentoLabels(segmento);
+  const icons = getSegmentoIcons(segmento);
+  const AtendimentoIcon = icons.atendimento;
   const navigationState = location.state as AgendaLocationState | null;
   const [currentDate, setCurrentDate] = useState(new Date());
   const [clockNow, setClockNow] = useState(() => new Date());
@@ -180,7 +186,7 @@ export function Agenda() {
   const resolvedWalkInHorario = resolvedPrefillHorario || getNowTime();
   const podeCriarAgendamento = Boolean(profissionalOperacionalId);
   const mensagemProfissionalOperacionalInexistente =
-    "Cadastre um profissional ativo para registrar agendamentos e consultas avulsas.";
+    "Cadastre um profissional ativo para registrar agendamentos e atendimentos avulsos.";
   const createModalResolvedOpen =
     (createModalOpen || navigationModalOpen) && podeCriarAgendamento;
   const walkInModalResolvedOpen =
@@ -488,7 +494,7 @@ export function Agenda() {
         state: { returnTo: agendaPath },
       });
     } catch (error) {
-      setActionError(toErrorMessage(error, "Não foi possível abrir a consulta."));
+      setActionError(toErrorMessage(error, "Não foi possível abrir o atendimento."));
     }
   }
 
@@ -651,6 +657,7 @@ export function Agenda() {
         defaultPacienteNome={resolvedPrefillPacienteNome}
         catalogos={catalogos}
         configuracaoFuncionamento={configuracaoFuncionamento}
+        segmento={segmento}
       />
 
       <ModalConsultaAvulsa
@@ -667,12 +674,14 @@ export function Agenda() {
         defaultPacienteNome={resolvedPrefillPacienteNome}
         catalogos={catalogos}
         configuracaoFuncionamento={configuracaoFuncionamento}
+        segmento={segmento}
       />
 
       <ModalVisualizarAgendamento
         open={viewModalOpen}
         onClose={() => setViewModalOpen(false)}
         agendamento={selectedAgendamento}
+        segmento={segmento}
         onAbrirPaciente={openPaciente}
         onAbrirConsulta={openConsulta}
         onConfirmar={(id) => {
@@ -707,6 +716,7 @@ export function Agenda() {
           formasPagamento: catalogos.formasPagamento,
         }}
         configuracaoFuncionamento={configuracaoFuncionamento}
+        segmento={segmento}
       />
 
       <PageHeader
@@ -755,8 +765,8 @@ export function Agenda() {
                   : undefined
               }
             >
-              <FaFileMedicalAlt />
-              <span>Consulta avulsa</span>
+              <AtendimentoIcon />
+              <span>Atendimento avulso</span>
             </button>
             <button
               className={`${styles.btnPrimary} ${
@@ -804,8 +814,8 @@ export function Agenda() {
       ) : (
         <Table
           data={agendamentos}
-          caption="Lista de agendamentos do dia"
-          emptyMessage="Nenhum agendamento para esta data."
+          caption="Atendimentos do dia"
+          emptyMessage="Nenhum atendimento para esta data."
           getRowClassName={(row) => (isCurrentSlot(row) ? styles.currentTimeRow : "")}
           columns={[
           {
@@ -820,12 +830,12 @@ export function Agenda() {
           },
           {
             key: "paciente",
-            label: "Paciente",
+            label: labels.pessoa,
             render: (row) => <span>{row.paciente}</span>,
           },
           {
             key: "servico",
-            label: "Serviço",
+            label: labels.servico,
             render: (row) => <span>{row.servico}</span>,
           },
           {
@@ -835,7 +845,11 @@ export function Agenda() {
               <span
                 className={`${styles.coverageBadge} ${row.tipoAtendimento === "CONVENIO" ? styles.coverageConvenio : styles.coverageParticular}`}
               >
-                {formatarTipoAtendimento(row.tipoAtendimento, row.convenio)}
+                {formatarTipoAtendimento(
+                  row.tipoAtendimento,
+                  row.convenio,
+                  labels.parceria,
+                )}
               </span>
             ),
           },
@@ -875,7 +889,7 @@ export function Agenda() {
                       }
                     : row.status === "EM_ATENDIMENTO"
                       ? {
-                          label: "Abrir consulta",
+                          label: "Abrir atendimento",
                           icon: <FaPlay />,
                           className: styles.primaryStart,
                           onClick: () => void openConsulta(row.id),
@@ -905,7 +919,7 @@ export function Agenda() {
                       className={styles.actionBtn}
                       title="Visualizar"
                       type="button"
-                      aria-label={`Visualizar agendamento de ${row.paciente}`}
+                      aria-label={`Visualizar atendimento de ${row.paciente}`}
                       onClick={() => openViewModal(row.id)}
                     >
                       <FaEye color="var(--color-brand-dark)" />
@@ -928,7 +942,7 @@ export function Agenda() {
                         className={`${styles.actionBtn} ${styles.actionDanger}`}
                         title="Cancelar"
                         type="button"
-                        aria-label={`Cancelar agendamento de ${row.paciente}`}
+                        aria-label={`Cancelar atendimento de ${row.paciente}`}
                         onClick={() => void handleStatusTransition(row, "CANCELADO")}
                       >
                         <FaTimes color="var(--color-danger)" />
