@@ -61,7 +61,7 @@ export function ItemHistorico({
           onClick={aoAbrirConsulta}
         >
           <FaPlay />
-          <span>Abrir consulta</span>
+          <span>Abrir atendimento</span>
         </button>
       ) : null}
     </article>

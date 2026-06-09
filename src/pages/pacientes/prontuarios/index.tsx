@@ -44,7 +44,7 @@ function resolverErroHistoricoProntuario(
         titulo: "Acesso não autorizado",
         descricao: toErrorMessage(
           erro,
-          `Você não tem permissão para acessar os prontuários deste ${pessoaMinuscula}.`,
+          `Você não tem permissão para acessar o histórico deste ${pessoaMinuscula}.`,
         ),
       };
     }
@@ -58,18 +58,18 @@ function resolverErroHistoricoProntuario(
 
     if (erro.code === "INVALID_PRONTUARIO_LIST_RESPONSE") {
       return {
-        titulo: "Falha ao carregar prontuários",
+        titulo: "Falha ao carregar histórico",
         descricao:
-          "Recebemos dados em um formato diferente do esperado. A operação foi interrompida para manter o prontuário seguro.",
+          "Recebemos dados em um formato diferente do esperado. A operação foi interrompida para manter o histórico seguro.",
       };
     }
   }
 
   return {
-    titulo: "Não foi possível carregar os prontuários",
+    titulo: "Não foi possível carregar o histórico",
     descricao: toErrorMessage(
       erro,
-      "Não foi possível carregar o histórico de prontuários.",
+      "Não foi possível carregar o histórico de atendimentos.",
     ),
   };
 }
@@ -229,7 +229,7 @@ export function ProntuariosPaciente() {
       } catch (error) {
         setDetalheResponse(null);
         setDetalheError(
-          toErrorMessage(error, "Não foi possível carregar o prontuário."),
+          toErrorMessage(error, "Não foi possível carregar o atendimento."),
         );
       } finally {
         setLoadingDetalhe(false);
@@ -279,8 +279,8 @@ export function ProntuariosPaciente() {
 
   if (erroHistorico || !historicoResponse || !paciente) {
     const estadoErro = erroHistorico ?? {
-      titulo: "Não foi possível carregar os prontuários",
-      descricao: "Não foi possível carregar o histórico de prontuários.",
+      titulo: "Não foi possível carregar o histórico",
+      descricao: "Não foi possível carregar o histórico de atendimentos.",
     };
 
     return (
@@ -354,12 +354,22 @@ export function ProntuariosPaciente() {
         pacienteAtual.id,
         detalheResponse.prontuario.id,
       );
-      downloadBlob(blob, `prontuario-${detalheResponse.prontuario.id}.pdf`);
+      downloadBlob(blob, `atendimento-${detalheResponse.prontuario.id}.pdf`);
     } catch (error) {
       setAcaoError(
-        toErrorMessage(error, "Não foi possível exportar o prontuário em PDF."),
+        toErrorMessage(error, "Não foi possível exportar o atendimento em PDF."),
       );
     }
+  }
+
+  function handleNovoAtendimento() {
+    navigate("/agenda", {
+      state: {
+        returnTo: currentPath,
+        openWalkInModal: true,
+        prefillPaciente: pacienteAtual.nome,
+      },
+    });
   }
 
   function handleOpenConsulta(agendamentoId: number) {
@@ -371,7 +381,7 @@ export function ProntuariosPaciente() {
   return (
     <PageLayout>
       <PageHeader
-        title="Prontuários"
+        title="Histórico de atendimentos"
         left={
           <div className={styles.titleWithBack}>
             <button
@@ -385,7 +395,7 @@ export function ProntuariosPaciente() {
             <div>
               <h1 className={styles.pageTitle}>{pacienteAtual.nome}</h1>
               <p className={styles.pageSubtitle}>
-                Histórico clínico e detalhe da consulta
+                Histórico de atendimentos
               </p>
             </div>
           </div>
@@ -421,29 +431,42 @@ export function ProntuariosPaciente() {
                 onClick={() => handleOpenConsulta(consultaAberta)}
               >
                 <FaPlay />
-                <span>Abrir consulta</span>
+                <span>Abrir atendimento</span>
               </button>
             )}
           </div>
         }
       />
-      <div className={styles.workspaceGrid}>
-        <aside className={styles.historyPanel}>
-          <div className={styles.historyHeader}>
-            <h2>Histórico</h2>
-            <p>
-              {prontuarios.length === 1
-                ? "1 prontuário"
-                : `${prontuarios.length} prontuários`}
-            </p>
-          </div>
 
-          {!prontuarios.length ? (
-            <section className={styles.emptyCard}>
-              <h2>Nenhum prontuário encontrado</h2>
-              <p>Este {pessoaMinuscula} ainda não possui histórico clínico registrado.</p>
-            </section>
-          ) : (
+      {!prontuarios.length ? (
+        <section className={styles.emptyState} aria-label="Histórico vazio">
+          <div className={styles.emptyStateInner}>
+            <span className={styles.emptyDivider} aria-hidden="true" />
+            <h2>Histórico de atendimentos</h2>
+            <strong>Nenhum atendimento registrado.</strong>
+            <p>Quando houver registros eles aparecerão aqui.</p>
+            <button
+              type="button"
+              className={styles.btnPrimary}
+              onClick={handleNovoAtendimento}
+            >
+              <FaPlay />
+              <span>Novo atendimento</span>
+            </button>
+          </div>
+        </section>
+      ) : (
+        <div className={styles.workspaceGrid}>
+          <aside className={styles.historyPanel}>
+            <div className={styles.historyHeader}>
+              <h2>Atendimentos</h2>
+              <p>
+                {prontuarios.length === 1
+                  ? "1 atendimento"
+                  : `${prontuarios.length} atendimentos`}
+              </p>
+            </div>
+
             <div className={styles.historyList}>
               {prontuarios.map((prontuario) => (
                 <ItemHistorico
@@ -465,46 +488,41 @@ export function ProntuariosPaciente() {
                 />
               ))}
             </div>
-          )}
-        </aside>
+          </aside>
 
-        {!prontuarios.length ? (
-          <section className={styles.emptyCard}>
-            <h2>Selecione um prontuário</h2>
-            <p>O detalhe da consulta aparecerá aqui quando houver um registro disponível.</p>
-          </section>
-        ) : loadingDetalhe && !detalheResponse ? (
-          <CarregamentoCentral />
-        ) : detalheError || !detalheResponse || !prontuarioSelecionadoResumo ? (
-          <section className={styles.emptyCard}>
-            <h2>Prontuário indisponível</h2>
-            <p>
-              {detalheError ||
-                "Não foi possível carregar os detalhes do prontuário selecionado."}
-            </p>
-          </section>
-        ) : (
-          <VisualizacaoProntuario
-            paciente={detalheResponse.paciente}
-            consulta={detalheResponse.consulta}
-            prontuario={detalheResponse.prontuario}
-            formatarData={formatDateBr}
-            formatarDataHora={formatDateTimeBr}
-            formatarTamanhoArquivo={formatFileSize}
-            pessoaLabel={labels.pessoa}
-            aoAbrirPaciente={() =>
-              navigate(`/pacientes/${pacienteAtual.id}`, {
-                state: { returnTo: currentPath },
-              })
-            }
-            aoAbrirConsulta={
-              consultaAberta ? () => handleOpenConsulta(consultaAberta) : undefined
-            }
-            aoAbrirAnexo={(anexo) => void handleOpenAnexo(anexo)}
-            aoBaixarAnexo={(anexo) => void handleDownloadAnexo(anexo)}
-          />
-        )}
-      </div>
+          {loadingDetalhe && !detalheResponse ? (
+            <CarregamentoCentral />
+          ) : detalheError || !detalheResponse || !prontuarioSelecionadoResumo ? (
+            <section className={styles.emptyCard}>
+              <h2>Atendimento indisponível</h2>
+              <p>
+                {detalheError ||
+                  "Não foi possível carregar os detalhes do atendimento selecionado."}
+              </p>
+            </section>
+          ) : (
+            <VisualizacaoProntuario
+              paciente={detalheResponse.paciente}
+              consulta={detalheResponse.consulta}
+              prontuario={detalheResponse.prontuario}
+              formatarData={formatDateBr}
+              formatarDataHora={formatDateTimeBr}
+              formatarTamanhoArquivo={formatFileSize}
+              pessoaLabel={labels.pessoa}
+              aoAbrirPaciente={() =>
+                navigate(`/pacientes/${pacienteAtual.id}`, {
+                  state: { returnTo: currentPath },
+                })
+              }
+              aoAbrirConsulta={
+                consultaAberta ? () => handleOpenConsulta(consultaAberta) : undefined
+              }
+              aoAbrirAnexo={(anexo) => void handleOpenAnexo(anexo)}
+              aoBaixarAnexo={(anexo) => void handleDownloadAnexo(anexo)}
+            />
+          )}
+        </div>
+      )}
 
       {acaoError ? (
         <section className={styles.emptyCard}>

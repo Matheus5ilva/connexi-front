@@ -7,16 +7,18 @@ import {
   FaDownload,
   FaEnvelope,
   FaExternalLinkAlt,
-  FaFileMedical,
   FaFilePdf,
   FaPaperclip,
   FaPhone,
   FaSave,
-  FaStethoscope,
   FaTrash,
-  FaUser,
 } from "react-icons/fa";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+  useOutletContext,
+  useParams,
+} from "react-router-dom";
 import { AvisoErroFormulario } from "../../components/ui/aviso-erro-formulario";
 import { FormField } from "../../components/ui/form-field";
 import { NotFoundCard } from "../../components/ui/not-found-card";
@@ -24,6 +26,9 @@ import { PageHeader } from "../../components/ui/page-header";
 import { PageLayout } from "../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../components/ui/carregamento-central";
 import { StatusBadge } from "../../components/ui/status-badge";
+import { getSegmentoIcons } from "../../config/segmento-icons";
+import { getSegmentoLabels } from "../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../layout";
 import { resolveReturnTo } from "../../routes/return-to";
 import {
   finalizarConsultaSchema,
@@ -56,12 +61,12 @@ type ErroCarregamentoConsulta = {
 };
 
 const mapaRotulosCamposConsulta = {
-  tempoConsultaMinutos: "Tempo da consulta",
-  queixaPrincipal: "Queixa principal",
-  registroConsulta: "Registro da consulta",
-  conduta: "Conduta",
+  tempoConsultaMinutos: "Tempo do atendimento",
+  queixaPrincipal: "Motivo do atendimento",
+  registroConsulta: "Registro do atendimento",
+  conduta: "Ações realizadas",
   observacoes: "Observações",
-  receitaDigitada: "Receita digitada",
+  receitaDigitada: "Recomendações",
 } satisfies Record<string, string>;
 
 function formatDateBr(value?: string): string {
@@ -111,13 +116,35 @@ function exibirTexto(valor?: string | null): string {
   return texto ? texto : VALOR_AUSENTE;
 }
 
-function exibirAtendimento(consulta: ContextoConsulta["consulta"]): string {
-  const tipoAtendimento = exibirTexto(consulta.tipoAtendimento);
-  const tipoConsulta = consulta.tipoConsulta?.trim();
+function formatTipoAtendimento(tipoAtendimento?: string | null): string {
+  const tipo = tipoAtendimento?.trim();
+  if (!tipo) {
+    return VALOR_AUSENTE;
+  }
 
-  return tipoConsulta
-    ? `${tipoAtendimento} • ${tipoConsulta}`
-    : tipoAtendimento;
+  if (tipo === "CONVENIO") {
+    return "Convênio";
+  }
+
+  if (tipo === "PARTICULAR") {
+    return "Particular";
+  }
+
+  return tipo;
+}
+
+function exibirAtendimento(
+  consulta: ContextoConsulta["consulta"],
+  pessoaLabel: string,
+): string {
+  if (pessoaLabel.toLowerCase() === "cliente") {
+    return "Atendimento";
+  }
+
+  const tipoAtendimento = formatTipoAtendimento(consulta.tipoAtendimento);
+  return tipoAtendimento === VALOR_AUSENTE
+    ? "Atendimento"
+    : `${tipoAtendimento} • Atendimento`;
 }
 
 function formatFileSize(bytes: number): string {
@@ -165,31 +192,31 @@ function resolverErroCarregamentoConsulta(
         titulo: "Acesso não autorizado",
         descricao: toErrorMessage(
           erro,
-          "Você não tem permissão para acessar esta consulta.",
+          "Você não tem permissão para acessar este atendimento.",
         ),
       };
     }
 
     if (erro.status === 404) {
       return {
-        titulo: "Consulta não encontrada",
+        titulo: "Atendimento não encontrado",
         descricao:
-          "Não encontramos a consulta informada. Ela pode ter sido removida ou não pertencer ao tenant atual.",
+          "Não encontramos o atendimento informado. Ele pode ter sido removido ou não pertencer ao tenant atual.",
       };
     }
 
     if (erro.code === "INVALID_CONSULTA_WORKSPACE_RESPONSE") {
       return {
-        titulo: "Falha ao carregar a consulta",
+        titulo: "Falha ao carregar o atendimento",
         descricao:
-          "Recebemos dados em um formato diferente do esperado. A operação foi interrompida para manter a consulta segura.",
+          "Recebemos dados em um formato diferente do esperado. A operação foi interrompida para manter o atendimento seguro.",
       };
     }
   }
 
   return {
-    titulo: "Não foi possível carregar a consulta",
-    descricao: toErrorMessage(erro, "Não foi possível carregar a consulta."),
+    titulo: "Não foi possível carregar o atendimento",
+    descricao: toErrorMessage(erro, "Não foi possível carregar o atendimento."),
   };
 }
 
@@ -233,6 +260,13 @@ function openBlob(blob: Blob): boolean {
 export function ConsultaAtendimento() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const icons = getSegmentoIcons(segmento);
+  const AtendimentoIcon = icons.atendimento;
+  const HistoricoIcon = icons.historico;
+  const PessoaIcon = icons.pessoa;
+  const ServicoIcon = icons.servico;
   const returnTo = resolveReturnTo(location, "/agenda");
   const { agendamentoId } = useParams();
   const numericAgendamentoId = parseRouteNumericId(agendamentoId);
@@ -268,8 +302,8 @@ export function ConsultaAtendimento() {
     if (!numericAgendamentoId) {
       setLoading(false);
       setErroCarregamento({
-        titulo: "Consulta não encontrada",
-        descricao: "O identificador informado para a consulta é inválido.",
+        titulo: "Atendimento não encontrado",
+        descricao: "O identificador informado para o atendimento é inválido.",
       });
       return;
     }
@@ -345,8 +379,8 @@ export function ConsultaAtendimento() {
     return (
       <PageLayout>
         <NotFoundCard
-          title="Consulta não encontrada"
-          description="O identificador informado para a consulta é inválido."
+          title="Atendimento não encontrado"
+          description="O identificador informado para o atendimento é inválido."
           actionLabel="Voltar para a agenda"
           onAction={() => navigate(returnTo)}
         />
@@ -364,8 +398,8 @@ export function ConsultaAtendimento() {
 
   if (erroCarregamento || !contextoConsulta) {
     const estadoErro = erroCarregamento ?? {
-      titulo: "Consulta não encontrada",
-      descricao: "Não foi possível localizar a consulta.",
+      titulo: "Atendimento não encontrado",
+      descricao: "Não foi possível localizar o atendimento.",
     };
 
     return (
@@ -424,7 +458,7 @@ export function ConsultaAtendimento() {
     if (!parsed.success) {
       const resultadoErro = normalizarErroZodFormulario(parsed.error, {
         mapaRotulosCampos: mapaRotulosCamposConsulta,
-        mensagemPadrao: "Revise os campos da consulta.",
+        mensagemPadrao: "Revise os campos do atendimento.",
       });
       setFormError(resultadoErro.mensagemGlobal);
       setErrosFormulario(resultadoErro.erros);
@@ -445,10 +479,10 @@ export function ConsultaAtendimento() {
 
       setContextoConsulta(response);
       setForm(createInitialForm(response));
-      setFeedback("Consulta salva com sucesso.");
+      setFeedback("Atendimento salvo com sucesso.");
     } catch (error) {
       setFormError(
-        toErrorMessage(error, "Não foi possível salvar a consulta."),
+        toErrorMessage(error, "Não foi possível salvar o atendimento."),
       );
       setErrosFormulario([]);
     } finally {
@@ -462,7 +496,7 @@ export function ConsultaAtendimento() {
     if (!parsed.success) {
       const resultadoErro = normalizarErroZodFormulario(parsed.error, {
         mapaRotulosCampos: mapaRotulosCamposConsulta,
-        mensagemPadrao: "Revise os campos da consulta.",
+        mensagemPadrao: "Revise os campos do atendimento.",
       });
       setFormError(resultadoErro.mensagemGlobal);
       setErrosFormulario(resultadoErro.erros);
@@ -483,10 +517,10 @@ export function ConsultaAtendimento() {
 
       setContextoConsulta(response);
       setForm(createInitialForm(response));
-      setFeedback("Consulta finalizada com sucesso.");
+      setFeedback("Atendimento finalizado com sucesso.");
     } catch (error) {
       setFormError(
-        toErrorMessage(error, "Não foi possível finalizar a consulta."),
+        toErrorMessage(error, "Não foi possível finalizar o atendimento."),
       );
       setErrosFormulario([]);
     } finally {
@@ -504,7 +538,7 @@ export function ConsultaAtendimento() {
 
     if (anexos.length + files.length > LIMITE_ANEXOS_CONSULTA) {
       setUploadError(
-        `O limite é de ${LIMITE_ANEXOS_CONSULTA} anexos por consulta.`,
+        `O limite é de ${LIMITE_ANEXOS_CONSULTA} anexos por atendimento.`,
       );
       setFeedback(null);
       return;
@@ -575,7 +609,7 @@ export function ConsultaAtendimento() {
 
   async function handleExportarPdf() {
     if (!podeExportarPdf) {
-      setPdfError("Salve a consulta antes de exportar o PDF.");
+      setPdfError("Salve o atendimento antes de exportar o PDF.");
       return;
     }
 
@@ -584,10 +618,10 @@ export function ConsultaAtendimento() {
       const blob = await consultaService.exportarPorAgendamento(
         consulta.agendamentoId,
       );
-      downloadBlob(blob, `consulta-${consulta.agendamentoId}.pdf`);
+      downloadBlob(blob, `atendimento-${consulta.agendamentoId}.pdf`);
     } catch (error) {
       setPdfError(
-        toErrorMessage(error, "Não foi possível exportar a consulta em PDF."),
+        toErrorMessage(error, "Não foi possível exportar o atendimento em PDF."),
       );
     }
   }
@@ -595,7 +629,7 @@ export function ConsultaAtendimento() {
   return (
     <PageLayout>
       <PageHeader
-        title="Consulta"
+        title="Atendimento"
         left={
           <div className={styles.titleWithBack}>
             <button
@@ -609,7 +643,7 @@ export function ConsultaAtendimento() {
             <div>
               <h1 className={styles.pageTitle}>{paciente.nome}</h1>
               <p className={styles.pageSubtitle}>
-                Registro clínico e histórico do paciente
+                Atendimento e histórico
               </p>
             </div>
           </div>
@@ -632,23 +666,23 @@ export function ConsultaAtendimento() {
         <div className={styles.headerMetaItem}>
           <span>Profissional</span>
           <strong>
-            <FaUser /> {exibirTexto(consulta.profissionalNome)}
+            <PessoaIcon /> {exibirTexto(consulta.profissionalNome)}
           </strong>
         </div>
         <div className={styles.headerMetaItem}>
           <span>Serviço</span>
           <strong>
-            <FaStethoscope /> {exibirTexto(consulta.servicoNome)}
+            <ServicoIcon /> {exibirTexto(consulta.servicoNome)}
           </strong>
         </div>
         <div className={styles.headerMetaItem}>
           <span>Atendimento</span>
           <strong>
-            <FaFileMedical /> {exibirAtendimento(consulta)}
+            <AtendimentoIcon /> {exibirAtendimento(consulta, labels.pessoa)}
           </strong>
         </div>
         <div className={styles.headerStatus}>
-          <span>Status da consulta</span>
+          <span>Status do atendimento</span>
           <StatusBadge
             label={formatConsultaStatus(consulta.statusConsulta)}
             variant={toConsultaStatusVariant(consulta.statusConsulta)}
@@ -660,7 +694,7 @@ export function ConsultaAtendimento() {
         <article className={styles.recordCard}>
           <header className={styles.cardHeader}>
             <div>
-              <h2>Prontuário da consulta</h2>
+              <h2>Registro do atendimento</h2>
             </div>
             {podeExportarPdf && (
               <button
@@ -683,27 +717,27 @@ export function ConsultaAtendimento() {
               <FaCheckCircle />
               <span>
                 {consultaEditavel
-                  ? "Consulta em atendimento. Você pode continuar atualizando o prontuário."
-                  : "Consulta finalizada. O prontuário está em modo de leitura."}
+                  ? "Atendimento em andamento. Você pode continuar atualizando o registro."
+                  : "Atendimento finalizado. O registro está em modo de leitura."}
               </span>
             </div>
           )}
 
           <div className={styles.formGrid}>
             <div className={styles.timerPanel} aria-live="polite">
-              <span className={styles.timerLabel}>Tempo da consulta</span>
+              <span className={styles.timerLabel}>Tempo do atendimento</span>
               <strong className={styles.timerValue}>
                 <FaClock /> {formatarTempoConsulta(tempoConsultaAtualMinutos)}
               </strong>
               <span className={styles.timerCaption}>
-                O tempo é calculado automaticamente enquanto a consulta está
-                aberta.
+                O tempo é calculado automaticamente enquanto o atendimento está
+                aberto.
               </span>
             </div>
 
             <FormField
               id="consulta-queixa-principal"
-              label="Queixa principal"
+              label="Motivo do atendimento"
               hint="Opcional. Máximo de 500 caracteres."
               colSpan="full"
             >
@@ -714,14 +748,14 @@ export function ConsultaAtendimento() {
                 onChange={(event) =>
                   handleFormChange("queixaPrincipal", event.target.value)
                 }
-                placeholder="Descreva a queixa principal do paciente."
+                placeholder="Descreva o motivo do atendimento."
                 disabled={!consultaEditavel}
               />
             </FormField>
 
             <FormField
               id="consulta-registro"
-              label="Registro da consulta"
+              label="Registro do atendimento"
               hint="Opcional. Máximo de 20.000 caracteres."
               colSpan="full"
             >
@@ -739,7 +773,7 @@ export function ConsultaAtendimento() {
 
             <FormField
               id="consulta-conduta"
-              label="Conduta"
+              label="Ações realizadas"
               hint="Opcional. Máximo de 5.000 caracteres."
               colSpan="full"
             >
@@ -750,7 +784,7 @@ export function ConsultaAtendimento() {
                 onChange={(event) =>
                   handleFormChange("conduta", event.target.value)
                 }
-                placeholder="Descreva a conduta adotada."
+                placeholder="Descreva as ações realizadas."
                 disabled={!consultaEditavel}
               />
             </FormField>
@@ -775,7 +809,7 @@ export function ConsultaAtendimento() {
 
             <FormField
               id="consulta-receita-digitada"
-              label="Receita digitada"
+              label="Recomendações"
               hint="Opcional. Máximo de 5.000 caracteres."
               colSpan="full"
             >
@@ -786,7 +820,7 @@ export function ConsultaAtendimento() {
                 onChange={(event) =>
                   handleFormChange("receitaDigitada", event.target.value)
                 }
-                placeholder="Digite a receita ou orientação que deverá ficar registrada."
+                placeholder="Digite recomendações ou orientações que deverão ficar registradas."
                 disabled={!consultaEditavel}
               />
             </FormField>
@@ -794,13 +828,13 @@ export function ConsultaAtendimento() {
 
           <section
             className={styles.attachmentsCard}
-            aria-label="Anexos da consulta"
+            aria-label="Anexos do atendimento"
           >
             <div className={styles.attachmentsHeader}>
               <div>
                 <h3 className={styles.attachmentsTitle}>Anexos</h3>
                 <p className={styles.attachmentsSubtitle}>
-                  Arquivos vinculados ao prontuário desta consulta.
+                  Arquivos vinculados ao registro deste atendimento.
                 </p>
               </div>
               {consultaEditavel && (
@@ -822,7 +856,7 @@ export function ConsultaAtendimento() {
 
             {!anexos.length ? (
               <div className={styles.emptyAttachment}>
-                Nenhum anexo disponível para esta consulta.
+                Nenhum anexo disponível para este atendimento.
               </div>
             ) : (
               <ul className={styles.attachmentList}>
@@ -892,7 +926,7 @@ export function ConsultaAtendimento() {
               disabled={!consultaEditavel || saving || finalizing}
             >
               <FaSave />
-              <span>{saving ? "Salvando..." : "Salvar consulta"}</span>
+              <span>{saving ? "Salvando..." : "Salvar atendimento"}</span>
             </button>
 
             {consultaEditavel && (
@@ -904,7 +938,7 @@ export function ConsultaAtendimento() {
               >
                 <FaCheckCircle />
                 <span>
-                  {finalizing ? "Finalizando..." : "Finalizar consulta"}
+                  {finalizing ? "Finalizando..." : "Finalizar atendimento"}
                 </span>
               </button>
             )}
@@ -914,7 +948,7 @@ export function ConsultaAtendimento() {
         <aside className={styles.sideColumn}>
           <section className={styles.patientCard}>
             <header className={styles.cardHeaderCompact}>
-              <h3>Paciente</h3>
+              <h3>{labels.pessoa}</h3>
             </header>
             <strong className={styles.patientName}>{paciente.nome}</strong>
             <div className={styles.patientDetails}>
@@ -963,13 +997,13 @@ export function ConsultaAtendimento() {
 
           <section className={styles.historyCard}>
             <header className={styles.cardHeaderCompact}>
-              <h3>Histórico do paciente</h3>
+              <h3>Histórico de atendimentos</h3>
             </header>
 
             {!historico.length ? (
               <div className={styles.emptyHistory}>
-                <FaFileMedical />
-                <p>Não há prontuários anteriores para este paciente.</p>
+                <HistoricoIcon />
+                <p>Nenhum atendimento anterior encontrado.</p>
               </div>
             ) : (
               <div className={styles.historyList}>

@@ -60,6 +60,34 @@ function formatConsultaStatus(status: StatusConsulta): string {
   }
 }
 
+function formatTipoAtendimento(tipoAtendimento?: string | null): string {
+  if (!tipoAtendimento) {
+    return "";
+  }
+
+  if (tipoAtendimento === "CONVENIO") {
+    return "Convênio";
+  }
+
+  if (tipoAtendimento === "PARTICULAR") {
+    return "Particular";
+  }
+
+  return tipoAtendimento;
+}
+
+function formatResumoAtendimento(
+  consulta: ConsultaResumo,
+  pessoaLabel: string,
+): string {
+  if (pessoaLabel.toLowerCase() === "cliente") {
+    return "Atendimento";
+  }
+
+  const tipoAtendimento = formatTipoAtendimento(consulta.tipoAtendimento);
+  return tipoAtendimento ? `${tipoAtendimento} • Atendimento` : "Atendimento";
+}
+
 export function VisualizacaoProntuario({
   prontuario,
   paciente,
@@ -76,7 +104,7 @@ export function VisualizacaoProntuario({
   const pessoaMinuscula = pessoaLabel.toLowerCase();
 
   return (
-    <section className={styles.detailPanel} aria-label="Detalhe do prontuário">
+    <section className={styles.detailPanel} aria-label="Detalhe do atendimento">
       <div className={styles.headerSummary}>
         <div className={styles.headerMetaItem}>
           <span>Data</span>
@@ -106,9 +134,7 @@ export function VisualizacaoProntuario({
           <span>Atendimento</span>
           <strong>
             <FaFileMedicalAlt />{" "}
-            {consulta.tipoConsulta
-              ? `${consulta.tipoAtendimento} • ${consulta.tipoConsulta}`
-              : consulta.tipoAtendimento}
+            {formatResumoAtendimento(consulta, pessoaLabel)}
           </strong>
         </div>
         <div className={styles.headerStatus}>
@@ -122,32 +148,32 @@ export function VisualizacaoProntuario({
 
       <div className={styles.detailLayout}>
         <div className={styles.mainColumn}>
-          <SecaoCartao titulo="Registro da consulta">
+          <SecaoCartao titulo="Registro do atendimento">
             <div className={styles.readBlock}>
-              <h4>Queixa principal</h4>
-              <p>{prontuario.queixaPrincipal || "Sem queixa principal registrada."}</p>
+              <h4>Motivo do atendimento</h4>
+              <p>{prontuario.queixaPrincipal || "Sem motivo registrado."}</p>
             </div>
 
             <div className={styles.readBlock}>
-              <h4>Registro da consulta</h4>
-              <p>{prontuario.registroConsulta || "Sem registro da consulta."}</p>
+              <h4>Registro do atendimento</h4>
+              <p>{prontuario.registroConsulta || "Sem registro do atendimento."}</p>
             </div>
 
             <div className={styles.readBlock}>
-              <h4>Conduta</h4>
-              <p>{prontuario.conduta || "Sem conduta registrada."}</p>
+              <h4>Ações realizadas</h4>
+              <p>{prontuario.conduta || "Sem ações registradas."}</p>
             </div>
           </SecaoCartao>
 
-          <SecaoCartao titulo="Observações e receita">
+          <SecaoCartao titulo="Observações e recomendações">
             <div className={styles.readBlock}>
               <h4>Observações</h4>
               <p>{prontuario.observacoes || "Sem observações adicionais."}</p>
             </div>
 
             <div className={styles.readBlock}>
-              <h4>Receita digitada</h4>
-              <p>{prontuario.receitaDigitada || "Sem receita digitada."}</p>
+              <h4>Recomendações</h4>
+              <p>{prontuario.receitaDigitada || "Sem recomendações registradas."}</p>
             </div>
 
             <div className={styles.readBlock}>
@@ -157,7 +183,7 @@ export function VisualizacaoProntuario({
           </SecaoCartao>
 
           <SecaoCartao
-            titulo="Anexos"
+            titulo="Registros e anexos"
             acao={
               aoAbrirConsulta ? (
                 <button
@@ -166,7 +192,7 @@ export function VisualizacaoProntuario({
                   onClick={aoAbrirConsulta}
                 >
                   <FaPlay />
-                  <span>Abrir consulta</span>
+                  <span>Abrir atendimento</span>
                 </button>
               ) : undefined
             }
@@ -174,7 +200,7 @@ export function VisualizacaoProntuario({
             {!prontuario.anexos.length ? (
               <div className={styles.emptyAttachments}>
                 <FaPaperclip />
-                <p>Sem anexos vinculados a este prontuário.</p>
+                <p>Sem anexos vinculados a este atendimento.</p>
               </div>
             ) : (
               <ul className={styles.attachmentList}>

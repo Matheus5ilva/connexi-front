@@ -1,11 +1,11 @@
 .card {
-  border: 1px solid var(--color-border);
-  background: var(--color-surface-soft);
-  border-radius: 12px;
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-surface);
+  border-radius: 8px;
   padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
   transition:
     border-color 0.12s,
     box-shadow 0.12s,
@@ -15,14 +15,15 @@
 
 .card:hover {
   border-color: var(--color-brand);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
   transform: translateY(-1px);
   background: var(--color-surface);
 }
 
 .active {
   border-color: rgba(99, 213, 199, 0.46);
-  background: var(--color-brand-soft);
+  box-shadow: inset 3px 0 0 rgba(99, 213, 199, 0.7);
+  background: var(--color-surface);
 }
 
 .selectBtn {
@@ -34,7 +35,7 @@
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
 }
 
 .selectBtn:focus-visible {
@@ -58,7 +59,7 @@
 
 .dateBlock strong {
   color: var(--color-text);
-  font-size: 0.88rem;
+  font-size: 0.86rem;
 }
 
 .dateBlock small {
@@ -69,7 +70,7 @@
 .summary {
   margin: 0;
   color: var(--color-text);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   line-height: 1.45;
   display: inline-flex;
   gap: 8px;
@@ -98,21 +99,21 @@
 .metaChip {
   display: inline-flex;
   align-items: center;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  border-radius: 999px;
-  padding: 3px 8px;
+  border: 1px solid var(--color-border-soft);
+  background: transparent;
+  border-radius: 8px;
+  padding: 3px 7px;
   color: var(--color-text-muted);
   font-size: 0.74rem;
   font-weight: 600;
 }
 
 .openBtn {
-  border: 1px solid var(--color-brand);
-  background: var(--color-brand-soft);
+  border: 1px solid var(--color-border-soft);
+  background: transparent;
   color: var(--color-brand-hover);
   border-radius: 8px;
-  padding: 7px 10px;
+  padding: 7px 9px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -125,6 +126,6 @@
 .openBtn:hover,
 .openBtn:focus-visible {
   background: var(--color-brand-soft);
+  border-color: var(--color-brand);
   outline: none;
 }
-

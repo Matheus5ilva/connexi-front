@@ -27,7 +27,7 @@
 
 .pageTitle {
   margin: 0;
-  font-size: 1.4rem;
+  font-size: 1.28rem;
   font-weight: 600;
   color: var(--color-text);
 }
@@ -40,47 +40,48 @@
 
 .headerCard {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 14px;
-  padding: 14px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 12px 14px;
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px 14px;
 }
 
 .headerMetaItem,
 .headerStatus {
-  background: var(--color-surface-soft);
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  padding: 10px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 2px 8px 2px 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
+  min-width: 0;
 }
 
 .headerMetaItem span,
 .headerStatus span {
   color: var(--color-text-muted);
   font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   font-weight: 600;
 }
 
 .headerMetaItem strong {
   margin: 0;
   color: var(--color-text);
-  font-size: 0.87rem;
+  font-size: 0.84rem;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
 }
 
 .mainGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
-  gap: 16px;
+  grid-template-columns: minmax(0, 1.75fr) minmax(280px, 0.78fr);
+  gap: 18px;
   align-items: start;
 }
 
@@ -89,21 +90,21 @@
 .historyCard,
 .notFoundCard {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: 16px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
+  padding: 16px 18px;
 }
 
 .sideColumn {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .cardHeader h2 {
   margin: 0;
   color: var(--color-text);
-  font-size: 1.02rem;
+  font-size: 0.98rem;
 }
 
 .cardHeader {
@@ -111,6 +112,8 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border-soft);
 }
 
 .cardHeader p {
@@ -121,10 +124,10 @@
 }
 
 .pdfButton {
-  border: 1px solid var(--color-brand-soft);
-  background: var(--color-brand-soft);
+  border: 1px solid var(--color-border-soft);
+  background: transparent;
   color: var(--color-brand-hover);
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 0.82rem;
   font-weight: 600;
   padding: 9px 12px;
@@ -146,15 +149,15 @@
 .cardHeaderCompact h3 {
   margin: 0;
   color: var(--color-text);
-  font-size: 0.92rem;
+  font-size: 0.9rem;
 }
 
 .currentRecordBanner {
-  margin-top: 14px;
+  margin-top: 12px;
   background: var(--color-success-soft);
   border: 1px solid #ccebd9;
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: 8px;
+  padding: 9px 11px;
   color: #166534;
   display: flex;
   align-items: center;
@@ -172,14 +175,14 @@
   margin-top: 14px;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 13px;
 }
 
 .formGrid input,
 .formGrid textarea {
   width: 100%;
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
   padding: 10px 12px;
   box-sizing: border-box;
   color: var(--color-text);
@@ -203,28 +206,25 @@
 }
 
 .timerPanel {
-  border: 1px solid var(--color-brand-soft);
-  background:
-    linear-gradient(135deg, rgba(239, 246, 255, 0.95), rgba(255, 255, 255, 0.96)),
-    var(--color-surface);
-  border-radius: 12px;
-  padding: 14px;
+  border: 1px solid var(--color-border-soft);
+  background: var(--color-surface-soft);
+  border-radius: 8px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .timerLabel {
   color: var(--color-text-muted);
   font-size: 0.74rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   font-weight: 600;
 }
 
 .timerValue {
   color: var(--color-brand-hover);
-  font-size: 1.32rem;
+  font-size: 1.2rem;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -240,7 +240,7 @@
 .formSuccess {
   margin: 12px 0 0;
   padding: 10px 12px;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 0.84rem;
 }
 
@@ -257,18 +257,18 @@
 }
 
 .recordActions {
-  margin-top: 14px;
+  margin-top: 16px;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
 }
 
 .attachmentsCard {
-  margin-top: 14px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface-soft);
-  border-radius: 12px;
-  padding: 12px;
+  margin-top: 16px;
+  border-top: 1px solid var(--color-border-soft);
+  background: transparent;
+  border-radius: 0;
+  padding: 14px 0 0;
 }
 
 .attachmentsHeader {
@@ -291,10 +291,10 @@
 }
 
 .uploadButton {
-  border: 1px solid var(--color-brand);
-  background: var(--color-brand-soft);
+  border: 1px solid var(--color-border-soft);
+  background: transparent;
   color: var(--color-brand-hover);
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 600;
   padding: 8px 10px;
@@ -309,6 +309,7 @@
 .uploadButton:hover,
 .uploadButton:focus-within {
   background: var(--color-brand-soft);
+  border-color: var(--color-brand);
   outline: none;
 }
 
@@ -332,9 +333,9 @@
 
 .emptyAttachment {
   margin-top: 10px;
-  border: 1px dashed var(--color-border);
-  border-radius: 10px;
-  padding: 10px;
+  border: 1px dashed var(--color-border-soft);
+  border-radius: 8px;
+  padding: 12px;
   color: var(--color-text-muted);
   font-size: 0.84rem;
   text-align: center;
@@ -350,10 +351,10 @@
 }
 
 .attachmentItem {
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
   background: var(--color-surface);
-  padding: 10px;
+  padding: 9px 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -388,7 +389,7 @@
 }
 
 .attachmentBtn {
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-soft);
   background: var(--color-surface);
   color: var(--color-text);
   border-radius: 8px;
@@ -425,7 +426,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
@@ -436,7 +437,7 @@
 .btnSecondary {
   background: var(--color-surface);
   color: var(--color-text);
-  border-color: var(--color-border);
+  border-color: var(--color-border-soft);
   padding: 10px 14px;
 }
 
@@ -470,16 +471,16 @@
 
 .patientName {
   display: block;
-  margin-top: 8px;
+  margin-top: 10px;
   color: var(--color-text);
-  font-size: 1rem;
+  font-size: 1.02rem;
 }
 
 .patientDetails {
-  margin-top: 14px;
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .patientMeta {
@@ -488,8 +489,8 @@
   font-size: 0.84rem;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding-bottom: 10px;
+  gap: 2px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--color-border-soft);
 }
 
@@ -499,8 +500,7 @@
   align-items: center;
   gap: 6px;
   font-size: 0.76rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   font-weight: 600;
 }
 
@@ -511,21 +511,21 @@
 }
 
 .patientActions {
-  margin-top: 14px;
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
 }
 
 .linkButton {
-  border: none;
-  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border-soft);
+  background: transparent;
   color: var(--color-brand-dark);
   font-size: 0.84rem;
   font-weight: 600;
   cursor: pointer;
   padding: 9px 10px;
-  border-radius: 10px;
+  border-radius: 8px;
   text-align: left;
 }
 
@@ -538,9 +538,9 @@
 
 .emptyHistory {
   margin-top: 10px;
-  border: 1px dashed var(--color-border);
-  border-radius: 12px;
-  padding: 14px;
+  border: 1px dashed var(--color-border-soft);
+  border-radius: 8px;
+  padding: 18px 12px;
   color: var(--color-text-muted);
   display: flex;
   flex-direction: column;
@@ -554,24 +554,24 @@
   margin-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .historyItem {
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
   overflow: hidden;
 }
 
 .historyHeader {
   width: 100%;
   border: none;
-  background: var(--color-surface-soft);
+  background: var(--color-surface);
   display: flex;
   justify-content: space-between;
   gap: 10px;
   align-items: center;
-  padding: 11px;
+  padding: 9px 10px;
   cursor: pointer;
   text-align: left;
 }
@@ -590,7 +590,7 @@
 
 .historyTitle strong {
   color: var(--color-text);
-  font-size: 0.88rem;
+  font-size: 0.84rem;
 }
 
 .historyTitle small {
@@ -610,12 +610,12 @@
 }
 
 .historyBody {
-  padding: 11px;
+  padding: 9px 10px 10px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   color: var(--color-text);
-  font-size: 0.84rem;
+  font-size: 0.82rem;
 }
 
 .historyBody p {
@@ -641,8 +641,8 @@
 
 .notFoundCard button {
   align-self: flex-start;
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 8px;
   background: var(--color-surface);
   color: var(--color-text);
   font-weight: 600;

@@ -262,77 +262,78 @@ export function Pacientes() {
           getRowClassName={() => styles.patientRow}
           getRowAriaLabel={(row) => `Abrir perfil de ${row.nome}`}
           columns={[
-          {
-            key: "paciente",
-            label: labels.pessoa,
-            render: (row) => (
-              <TableTextCell
-                primary={row.nome}
-                secondary={row.cpf ? `CPF ${row.cpf}` : "CPF não informado"}
-              />
-            ),
-          },
-          {
-            key: "telefone",
-            label: "Telefone",
-            render: (row) => (
-              <TableTextCell primary={row.telefone || "Não informado"} />
-            ),
-          },
-          {
-            key: "email",
-            label: "E-mail",
-            render: (row) => (
-              <TableTextCell primary={row.email || "Não informado"} />
-            ),
-          },
-          {
-            key: "dataNascimento",
-            label: "Nascimento",
-            render: (row) => (
-              <TableTextCell primary={formatarDataSomenteDia(row.dataNascimento)} />
-            ),
-          },
-          {
-            key: "status",
-            label: "Status",
-            align: "center",
-            render: (row) => renderStatusBadge(row.ativo),
-          },
-          {
-            key: "acoes",
-            label: "Ações",
-            align: "right",
-            render: (row) => (
-              <div className={styles.actionButtons}>
-                <TableActionButton
-                  icon={<FaEdit color="var(--color-brand-dark)" />}
-                  label={`Editar ${row.nome}`}
-                  title="Editar"
-                  onClick={() =>
-                    navigate(`/pacientes/${row.id}/editar`, {
-                      state: { returnTo: pacientesPath },
-                    })
-                  }
+            {
+              key: "paciente",
+              label: labels.pessoa,
+              render: (row) => (
+                <TableTextCell
+                  primary={row.nome}
+                  secondary={row.cpf ? `CPF ${row.cpf}` : "CPF não informado"}
                 />
+              ),
+            },
+            {
+              key: "telefone",
+              label: "Telefone",
+              render: (row) => (
+                <TableTextCell primary={row.telefone || "Não informado"} />
+              ),
+            },
+            {
+              key: "email",
+              label: "E-mail",
+              render: (row) => (
+                <TableTextCell primary={row.email || "Não informado"} />
+              ),
+            },
+            {
+              key: "dataNascimento",
+              label: "Nascimento",
+              render: (row) => (
+                <TableTextCell
+                  primary={formatarDataSomenteDia(row.dataNascimento)}
+                />
+              ),
+            },
+            {
+              key: "status",
+              label: "Status",
+              align: "center",
+              render: (row) => renderStatusBadge(row.ativo),
+            },
+            {
+              key: "acoes",
+              label: "Ações",
+              align: "right",
+              render: (row) => (
+                <div className={styles.actionButtons}>
+                  <TableActionButton
+                    icon={<FaEdit color="var(--color-brand-dark)" />}
+                    label={`Editar ${row.nome}`}
+                    title="Editar"
+                    onClick={() =>
+                      navigate(`/pacientes/${row.id}/editar`, {
+                        state: { returnTo: pacientesPath },
+                      })
+                    }
+                  />
 
-                <TableActionButton
-                  icon={<FaFileMedical color="var(--color-brand-dark)" />}
-                  label={`Prontuários de ${row.nome}`}
-                  title="Prontuários"
-                  onClick={() =>
-                    navigate(`/pacientes/${row.id}/prontuarios`, {
-                      state: { returnTo: pacientesPath },
-                    })
-                  }
-                />
-              </div>
-            ),
-          },
+                  <TableActionButton
+                    icon={<FaFileMedical color="var(--color-brand-dark)" />}
+                    label={`Prontuários de ${row.nome}`}
+                    title="Atendimentos"
+                    onClick={() =>
+                      navigate(`/pacientes/${row.id}/prontuarios`, {
+                        state: { returnTo: pacientesPath },
+                      })
+                    }
+                  />
+                </div>
+              ),
+            },
           ]}
         />
       )}
     </PageLayout>
   );
 }
-
