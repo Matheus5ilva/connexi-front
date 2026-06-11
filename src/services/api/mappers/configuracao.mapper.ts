@@ -6,7 +6,7 @@ import type {
 } from "../types/domain";
 
 function limparHorario(valor: string): string {
-  return valor.trim();
+  return valor.trim().slice(0, 5);
 }
 
 function removerUndefined<T extends Record<string, unknown>>(objeto: T): T {

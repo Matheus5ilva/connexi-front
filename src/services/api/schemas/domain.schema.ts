@@ -350,7 +350,10 @@ export const pacienteSchema = pacienteListaItemSchema.extend({
     toOptionalTrimmedString,
     z.string().trim().max(100).optional(),
   ),
-  sexo: z.preprocess((value) => value ?? undefined, pacienteSexoSchema.optional()),
+  sexo: z.preprocess(
+    (value) => value ?? undefined,
+    pacienteSexoSchema.optional(),
+  ),
   genero: z.preprocess(
     (value) => value ?? undefined,
     pacienteGeneroSchema.optional(),
@@ -496,7 +499,7 @@ export const configuracaoSchema = z.object({
 const horarioConfiguracaoSchema = z
   .string()
   .trim()
-  .regex(/^([01]\d|2[0-3]):([0-5]\d)$/);
+  .regex(/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/);
 
 export const salvarConfiguracaoRequestSchema = z.object({
   horaInicio: horarioConfiguracaoSchema,
@@ -751,10 +754,10 @@ export const marcarDocumentoPagarPagoRequestSchema = z.object({
 
 export const cancelarDocumentoPagarRequestSchema = z.object({
   motivo: z
-      .string()
-      .trim()
-      .refine(validarTextoSemHtml, MENSAGEM_TEXTO_SEM_HTML)
-      .min(3, "Informe um motivo com pelo menos 3 caracteres.")
+    .string()
+    .trim()
+    .refine(validarTextoSemHtml, MENSAGEM_TEXTO_SEM_HTML)
+    .min(3, "Informe um motivo com pelo menos 3 caracteres.")
     .max(500, "O motivo deve ter no máximo 500 caracteres."),
 });
 
@@ -1077,30 +1080,32 @@ export const agendamentoListagemResponseSchema = z.object({
   meta: paginatedMetaSchema.optional(),
 });
 
-export const criarAgendamentoRequestSchema = z.object({
-  agendaId: z.number().int().positive().optional(),
-  data: z
-    .string()
-    .trim()
-    .regex(/^\d{4}-\d{2}-\d{2}$/)
-    .optional(),
-  profissionalId: z.number().int().positive().optional(),
-  pacienteId: z.number().int().positive(),
-  servicoId: z.number().int().positive(),
-  tipoAtendimento: tipoAtendimentoSchema,
-  convenioId: z.number().int().positive().optional(),
-  formaPagamentoId: z.number().int().positive().optional(),
-  horario: z
-    .string()
-    .trim()
-    .regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
-  duracaoMinutos: z.number().int().min(5).max(240),
-  tipoConsulta: tipoConsultaSchema.optional(),
-  observacao: z.preprocess(
-    toOptionalTrimmedString,
-    textoSemHtml(z.string().trim().max(2000)).optional(),
-  ),
-}).strict();
+export const criarAgendamentoRequestSchema = z
+  .object({
+    agendaId: z.number().int().positive().optional(),
+    data: z
+      .string()
+      .trim()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .optional(),
+    profissionalId: z.number().int().positive().optional(),
+    pacienteId: z.number().int().positive(),
+    servicoId: z.number().int().positive(),
+    tipoAtendimento: tipoAtendimentoSchema,
+    convenioId: z.number().int().positive().optional(),
+    formaPagamentoId: z.number().int().positive().optional(),
+    horario: z
+      .string()
+      .trim()
+      .regex(/^([01]\d|2[0-3]):([0-5]\d)$/),
+    duracaoMinutos: z.number().int().min(5).max(240),
+    tipoConsulta: tipoConsultaSchema.optional(),
+    observacao: z.preprocess(
+      toOptionalTrimmedString,
+      textoSemHtml(z.string().trim().max(2000)).optional(),
+    ),
+  })
+  .strict();
 
 export const atualizarAgendamentoRequestSchema =
   criarAgendamentoRequestSchema.partial();

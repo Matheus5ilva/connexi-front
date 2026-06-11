@@ -16,25 +16,37 @@ import {
 } from "../../../services/api/errors/erro-formulario-validacao";
 import styles from "./formulario-consultorio.module.css";
 
-const mapaRotulosCampos = {
-  nome: "Nome do consultório",
-  razaoSocial: "Razão social",
-  cnpj: "CNPJ",
-  email: "E-mail",
-  telefone: "Telefone",
-  whatsapp: "WhatsApp",
-  cep: "CEP",
-  bairro: "Bairro",
-  logradouro: "Logradouro",
-  numero: "Número",
-  complemento: "Complemento",
-  nomeCidade: "Cidade",
-  codigoIbgeCidade: "Cidade",
-} satisfies Record<string, string>;
+function criarMapaRotulosCampos(negocioLabel: string) {
+  return {
+    nome: `Nome do ${negocioLabel}`,
+    razaoSocial: "Razão social",
+    cnpj: "CNPJ",
+    email: "E-mail",
+    telefone: "Telefone",
+    whatsapp: "WhatsApp",
+    cep: "CEP",
+    bairro: "Bairro",
+    logradouro: "Logradouro",
+    numero: "Número",
+    complemento: "Complemento",
+    nomeCidade: "Cidade",
+    codigoIbgeCidade: "Cidade",
+  } satisfies Record<string, string>;
+}
+
+function normalizarParaEmail(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, "")
+    .toLowerCase();
+}
 
 type FormularioConsultorioProps = {
   initialValues: ConsultorioFormularioData;
   submitLabel: string;
+  negocioLabel?: string;
+  negocioTitulo?: string;
   mostrarCampoAtivo?: boolean;
   onSubmit: (values: ConsultorioFormularioData) => Promise<void> | void;
   onCancel: () => void;
@@ -43,6 +55,8 @@ type FormularioConsultorioProps = {
 export function FormularioConsultorio({
   initialValues,
   submitLabel,
+  negocioLabel = "consultório",
+  negocioTitulo = "Consultório",
   mostrarCampoAtivo = true,
   onSubmit,
   onCancel,
@@ -55,6 +69,11 @@ export function FormularioConsultorio({
   >([]);
 
   const defaults = useMemo(() => initialValues, [initialValues]);
+  const mapaRotulosCampos = useMemo(
+    () => criarMapaRotulosCampos(negocioLabel),
+    [negocioLabel],
+  );
+  const placeholderEmail = `contato@${normalizarParaEmail(negocioLabel)}.com`;
 
   const {
     clearErrors,
@@ -122,7 +141,7 @@ export function FormularioConsultorio({
         erro: error,
         mapaRotulosCampos,
         mapaCamposServidor: criarMapaCamposServidor(mapaRotulosCampos),
-        mensagemPadrao: "Não foi possível salvar os dados do consultório.",
+        mensagemPadrao: `Não foi possível salvar os dados do ${negocioLabel}.`,
       });
 
       Object.entries(resultadoErro.errosCampo).forEach(([campo, mensagem]) => {
@@ -186,14 +205,14 @@ export function FormularioConsultorio({
         <div className={styles.grid}>
           <FormField
             id="consultorio-nome"
-            label="Nome do consultório"
+            label={`Nome do ${negocioLabel}`}
             required
             error={errors.nome?.message}
             colSpan="full"
           >
             <input
               className={`${styles.input} ${errors.nome ? styles.inputError : ""}`}
-              placeholder="Ex.: Consultório Central"
+              placeholder={`Ex.: ${negocioTitulo} Central`}
               {...register("nome")}
             />
           </FormField>
@@ -207,7 +226,7 @@ export function FormularioConsultorio({
               className={`${styles.input} ${
                 errors.razaoSocial ? styles.inputError : ""
               }`}
-              placeholder="Ex.: Consultório Central LTDA"
+              placeholder={`Ex.: ${negocioTitulo} Central LTDA`}
               {...register("razaoSocial")}
             />
           </FormField>
@@ -267,7 +286,7 @@ export function FormularioConsultorio({
             <input
               className={`${styles.input} ${errors.email ? styles.inputError : ""}`}
               type="email"
-              placeholder="contato@consultorio.com"
+              placeholder={placeholderEmail}
               autoComplete="email"
               {...register("email")}
             />

@@ -11,6 +11,7 @@ describe("segmento-labels", () => {
   it("usa labels de SAUDE como fallback quando segmento nao for informado", () => {
     expect(getSegmentoLabels().pessoas).toBe("Pacientes");
     expect(getSegmentoLabels().negocio).toBe("Consultório");
+    expect(getSegmentoLabels().negocioEntidade).toBe("consultório");
     expect(getSegmentoLabels().parcerias).toBe("Convênios");
     expect(getSegmentoLabels().numeroCarteirinha).toBe(
       "Número da carteirinha",
@@ -29,6 +30,7 @@ describe("segmento-labels", () => {
     expect(getLabel("ESTETICA", "servico")).toBe("Procedimento");
     expect(getLabel("ESTETICA", "servicos")).toBe("Procedimentos");
     expect(getLabel("ESTETICA", "negocio")).toBe("Meu Negócio");
+    expect(getLabel("ESTETICA", "negocioEntidade")).toBe("negócio");
     expect(getLabel("ESTETICA", "consulta")).toBe("Atendimento");
     expect(getLabel("ESTETICA", "proximoAgendamento")).toBe(
       "Próximo atendimento",
@@ -39,9 +41,11 @@ describe("segmento-labels", () => {
     expect(getLabel("PET", "pessoas")).toBe("Pacientes");
     expect(getLabel("PET", "parcerias")).toBe("Convênios");
     expect(getLabel("PET", "negocio")).toBe("Consultório");
+    expect(getLabel("PET", "negocioEntidade")).toBe("consultório");
     expect(getLabel("SERVICOS", "pessoas")).toBe("Pacientes");
     expect(getLabel("SERVICOS", "parcerias")).toBe("Convênios");
     expect(getLabel("SERVICOS", "negocio")).toBe("Consultório");
+    expect(getLabel("SERVICOS", "negocioEntidade")).toBe("consultório");
   });
 
   it("volta para SAUDE quando o segmento for desconhecido", () => {

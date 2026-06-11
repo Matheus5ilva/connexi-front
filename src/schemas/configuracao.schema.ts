@@ -19,7 +19,7 @@ function paraMinutos(horario: string): number {
   return horas * 60 + minutos;
 }
 
-const horarioRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+const horarioRegex = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/;
 const mensagemHorario = "Horário deve estar no formato HH:mm.";
 
 export const diaSemanaEnum = z.enum([

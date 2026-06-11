@@ -4,21 +4,19 @@ import {
   FaChartLine,
   FaCheck,
   FaClipboardList,
-  FaFileMedical,
   FaWhatsapp,
   FaInstagram,
   FaTwitter,
   FaUserAlt,
-  FaPaw,
   FaSpa,
   FaHeart,
 } from "react-icons/fa";
-import { FaScissors } from "react-icons/fa6";
+import { FaLeaf } from "react-icons/fa6";
 import { BrandLogo } from "../../components/brand-logo";
 import styles from "./styles.module.css";
 
 const whatsappContratar =
-  "https://wa.me/5538988499084?text=Ol%C3%A1%2C%20quero%20contratar%20o%20CONNEXI.";
+  "https://wa.me/5538988499084?text=Ol%C3%A1%2C%20quero%20conhecer%20o%20CONNEXI.";
 
 const whatsappDuvidas =
   "https://wa.me/5538988499084?text=Ol%C3%A1%2C%20tenho%20algumas%20d%C3%BAvidas%20sobre%20o%20CONNEXI.";
@@ -43,16 +41,14 @@ export function PaginaInicialPublica() {
           <div className={styles.heroGrid}>
             <div className={styles.heroContent}>
               <span className={styles.badge}>
-                Sistema para profissionais autônomos
+                Sistema para saúde e bem-estar
               </span>
 
-              <h1>
-                Organize sua rotina profissional sem depender de planilhas.
-              </h1>
+              <h1>Organize seus atendimentos em um só lugar</h1>
 
               <p>
-                Agenda, clientes, histórico e financeiro em um só lugar. Simples
-                para quem trabalha sozinho e quer mais clareza no dia a dia.
+                Agenda, clientes, histórico de atendimentos e financeiro para
+                profissionais de saúde e bem-estar.
               </p>
 
               <div className={styles.heroActions}>
@@ -62,7 +58,7 @@ export function PaginaInicialPublica() {
                   className={styles.primaryButton}
                 >
                   <FaWhatsapp />
-                  Contratar agora
+                  Quero conhecer
                 </a>
 
                 <a
@@ -138,7 +134,7 @@ export function PaginaInicialPublica() {
             <h2>Seu trabalho não deveria ficar espalhado.</h2>
             <p>
               Quando tudo fica em lugares diferentes, sua rotina fica mais
-              cansativa e difícil de acompanhar.
+              cansativa e difícil de acompanhar entre um atendimento e outro.
             </p>
           </div>
 
@@ -179,8 +175,8 @@ export function PaginaInicialPublica() {
               <h2>Uma rotina mais profissional em poucos cliques.</h2>
               <p>
                 O CONNEXI centraliza o essencial para você atender melhor,
-                acompanhar seus clientes e enxergar seu negócio com mais
-                clareza.
+                acompanhar seus clientes e cuidar da organização do seu
+                trabalho com mais clareza.
               </p>
             </div>
 
@@ -198,7 +194,7 @@ export function PaginaInicialPublica() {
               </article>
 
               <article>
-                <FaFileMedical />
+                <FaHeart />
                 <h3>Histórico organizado</h3>
                 <p>Registre informações importantes de cada atendimento.</p>
               </article>
@@ -217,8 +213,9 @@ export function PaginaInicialPublica() {
             <span className={styles.eyebrow}>Para quem é</span>
             <h2>Feito para profissionais que atendem pessoas.</h2>
             <p>
-              Uma solução simples para quem precisa organizar agenda, clientes,
-              histórico e financeiro sem complicação.
+              Uma solução simples para quem trabalha com hora marcada e precisa
+              organizar agenda, clientes, histórico e financeiro sem
+              complicação.
             </p>
           </div>
 
@@ -227,16 +224,16 @@ export function PaginaInicialPublica() {
               <FaHeart /> Psicólogos
             </article>
             <article>
-              <FaUserAlt /> Médicos
-            </article>
-            <article>
-              <FaPaw /> Veterinários
+              <FaUserAlt /> Nutricionistas
             </article>
             <article>
               <FaSpa /> Esteticistas
             </article>
             <article>
-              <FaScissors /> Barbeiros
+              <FaLeaf /> Massoterapeutas
+            </article>
+            <article>
+              <FaUserAlt /> Acupunturistas
             </article>
             <article>
               <FaClipboardList /> Terapeutas
@@ -249,8 +246,8 @@ export function PaginaInicialPublica() {
             <span className={styles.badgeDark}>Comece com simplicidade</span>
             <h2>Sua rotina já é corrida. Sua organização não precisa ser.</h2>
             <p>
-              Fale pelo WhatsApp e veja como o CONNEXI pode ajudar seu negócio a
-              sair das planilhas.
+              Fale pelo WhatsApp e veja como o CONNEXI pode ajudar sua rotina
+              de atendimentos a sair das planilhas.
             </p>
 
             <div className={styles.heroActions}>
@@ -260,7 +257,7 @@ export function PaginaInicialPublica() {
                 className={styles.primaryButton}
               >
                 <FaWhatsapp />
-                Contratar agora
+                Solicitar acesso
               </a>
 
               <a
@@ -279,7 +276,7 @@ export function PaginaInicialPublica() {
         <div className={styles.footerContent}>
           <div className={styles.footerBrand}>
             <strong>CONNEXI</strong>
-            <span>Sistema para profissionais autônomos</span>
+            <span>Sistema simples para profissionais de saúde e bem-estar</span>
           </div>
 
           <div className={styles.footerSocial}>

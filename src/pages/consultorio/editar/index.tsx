@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useOutletContext } from "react-router-dom";
 import { FormPageHeader } from "../../../components/ui/form-page-header";
 import { Modal } from "../../../components/ui/modal";
 import { PageHeader } from "../../../components/ui/page-header";
 import { PageLayout } from "../../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
 import { encerrarSessaoAutenticada } from "../../../auth/session";
+import { getSegmentoLabels } from "../../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../../layout";
 import { resolveReturnTo } from "../../../routes/return-to";
 import type { ConsultorioFormularioData } from "../../../schemas/consultorio.schema";
 import {
@@ -39,6 +41,11 @@ const valoresIniciaisVazios: ConsultorioFormularioData = {
 export function EditarConsultorio() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const negocioMinusculo = labels.negocioEntidade;
+  const negocioTitulo =
+    negocioMinusculo.charAt(0).toUpperCase() + negocioMinusculo.slice(1);
   const returnTo = resolveReturnTo(location, "/consultorio");
   const [consultorio, setConsultorio] = useState<ConsultorioDetalhe | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,7 +78,10 @@ export function EditarConsultorio() {
 
         setConsultorio(null);
         setLoadError(
-          toErrorMessage(error, "Não foi possível carregar o consultório."),
+          toErrorMessage(
+            error,
+            `Não foi possível carregar o ${negocioMinusculo}.`,
+          ),
         );
       } finally {
         if (isMounted) {
@@ -85,7 +95,7 @@ export function EditarConsultorio() {
     return () => {
       isMounted = false;
     };
-  }, [reloadCounter]);
+  }, [negocioMinusculo, reloadCounter]);
 
   const initialValues = useMemo<ConsultorioFormularioData>(() => {
     if (!consultorio) {
@@ -149,7 +159,10 @@ export function EditarConsultorio() {
       setValoresInativacaoPendentes(null);
     } catch (error) {
       setErroInativacao(
-        toErrorMessage(error, "Não foi possível inativar o consultório."),
+        toErrorMessage(
+          error,
+          `Não foi possível inativar o ${negocioMinusculo}.`,
+        ),
       );
     } finally {
       setSalvandoInativacao(false);
@@ -167,7 +180,8 @@ export function EditarConsultorio() {
       >
         <div className={styles.modalConfirmacao}>
           <p className={styles.modalTexto}>
-            Ao inativar este consultório, o acesso ao sistema será suspenso.
+            Ao inativar este {negocioMinusculo}, o acesso ao sistema será
+            suspenso.
           </p>
 
           {erroInativacao ? (
@@ -198,18 +212,26 @@ export function EditarConsultorio() {
       </Modal>
 
       <PageHeader
-        title={consultorio ? "Editar consultório" : "Cadastrar consultório"}
-        subtitle="Atualize os dados principais, contato e endereço do consultório."
+        title={
+          consultorio
+            ? `Editar ${negocioMinusculo}`
+            : `Cadastrar ${negocioMinusculo}`
+        }
+        subtitle={`Atualize os dados principais, contato e endereço do ${negocioMinusculo}.`}
         left={
           <FormPageHeader
-            title={consultorio ? "Editar consultório" : "Cadastrar consultório"}
+            title={
+              consultorio
+                ? `Editar ${negocioMinusculo}`
+                : `Cadastrar ${negocioMinusculo}`
+            }
             subtitle={
               consultorio
                 ? consultorio.pessoa.nome
-                : "Informe os dados principais do consultório."
+                : `Informe os dados principais do ${negocioMinusculo}.`
             }
             onBack={() => navigate(returnTo)}
-            backLabel="Voltar para consultório"
+            backLabel={`Voltar para ${negocioMinusculo}`}
           />
         }
       />
@@ -218,7 +240,9 @@ export function EditarConsultorio() {
         <CarregamentoCentral />
       ) : loadError ? (
         <section className={styles.emptyCard}>
-          <h2 className={styles.emptyTitle}>Falha ao carregar o consultório</h2>
+          <h2 className={styles.emptyTitle}>
+            Falha ao carregar o {negocioMinusculo}
+          </h2>
           <p className={styles.emptyDescription}>{loadError}</p>
           <div className={styles.buttonGroup}>
             <button
@@ -240,7 +264,11 @@ export function EditarConsultorio() {
       ) : (
         <FormularioConsultorio
           initialValues={initialValues}
-          submitLabel={consultorio ? "Salvar alterações" : "Salvar consultório"}
+          submitLabel={
+            consultorio ? "Salvar alterações" : `Salvar ${negocioMinusculo}`
+          }
+          negocioLabel={negocioMinusculo}
+          negocioTitulo={negocioTitulo}
           mostrarCampoAtivo={Boolean(consultorio)}
           onSubmit={handleSubmit}
           onCancel={() => navigate(returnTo)}

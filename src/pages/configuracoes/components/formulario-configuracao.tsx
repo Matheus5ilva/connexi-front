@@ -19,6 +19,7 @@ import styles from "./formulario-configuracao.module.css";
 type FormularioConfiguracaoProps = {
   initialValues: ConfiguracaoFormularioData;
   submitLabel: string;
+  negocioLabel?: string;
   onSubmit: (values: ConfiguracaoFormularioData) => Promise<void> | void;
   onCancel: () => void;
 };
@@ -43,6 +44,7 @@ const mapaRotulosCampos = {
 export function FormularioConfiguracao({
   initialValues,
   submitLabel,
+  negocioLabel = "consultório",
   onSubmit,
   onCancel,
 }: FormularioConfiguracaoProps) {
@@ -219,9 +221,8 @@ export function FormularioConfiguracao({
           Dias de atendimento
         </h2>
         <p className={styles.sectionDescription}>
-          {
-            "Selecione os dias em que o consultório deve disponibilizar horários."
-          }
+          Selecione os dias em que o {negocioLabel} deve disponibilizar
+          horários.
         </p>
 
         <FormField

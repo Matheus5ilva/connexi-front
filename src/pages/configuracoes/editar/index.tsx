@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { FormPageHeader } from "../../../components/ui/form-page-header";
 import { PageHeader } from "../../../components/ui/page-header";
 import { PageLayout } from "../../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
+import { getSegmentoLabels } from "../../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../../layout";
 import type { ConfiguracaoFormularioData } from "../../../schemas/configuracao.schema";
 import {
   configuracaoService,
@@ -26,6 +28,9 @@ const valoresIniciaisVazios: ConfiguracaoFormularioData = {
 
 export function EditarConfiguracoes() {
   const navigate = useNavigate();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const negocioMinusculo = labels.negocioEntidade;
   const [configuracao, setConfiguracao] = useState<Configuracao | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -96,14 +101,14 @@ export function EditarConfiguracoes() {
     <PageLayout>
       <PageHeader
         title={configuracao ? "Editar configuração" : "Nova configuração"}
-        subtitle="Ajuste a jornada de atendimento, os dias e as pausas do consultório."
+        subtitle={`Ajuste a jornada de atendimento, os dias e as pausas do ${negocioMinusculo}.`}
         left={
           <FormPageHeader
             title={configuracao ? "Editar configuração" : "Nova configuração"}
             subtitle={
               configuracao
-                ? "Atualize a configuração principal do consultório."
-                : "Cadastre a configuração principal do consultório."
+                ? `Atualize a configuração principal do ${negocioMinusculo}.`
+                : `Cadastre a configuração principal do ${negocioMinusculo}.`
             }
             onBack={() => navigate("/configuracoes")}
             backLabel="Voltar para configurações"
@@ -115,7 +120,9 @@ export function EditarConfiguracoes() {
         <CarregamentoCentral />
       ) : loadError ? (
         <section className={styles.emptyCard}>
-          <h2 className={styles.emptyTitle}>Falha ao carregar a configuração</h2>
+          <h2 className={styles.emptyTitle}>
+            Falha ao carregar a configuração
+          </h2>
           <p className={styles.emptyDescription}>{loadError}</p>
           <div className={styles.buttonGroup}>
             <button
@@ -138,6 +145,7 @@ export function EditarConfiguracoes() {
         <FormularioConfiguracao
           initialValues={initialValues}
           submitLabel="Salvar configuração"
+          negocioLabel={negocioMinusculo}
           onSubmit={handleSubmit}
           onCancel={() => navigate("/configuracoes")}
         />
@@ -145,5 +153,3 @@ export function EditarConfiguracoes() {
     </PageLayout>
   );
 }
-
-

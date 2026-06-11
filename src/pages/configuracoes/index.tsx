@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { FaCalendarAlt, FaClock, FaEdit } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { PageHeader } from "../../components/ui/page-header";
 import { PageLayout } from "../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../components/ui/carregamento-central";
+import { getSegmentoLabels } from "../../config/segmento-labels";
+import type { LayoutOutletContext } from "../../layout";
 import {
   configuracaoService,
   toErrorMessage,
@@ -32,6 +34,9 @@ function formatarDiasAtendimento(
 
 export function Configuracoes() {
   const navigate = useNavigate();
+  const { segmento } = useOutletContext<LayoutOutletContext>();
+  const labels = getSegmentoLabels(segmento);
+  const negocioMinusculo = labels.negocioEntidade;
   const [configuracao, setConfiguracao] = useState<Configuracao | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -92,7 +97,7 @@ export function Configuracoes() {
     <PageLayout>
       <PageHeader
         title="Configuração"
-        subtitle="Defina os horários, os dias de atendimento e as pausas do consultório."
+        subtitle={`Defina os horários, os dias de atendimento e as pausas do ${negocioMinusculo}.`}
         right={pageAction}
       />
 
@@ -124,7 +129,7 @@ export function Configuracoes() {
           <h2 className={styles.emptyTitle}>Nenhuma configuração cadastrada</h2>
           <p className={styles.emptyDescription}>
             Cadastre a configuração principal para definir a jornada de trabalho
-            e as pausas do consultório.
+            e as pausas do {negocioMinusculo}.
           </p>
           <div className={styles.buttonGroup}>
             <button

@@ -155,7 +155,7 @@ export function PaginaEsqueciSenha() {
                   setMensagemErro(null);
                   setErrosFormulario([]);
                 }}
-                placeholder="voce@consultorio.com"
+                placeholder="voce@email.com"
               />
             </FormField>
 

@@ -40,7 +40,7 @@ export function Consultorio() {
   const navigate = useNavigate();
   const { segmento } = useOutletContext<LayoutOutletContext>();
   const labels = getSegmentoLabels(segmento);
-  const negocioMinusculo = labels.negocio.toLowerCase();
+  const negocioMinusculo = labels.negocioEntidade;
   const [consultorio, setConsultorio] = useState<ConsultorioDetalhe | null>(
     null,
   );
@@ -194,12 +194,12 @@ export function Consultorio() {
             <section className={styles.sectionCard}>
               <h2 className={styles.sectionTitle}>
                 <FaBuilding className={styles.sectionIcon} />
-                Dados principais
+                Dados do {negocioMinusculo}
               </h2>
               <div className={styles.infoGrid}>
                 <div>
                   <span className={styles.infoLabel}>
-                    Nome do cadastro
+                    Nome do {negocioMinusculo}
                   </span>
                   <p className={styles.infoValue}>{consultorio.pessoa.nome}</p>
                 </div>

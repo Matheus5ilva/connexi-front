@@ -105,11 +105,11 @@ export function PaginaTenantInexistente() {
       <section className={styles.contentSection}>
         <article className={styles.infoCard}>
           <h2 className={styles.cardTitle}>
-            Uma plataforma simples para profissionais autônomos
+            Uma plataforma simples para saúde e bem-estar
           </h2>
           <ul className={styles.featureList}>
             <li>Agenda organizada para a rotina diária</li>
-            <li>Pacientes e prontuários em um fluxo único</li>
+            <li>Clientes, atendimentos e histórico em um fluxo único</li>
             <li>Financeiro claro para substituir planilhas</li>
             <li>Tudo em um só lugar, sem complexidade desnecessária</li>
           </ul>
