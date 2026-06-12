@@ -4,7 +4,7 @@ import { BrandLogo } from "../../../components/brand-logo";
 import { apiConfig } from "../../../services/api";
 import styles from "./styles.module.css";
 
-const NUMERO_WHATSAPP_PADRAO = "5538988499084";
+const NUMERO_WHATSAPP_PADRAO = "5531984505916";
 const NUMERO_WHATSAPP = (
   import.meta.env.VITE_SUPPORT_WHATSAPP_NUMBER || NUMERO_WHATSAPP_PADRAO
 ).replace(/\D/g, "");

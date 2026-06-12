@@ -16,10 +16,10 @@ import { BrandLogo } from "../../components/brand-logo";
 import styles from "./styles.module.css";
 
 const whatsappContratar =
-  "https://wa.me/5538988499084?text=Ol%C3%A1%2C%20quero%20conhecer%20o%20CONNEXI.";
+  "https://wa.me/5531984505916?text=Ol%C3%A1%2C%20quero%20conhecer%20o%20CONNEXI.";
 
 const whatsappDuvidas =
-  "https://wa.me/5538988499084?text=Ol%C3%A1%2C%20tenho%20algumas%20d%C3%BAvidas%20sobre%20o%20CONNEXI.";
+  "https://wa.me/5531984505916?text=Ol%C3%A1%2C%20tenho%20algumas%20d%C3%BAvidas%20sobre%20o%20CONNEXI.";
 
 export function PaginaInicialPublica() {
   return (
@@ -175,8 +175,8 @@ export function PaginaInicialPublica() {
               <h2>Uma rotina mais profissional em poucos cliques.</h2>
               <p>
                 O CONNEXI centraliza o essencial para você atender melhor,
-                acompanhar seus clientes e cuidar da organização do seu
-                trabalho com mais clareza.
+                acompanhar seus clientes e cuidar da organização do seu trabalho
+                com mais clareza.
               </p>
             </div>
 
@@ -246,8 +246,8 @@ export function PaginaInicialPublica() {
             <span className={styles.badgeDark}>Comece com simplicidade</span>
             <h2>Sua rotina já é corrida. Sua organização não precisa ser.</h2>
             <p>
-              Fale pelo WhatsApp e veja como o CONNEXI pode ajudar sua rotina
-              de atendimentos a sair das planilhas.
+              Fale pelo WhatsApp e veja como o CONNEXI pode ajudar sua rotina de
+              atendimentos a sair das planilhas.
             </p>
 
             <div className={styles.heroActions}>
