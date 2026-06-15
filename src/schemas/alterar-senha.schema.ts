@@ -11,11 +11,19 @@ export const alterarSenhaSchema = z
       .string()
       .trim()
       .min(6, "A nova senha deve ter pelo menos 6 caracteres.")
+      .regex(
+        /(?=.*[A-Za-z])(?=.*\d)/,
+        "A senha deve conter pelo menos uma letra e um número.",
+      )
       .max(120, "A nova senha está muito longa."),
     confirmarNovaSenha: z
       .string()
       .trim()
       .min(6, "Confirme a nova senha.")
+      .regex(
+        /(?=.*[A-Za-z])(?=.*\d)/,
+        "A senha deve conter pelo menos uma letra e um número.",
+      )
       .max(120, "A confirmação de senha está muito longa."),
   })
   .superRefine((value, context) => {
