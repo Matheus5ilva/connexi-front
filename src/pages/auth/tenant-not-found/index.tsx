@@ -8,11 +8,10 @@ const NUMERO_WHATSAPP_PADRAO = "5531984505916";
 const NUMERO_WHATSAPP = (
   import.meta.env.VITE_SUPPORT_WHATSAPP_NUMBER || NUMERO_WHATSAPP_PADRAO
 ).replace(/\D/g, "");
-
+const subdominio = apiConfig.tenantSubdomain || "não identificado";
 const MENSAGEM_CONTRATACAO =
   "Olá, tenho interesse em contratar o sistema. Pode me explicar como funciona?";
-const MENSAGEM_DESBLOQUEIO =
-  "Olá, estou tentando acessar meu sistema, mas o subdomínio não está funcionando. Pode me ajudar?";
+const MENSAGEM_DESBLOQUEIO = `Olá, estou tentando acessar meu sistema, mas o subdomínio(*${subdominio}*) não está funcionando. Pode me ajudar?`;
 const ROTA_INICIAL = "/";
 
 function montarLinkWhatsApp(mensagem: string): string {
@@ -22,7 +21,6 @@ function montarLinkWhatsApp(mensagem: string): string {
 export function PaginaTenantInexistente() {
   const host =
     typeof window === "undefined" ? apiConfig.hostname : window.location.host;
-  const subdominio = apiConfig.tenantSubdomain || "não identificado";
 
   const linkContratacao = useMemo(
     () => montarLinkWhatsApp(MENSAGEM_CONTRATACAO),
