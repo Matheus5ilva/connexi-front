@@ -1,4 +1,5 @@
 import { agendamentoService } from "./agendamento.service";
+import { adminTenantLogsService } from "./admin-tenant-logs.service";
 import { adminTenantsService } from "./admin-tenants.service";
 import { authService } from "./auth.service";
 import { consultorioService } from "./consultorio.service";
@@ -18,6 +19,7 @@ import { tenantService } from "./tenant.service";
 
 export {
   agendamentoService,
+  adminTenantLogsService,
   adminTenantsService,
   authService,
   consultorioService,

@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useState } from "react";
 import {
   FaCheck,
+  FaFileAlt,
   FaLock,
   FaPlus,
   FaPowerOff,
@@ -13,7 +14,9 @@ import { Modal } from "../../../components/ui/modal";
 import { StatusBadge } from "../../../components/ui/status-badge";
 import { Table } from "../../../components/ui/table";
 import {
+  adminTenantLogsService,
   adminTenantsService,
+  isApiError,
   toErrorMessage,
   type CredencialAdministrativa,
   type CriarTenantAdministrativoRequest,
@@ -105,6 +108,27 @@ function formatarDataHora(valor: string): string {
   }).format(new Date(valor));
 }
 
+function formatarDataInput(valor: Date): string {
+  return [
+    valor.getFullYear(),
+    String(valor.getMonth() + 1).padStart(2, "0"),
+    String(valor.getDate()).padStart(2, "0"),
+  ].join("-");
+}
+
+function downloadBlob(blob: Blob, fileName: string): void {
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = fileName;
+  link.rel = "noopener";
+  link.click();
+
+  window.setTimeout(() => {
+    URL.revokeObjectURL(objectUrl);
+  }, 1000);
+}
+
 function obterRotuloNicho(nicho: NichoTenant): string {
   return NICHOS.find((item) => item.valor === nicho)?.rotulo ?? nicho;
 }
@@ -147,7 +171,13 @@ export function AdminTenants() {
     useState<TenantAdministrativo | null>(null);
   const [tenantParaExcluir, setTenantParaExcluir] =
     useState<TenantAdministrativo | null>(null);
+  const [tenantParaLog, setTenantParaLog] =
+    useState<TenantAdministrativo | null>(null);
   const [confirmacaoExclusao, setConfirmacaoExclusao] = useState("");
+  const [dataLog, setDataLog] = useState(formatarDataInput(new Date()));
+  const [erroLog, setErroLog] = useState<string | null>(null);
+  const [baixandoLog, setBaixandoLog] = useState(false);
+  const dataHoje = formatarDataInput(new Date());
 
   useEffect(() => {
     const credencialArmazenada = lerCredencialArmazenada();
@@ -335,6 +365,53 @@ export function AdminTenants() {
     setConfirmacaoExclusao("");
   }
 
+  function abrirLogTenant(tenant: TenantAdministrativo) {
+    setTenantParaLog(tenant);
+    setDataLog(formatarDataInput(new Date()));
+    setErroLog(null);
+    setErro(null);
+    setSucesso(null);
+  }
+
+  function fecharLogTenant() {
+    if (baixandoLog) {
+      return;
+    }
+
+    setTenantParaLog(null);
+    setErroLog(null);
+  }
+
+  async function baixarLogTenant() {
+    if (!credencial || !tenantParaLog) {
+      return;
+    }
+
+    try {
+      setBaixandoLog(true);
+      setErroLog(null);
+
+      const blob = await adminTenantLogsService.baixar(
+        credencial,
+        tenantParaLog.id,
+        dataLog,
+      );
+
+      downloadBlob(blob, `connexi-${tenantParaLog.slug}-${dataLog}.log`);
+      setTenantParaLog(null);
+      setSucesso("Download do log iniciado.");
+    } catch (error) {
+      if (isApiError(error) && error.status === 404) {
+        setErroLog("Nenhum log encontrado para este tenant nesta data.");
+        return;
+      }
+
+      setErroLog(toErrorMessage(error, "Não foi possível baixar o log."));
+    } finally {
+      setBaixandoLog(false);
+    }
+  }
+
   function sair() {
     removerCredencialAdministrativa();
     setCredencial(null);
@@ -363,6 +440,15 @@ export function AdminTenants() {
   function renderizarAcoes(tenant: TenantAdministrativo) {
     return (
       <div className={styles.acoes}>
+        <button
+          type="button"
+          className={styles.botaoSecundario}
+          onClick={() => abrirLogTenant(tenant)}
+          disabled={carregando}
+        >
+          <FaFileAlt aria-hidden="true" />
+          Log
+        </button>
         {tenant.ativo ? (
           <button
             type="button"
@@ -727,6 +813,65 @@ export function AdminTenants() {
             Excluir tenant
           </button>
         </div>
+      </Modal>
+
+      <Modal
+        open={Boolean(tenantParaLog)}
+        onClose={fecharLogTenant}
+        title="Baixar log do tenant"
+        subtitle="Baixe o log gerado para este tenant na data selecionada."
+      >
+        <form
+          className={styles.formulario}
+          onSubmit={(event) => {
+            event.preventDefault();
+            void baixarLogTenant();
+          }}
+        >
+          <div className={styles.confirmacao}>
+            <span>Tenant</span>
+            <strong>{tenantParaLog?.nome}</strong>
+          </div>
+
+          {erroLog ? (
+            <div className="alert alert-warning" role="alert">
+              {erroLog}
+            </div>
+          ) : null}
+
+          <label>
+            Data do log
+            <input
+              type="date"
+              value={dataLog}
+              max={dataHoje}
+              onChange={(event) => {
+                setDataLog(event.target.value);
+                setErroLog(null);
+              }}
+              required
+            />
+          </label>
+
+          <div className={styles.rodapeModal}>
+            <button
+              type="button"
+              className={styles.botaoSecundario}
+              onClick={fecharLogTenant}
+              disabled={baixandoLog}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className={styles.botaoPrimario}
+              disabled={baixandoLog || !dataLog || dataLog > dataHoje}
+            >
+              <FaFileAlt aria-hidden="true" />
+              {baixandoLog ? "Baixando..." : "Baixar Log"}
+            </button>
+          </div>
+        </form>
       </Modal>
     </main>
   );

@@ -104,6 +104,7 @@ export {
 
 export {
   agendamentoService,
+  adminTenantLogsService,
   adminTenantsService,
   authService,
   consultorioService,
