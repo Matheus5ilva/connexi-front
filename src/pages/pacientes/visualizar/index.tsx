@@ -19,6 +19,7 @@ import {
 import { PageHeader } from "../../../components/ui/page-header";
 import { PageLayout } from "../../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
+import { useSessaoAutenticada } from "../../../auth/use-auth-session";
 import {
   getCamposPacienteVisiveis,
   getSegmentoLabels,
@@ -449,6 +450,7 @@ function HistoricoAtendimentosSection({
 export function VisualizarPaciente() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useSessaoAutenticada();
   const { segmento } = useOutletContext<LayoutOutletContext>();
   const labels = getSegmentoLabels(segmento);
   const camposVisiveis = getCamposPacienteVisiveis(segmento);
@@ -470,9 +472,10 @@ export function VisualizarPaciente() {
     resumoFinanceiroInicial,
   );
   const [financeiroErro, setFinanceiroErro] = useState<string | null>(null);
+  const ehSecretaria = user?.perfil === "SECRETARIA";
   const podeVerDadosCadastrais = true;
-  const podeVerHistoricoClinico = true;
-  const podeVerFinanceiro = true;
+  const podeVerHistoricoClinico = !ehSecretaria;
+  const podeVerFinanceiro = !ehSecretaria || Boolean(user?.podeAcessarFinanceiro);
 
   useEffect(() => {
     if (!pacienteId) {
@@ -698,8 +701,32 @@ export function VisualizarPaciente() {
     () => historico.slice().sort(sortHistoricoDesc),
     [historico],
   );
+  const agendamentosRealizadosOrdenados = useMemo(
+    () =>
+      agendamentos
+        .filter((agendamento) => agendamento.status === "REALIZADO")
+        .slice()
+        .sort((first, second) =>
+          compareDateTimeAsc(
+            first.data,
+            first.horario,
+            second.data,
+            second.horario,
+          ),
+        ),
+    [agendamentos],
+  );
   const prontuariosRecentes = historicoOrdenado.slice(0, 3);
-  const ultimoAtendimento = historicoOrdenado[0]?.dataConsulta;
+  const totalAtendimentos = podeVerHistoricoClinico
+    ? historicoOrdenado.length
+    : agendamentosRealizadosOrdenados.length;
+  const primeiroAtendimento = podeVerHistoricoClinico
+    ? historicoOrdenado[historicoOrdenado.length - 1]?.dataConsulta
+    : agendamentosRealizadosOrdenados[0]?.data;
+  const ultimoAtendimento = podeVerHistoricoClinico
+    ? historicoOrdenado[0]?.dataConsulta
+    : agendamentosRealizadosOrdenados[agendamentosRealizadosOrdenados.length - 1]
+        ?.data;
   const proximoAgendamentoOperacional = useMemo(
     () =>
       agendamentos
@@ -902,12 +929,10 @@ export function VisualizarPaciente() {
         <span className={styles.contextChip}>
           Cadastro {statusPaciente.toLowerCase()}
         </span>
-        {podeVerHistoricoClinico ? (
-          <span className={styles.contextChip}>
-            Último atendimento{" "}
-            {formatRelativePastLabel(ultimoAtendimento, "sem registro")}
-          </span>
-        ) : null}
+        <span className={styles.contextChip}>
+          Último atendimento{" "}
+          {formatRelativePastLabel(ultimoAtendimento, "sem registro")}
+        </span>
         <span className={styles.contextChip}>
           Próximo atendimento{" "}
           {formatProximoAgendamentoLabel(proximoAgendamentoOperacional)}
@@ -929,22 +954,22 @@ export function VisualizarPaciente() {
             {statusPaciente}
           </strong>
         </article>
-        {podeVerHistoricoClinico ? (
-          <>
-            <article className={styles.kpiCard}>
-              <span className={styles.kpiLabel}>Total de atendimentos</span>
-              <strong className={styles.kpiValue}>
-                {historicoOrdenado.length}
-              </strong>
-            </article>
-            <article className={styles.kpiCard}>
-              <span className={styles.kpiLabel}>Último atendimento</span>
-              <strong className={styles.kpiValue}>
-                {formatDateBr(ultimoAtendimento)}
-              </strong>
-            </article>
-          </>
-        ) : null}
+        <article className={styles.kpiCard}>
+          <span className={styles.kpiLabel}>Total de atendimentos</span>
+          <strong className={styles.kpiValue}>{totalAtendimentos}</strong>
+        </article>
+        <article className={styles.kpiCard}>
+          <span className={styles.kpiLabel}>Primeiro atendimento</span>
+          <strong className={styles.kpiValue}>
+            {formatDateBr(primeiroAtendimento)}
+          </strong>
+        </article>
+        <article className={styles.kpiCard}>
+          <span className={styles.kpiLabel}>Último atendimento</span>
+          <strong className={styles.kpiValue}>
+            {formatDateBr(ultimoAtendimento)}
+          </strong>
+        </article>
         <article className={styles.kpiCard}>
           <span className={styles.kpiLabel}>Próximo atendimento</span>
           <strong className={styles.kpiValue}>

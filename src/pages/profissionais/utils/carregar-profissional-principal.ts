@@ -9,7 +9,7 @@ export async function carregarProfissionalPrincipal(): Promise<Profissional | nu
   const profissionalId = minhaConta.profissionalId;
 
   if (!profissionalId) {
-    if (minhaConta.perfil !== "MASTER") {
+    if (minhaConta.perfil !== "MASTER" && minhaConta.perfil !== "SECRETARIA") {
       return null;
     }
 

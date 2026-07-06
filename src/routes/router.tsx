@@ -41,6 +41,10 @@ const AdminTenants = carregarPagina(
   () => import("../pages/admin/tenants"),
   "AdminTenants",
 );
+const PaginaAcessoNegado = carregarPagina(
+  () => import("../pages/access-denied"),
+  "PaginaAcessoNegado",
+);
 const Agenda = carregarPagina(() => import("../pages/agenda"), "Agenda");
 const PaginaEsqueciSenha = carregarPagina(
   () => import("../pages/auth/esqueci-senha"),
@@ -199,6 +203,22 @@ const Servicos = carregarPagina(
   () => import("../pages/servicos"),
   "Servicos",
 );
+const Secretarias = carregarPagina(
+  () => import("../pages/secretarias"),
+  "Secretarias",
+);
+const NovaSecretaria = carregarPagina(
+  () => import("../pages/secretarias/novo"),
+  "NovaSecretaria",
+);
+const VisualizarSecretaria = carregarPagina(
+  () => import("../pages/secretarias/visualizar"),
+  "VisualizarSecretaria",
+);
+const EditarSecretaria = carregarPagina(
+  () => import("../pages/secretarias/editar"),
+  "EditarSecretaria",
+);
 const EditarServico = carregarPagina(
   () => import("../pages/servicos/editar"),
   "EditarServico",
@@ -284,6 +304,10 @@ function criarRotasTenant() {
                 {
                   path: "/",
                   element: renderizarPagina(Home),
+                },
+                {
+                  path: "/acesso-negado",
+                  element: renderizarPagina(PaginaAcessoNegado),
                 },
                 {
                   path: "/agenda",
@@ -480,6 +504,22 @@ function criarRotasTenant() {
                 {
                   path: "/configuracoes/minha-conta",
                   element: renderizarPagina(MinhaContaPage),
+                },
+                {
+                  path: "/secretarias",
+                  element: renderizarPagina(Secretarias),
+                },
+                {
+                  path: "/secretarias/novo",
+                  element: renderizarPagina(NovaSecretaria),
+                },
+                {
+                  path: "/secretarias/:id",
+                  element: renderizarPagina(VisualizarSecretaria),
+                },
+                {
+                  path: "/secretarias/:id/editar",
+                  element: renderizarPagina(EditarSecretaria),
                 },
               ],
             },

@@ -79,7 +79,7 @@
 .acoes,
 .rodapeModal {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
@@ -120,6 +120,20 @@
   box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
 }
 
+.formulario .checkboxLinha {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.formulario .checkboxLinha input {
+  width: 18px;
+  height: 18px;
+  min-height: auto;
+  padding: 0;
+}
+
 .gradeFormulario {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -131,13 +145,14 @@
 .botaoPerigo,
 .botaoSucesso {
   display: inline-flex;
-  min-height: 42px;
+  min-height: 34px;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 16px;
+  gap: 6px;
+  padding: 7px 11px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 10px;
+  font-size: 0.84rem;
   font-weight: 600;
   cursor: pointer;
   transition:

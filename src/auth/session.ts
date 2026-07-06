@@ -8,6 +8,7 @@ import type {
   MinhaConta,
   PerfilUsuario,
   RespostaLogin,
+  Tenant,
 } from "../services/api/types/domain";
 
 const CHAVE_STORAGE_USUARIO_AUTENTICADO = "connexi.auth-user";
@@ -22,6 +23,10 @@ export type UsuarioAutenticado = {
   email: string;
   perfil: PerfilUsuario;
   profissionalId?: number;
+  secretariaId?: number;
+  podeAcessarFinanceiro?: boolean;
+  tenantPlano?: Tenant["plano"];
+  tenantPermiteSecretaria?: boolean;
   deveTrocarSenha: boolean;
 };
 
@@ -34,6 +39,8 @@ export type SnapshotSessaoAutenticada = {
 export type ContextoAcessoUsuarioAutenticado = {
   perfil: PerfilUsuario | null;
   profissionalId: number | null;
+  secretariaId: number | null;
+  podeAcessarFinanceiro: boolean;
   possuiAcessoGlobal: boolean;
   exigeProfissionalVinculado: boolean;
   sessaoValidaNoTenantAtual: boolean;
@@ -73,6 +80,8 @@ export function obterContextoAcessoUsuarioAutenticado(params: {
     return {
       perfil: null,
       profissionalId: null,
+      secretariaId: null,
+      podeAcessarFinanceiro: false,
       possuiAcessoGlobal: false,
       exigeProfissionalVinculado: false,
       sessaoValidaNoTenantAtual: false,
@@ -80,12 +89,15 @@ export function obterContextoAcessoUsuarioAutenticado(params: {
   }
 
   const possuiAcessoGlobal = usuarioEhMaster(params.user);
+  const exigeProfissionalVinculado = params.user.perfil === "PROFISSIONAL";
 
   return {
     perfil: params.user.perfil,
     profissionalId: params.user.profissionalId ?? null,
+    secretariaId: params.user.secretariaId ?? null,
+    podeAcessarFinanceiro: Boolean(params.user.podeAcessarFinanceiro),
     possuiAcessoGlobal,
-    exigeProfissionalVinculado: !possuiAcessoGlobal,
+    exigeProfissionalVinculado,
     sessaoValidaNoTenantAtual,
   };
 }
@@ -95,8 +107,12 @@ const usuarioAutenticadoSchema = z.object({
   tenantId: z.string().trim().min(1).max(120),
   nome: z.string().trim().min(1).max(120),
   email: emailNormalizadoSchema,
-  perfil: z.enum(["MASTER", "PROFISSIONAL"]),
+  perfil: z.enum(["MASTER", "PROFISSIONAL", "SECRETARIA"]),
   profissionalId: z.number().int().positive().optional(),
+  secretariaId: z.number().int().positive().optional(),
+  podeAcessarFinanceiro: z.boolean().optional(),
+  tenantPlano: z.enum(["SOLO", "EQUIPE"]).optional(),
+  tenantPermiteSecretaria: z.boolean().optional(),
   deveTrocarSenha: z.boolean(),
 });
 
@@ -117,6 +133,12 @@ function snapshotsSaoIguais(
     atual.user?.email === proximo.user?.email &&
     atual.user?.perfil === proximo.user?.perfil &&
     atual.user?.profissionalId === proximo.user?.profissionalId &&
+    atual.user?.secretariaId === proximo.user?.secretariaId &&
+    atual.user?.podeAcessarFinanceiro ===
+      proximo.user?.podeAcessarFinanceiro &&
+    atual.user?.tenantPlano === proximo.user?.tenantPlano &&
+    atual.user?.tenantPermiteSecretaria ===
+      proximo.user?.tenantPermiteSecretaria &&
     atual.user?.deveTrocarSenha === proximo.user?.deveTrocarSenha
   );
 }
@@ -237,6 +259,7 @@ export function iniciarSessaoApi(
     nome: respostaLogin.usuario.name.trim(),
     email: respostaLogin.usuario.email.trim().toLowerCase(),
     perfil: respostaLogin.usuario.role,
+    podeAcessarFinanceiro: respostaLogin.usuario.podeAcessarFinanceiro ?? false,
     deveTrocarSenha: respostaLogin.usuario.deveTrocarSenha,
   };
 
@@ -249,6 +272,7 @@ export function iniciarSessaoApi(
 export function atualizarSessaoComMinhaConta(
   minhaConta: MinhaConta,
 ): UsuarioAutenticado {
+  const usuarioAtual = obterUsuarioAutenticado();
   const usuarioAutenticado: UsuarioAutenticado = {
     id: minhaConta.email.trim().toLowerCase(),
     tenantId: minhaConta.tenantId,
@@ -256,6 +280,11 @@ export function atualizarSessaoComMinhaConta(
     email: minhaConta.email.trim().toLowerCase(),
     perfil: minhaConta.perfil,
     profissionalId: minhaConta.profissionalId ?? undefined,
+    secretariaId: minhaConta.secretariaId ?? undefined,
+    podeAcessarFinanceiro: minhaConta.podeAcessarFinanceiro ?? false,
+    tenantPlano: minhaConta.plano ?? usuarioAtual?.tenantPlano,
+    tenantPermiteSecretaria:
+      minhaConta.permiteSecretaria ?? usuarioAtual?.tenantPermiteSecretaria,
     deveTrocarSenha: minhaConta.deveTrocarSenha,
   };
 
@@ -263,6 +292,22 @@ export function atualizarSessaoComMinhaConta(
   notificarMudancaSessaoAutenticada();
 
   return usuarioAutenticado;
+}
+
+export function atualizarContextoTenantAutenticado(
+  tenant: Pick<Tenant, "plano" | "permiteSecretaria">,
+): void {
+  const usuarioAtual = obterUsuarioAutenticado();
+  if (!usuarioAtual) {
+    return;
+  }
+
+  salvarUsuarioAutenticado({
+    ...usuarioAtual,
+    tenantPlano: tenant.plano,
+    tenantPermiteSecretaria: tenant.permiteSecretaria,
+  });
+  notificarMudancaSessaoAutenticada();
 }
 
 export function encerrarSessaoAutenticada(): void {

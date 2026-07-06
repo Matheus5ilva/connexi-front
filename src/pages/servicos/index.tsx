@@ -15,6 +15,7 @@ import {
 import styles from "./styles.module.css";
 import { getSegmentoLabels } from "../../config/segmento-labels";
 import type { LayoutOutletContext } from "../../layout";
+import { useSessaoAutenticada } from "../../auth/use-auth-session";
 
 function formatarMoeda(valor: number): string {
   return valor.toLocaleString("pt-BR", {
@@ -26,6 +27,7 @@ function formatarMoeda(valor: number): string {
 export function Servicos() {
   const servicosPath = "/financeiro/servicos";
   const navigate = useNavigate();
+  const { user } = useSessaoAutenticada();
   const { segmento } = useOutletContext<LayoutOutletContext>();
   const labels = getSegmentoLabels(segmento);
   const servicoMinusculo = labels.servico.toLowerCase();
@@ -35,6 +37,7 @@ export function Servicos() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const podeGerenciarServicos = user?.perfil !== "SECRETARIA";
 
   const servicoParaExcluir = useMemo(
     () => servicos.find((item) => item.id === selectedDeleteId) || null,
@@ -144,6 +147,7 @@ export function Servicos() {
         title={labels.servicos}
         subtitle={`Gerencie os ${servicosMinusculo} cadastrados e seus valores.`}
         right={
+          podeGerenciarServicos ? (
           <button
             className={styles.btnPrimary}
             onClick={() => navigate("/financeiro/servicos/novo")}
@@ -152,6 +156,7 @@ export function Servicos() {
             <FaPlus />
             <span>Novo {servicoMinusculo}</span>
           </button>
+          ) : null
         }
       />
 
@@ -186,32 +191,36 @@ export function Servicos() {
               </span>
             ),
           },
-          {
-            key: "acoes",
-            label: "Ações",
-            align: "center",
-            render: (row) => (
-              <div className={styles.actionButtons}>
-                <button
-                  type="button"
-                  aria-label={`Editar ${row.nome}`}
-                  onClick={() =>
-                    navigate(`/financeiro/servicos/${row.id}/editar`)
-                  }
-                >
-                  <FaEdit color="var(--color-brand-dark)" />
-                </button>
-                <button
-                  type="button"
-                  className={styles.deleteBtn}
-                  aria-label={`Excluir ${row.nome}`}
-                  onClick={() => setSelectedDeleteId(row.id)}
-                >
-                  <FaTrash color="var(--color-danger)" />
-                </button>
-              </div>
-            ),
-          },
+          ...(podeGerenciarServicos
+            ? [
+                {
+                  key: "acoes",
+                  label: "Ações",
+                  align: "center" as const,
+                  render: (row: ServicoListaItem) => (
+                    <div className={styles.actionButtons}>
+                      <button
+                        type="button"
+                        aria-label={`Editar ${row.nome}`}
+                        onClick={() =>
+                          navigate(`/financeiro/servicos/${row.id}/editar`)
+                        }
+                      >
+                        <FaEdit color="var(--color-brand-dark)" />
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deleteBtn}
+                        aria-label={`Excluir ${row.nome}`}
+                        onClick={() => setSelectedDeleteId(row.id)}
+                      >
+                        <FaTrash color="var(--color-danger)" />
+                      </button>
+                    </div>
+                  ),
+                },
+              ]
+            : []),
         ]}
       />
     </PageLayout>

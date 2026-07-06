@@ -7,6 +7,7 @@ import { PageHeader } from "../../../components/ui/page-header";
 import { PageLayout } from "../../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
 import { getSegmentoLabels } from "../../../config/segmento-labels";
+import { useSessaoAutenticada } from "../../../auth/use-auth-session";
 import type { LayoutOutletContext } from "../../../layout";
 import { parseRouteNumericId } from "../../../schemas/runtime-input.schema";
 import { servicoService, toErrorMessage, type Servico } from "../../../services/api";
@@ -21,6 +22,7 @@ function formatarMoeda(valor: number): string {
 
 export function VisualizarServico() {
   const navigate = useNavigate();
+  const { user } = useSessaoAutenticada();
   const { segmento } = useOutletContext<LayoutOutletContext>();
   const labels = getSegmentoLabels(segmento);
   const servicoMinusculo = labels.servico.toLowerCase();
@@ -34,6 +36,7 @@ export function VisualizarServico() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const podeGerenciarServicos = user?.perfil !== "SECRETARIA";
 
   useEffect(() => {
     if (servicoId === null) {
@@ -187,6 +190,7 @@ export function VisualizarServico() {
           </div>
         }
         right={
+          podeGerenciarServicos ? (
           <div className={styles.headerActions}>
             <button
               type="button"
@@ -205,6 +209,7 @@ export function VisualizarServico() {
               <span>Excluir</span>
             </button>
           </div>
+          ) : null
         }
       />
 

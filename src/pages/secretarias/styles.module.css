@@ -1,0 +1,391 @@
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--color-brand-dark);
+  color: var(--color-surface);
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnPrimary:hover,
+.btnPrimary:focus-visible {
+  background: var(--color-brand-hover);
+  outline: none;
+}
+
+.btnPrimary:disabled,
+.btnSecondary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.btnSecondary {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  border-radius: 8px;
+  padding: 9px 14px;
+  cursor: pointer;
+}
+
+.btnSecondary:hover,
+.btnSecondary:focus-visible {
+  background: var(--color-surface-soft);
+  outline: none;
+}
+
+.linhaSecretaria {
+  transition: background 0.15s;
+}
+
+.nameCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nameValue {
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.nameHint {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.actionButtons {
+  display: inline-flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.titleWithBack {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.backBtn {
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.backBtn:hover,
+.backBtn:focus-visible {
+  background: var(--color-surface-soft);
+  outline: none;
+}
+
+.pageTitle {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.pageSubtitle {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.feedbackCard {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.feedbackInfo {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}
+
+.feedbackError {
+  margin: 0;
+  color: #b42318;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 14px;
+  background: var(--color-surface);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border-soft);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.sectionIcon {
+  color: var(--color-brand-dark);
+  font-size: 15px;
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kpiCard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+}
+
+.kpiLabel {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.kpiValue {
+  color: var(--color-text);
+  font-size: 1.05rem;
+}
+
+.kpiBadge {
+  align-self: flex-start;
+  display: inline-flex;
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.sectionCard {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px;
+  border-radius: 14px;
+  background: var(--color-surface);
+  box-shadow: 0 4px 20px rgba(12, 31, 44, 0.045);
+}
+
+.gradeFormulario {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.gradeFormulario > label,
+.formulario > label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--color-text);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.gradeFormulario input,
+.formulario input {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--color-text);
+  background: var(--color-surface);
+  font-size: 0.92rem;
+}
+
+.gradeFormulario input:focus,
+.formulario input:focus {
+  border-color: var(--color-brand-dark);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(26, 72, 88, 0.12);
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.inputError {
+  border-color: var(--color-danger) !important;
+}
+
+.inputError:focus {
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08) !important;
+}
+
+.campoAmplo,
+.checkboxLinha {
+  grid-column: 1 / -1;
+}
+
+.checkboxLinha {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 10px !important;
+}
+
+.checkboxLinha input {
+  width: 18px;
+  height: 18px;
+}
+
+.rodapeModal {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.detailSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 14px;
+  background: var(--color-surface);
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.infoLabel {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.infoValue {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.colSpan2 {
+  grid-column: span 2;
+}
+
+.notesText {
+  margin: 0;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.infoItem {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--color-text);
+}
+
+.infoItem span {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.infoItem strong {
+  overflow-wrap: anywhere;
+  font-size: 0.94rem;
+  font-weight: 600;
+}
+
+.confirmBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 768px) {
+  .btnPrimary {
+    width: 100%;
+    padding: 14px;
+  }
+
+  .kpiGrid,
+  .contentGrid,
+  .gradeFormulario {
+    grid-template-columns: 1fr;
+  }
+
+  .actionButtons,
+  .formActions,
+  .rodapeModal {
+    justify-content: flex-start;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .colSpan2 {
+    grid-column: auto;
+  }
+}

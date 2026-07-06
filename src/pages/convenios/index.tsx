@@ -7,6 +7,7 @@ import { PageHeader } from "../../components/ui/page-header";
 import { PageLayout } from "../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../components/ui/carregamento-central";
 import { Table } from "../../components/ui/table";
+import { useSessaoAutenticada } from "../../auth/use-auth-session";
 import {
   convenioService,
   toErrorMessage,
@@ -20,6 +21,7 @@ const conveniosPath = "/financeiro/convenios";
 
 export function Convenios() {
   const navigate = useNavigate();
+  const { user } = useSessaoAutenticada();
   const { segmento } = useOutletContext<LayoutOutletContext>();
   const labels = getSegmentoLabels(segmento);
   const parceriaMinuscula = labels.parceria.toLowerCase();
@@ -29,6 +31,7 @@ export function Convenios() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const podeGerenciarConvenios = user?.perfil !== "SECRETARIA";
 
   const convenioToDelete = useMemo(
     () => convenios.find((item) => item.id === selectedDeleteId) || null,
@@ -62,7 +65,7 @@ export function Convenios() {
   }, [carregarConvenios]);
 
   async function handleDeleteConfirmed() {
-    if (!selectedDeleteId) {
+    if (!selectedDeleteId || !podeGerenciarConvenios) {
       return;
     }
 
@@ -102,7 +105,7 @@ export function Convenios() {
   return (
     <PageLayout>
       <Modal
-        open={!!convenioToDelete}
+        open={podeGerenciarConvenios && !!convenioToDelete}
         onClose={() => setSelectedDeleteId(null)}
         title={`Excluir ${parceriaMinuscula}`}
         subtitle={`Essa ação remove ${parceriaMinuscula} da base atual.`}
@@ -138,14 +141,16 @@ export function Convenios() {
         title={labels.parcerias}
         subtitle={`Gerencie cadastros de ${parceriasMinuscula}.`}
         right={
-          <button
-            className={styles.btnPrimary}
-            onClick={() => navigate("/financeiro/convenios/novo")}
-            type="button"
-          >
-            <FaPlus />
-            <span>Cadastrar {parceriaMinuscula}</span>
-          </button>
+          podeGerenciarConvenios ? (
+            <button
+              className={styles.btnPrimary}
+              onClick={() => navigate("/financeiro/convenios/novo")}
+              type="button"
+            >
+              <FaPlus />
+              <span>Cadastrar {parceriaMinuscula}</span>
+            </button>
+          ) : null
         }
       />
 
@@ -165,7 +170,7 @@ export function Convenios() {
           {
             key: "ativo",
             label: "Status",
-            align: "center",
+            align: "center" as const,
             render: (row) => (
               <span
                 className={`${styles.statusBadge} ${row.ativo ? styles.statusAtivo : styles.statusInativo}`}
@@ -174,32 +179,36 @@ export function Convenios() {
               </span>
             ),
           },
-          {
-            key: "acoes",
-            label: "Ações",
-            align: "center",
-            render: (row) => (
-              <div className={styles.actionButtons}>
-                <button
-                  type="button"
-                  aria-label={`Editar ${row.nome}`}
-                  onClick={() =>
-                    navigate(`/financeiro/convenios/${row.id}/editar`)
-                  }
-                >
-                  <FaEdit color="var(--color-brand-dark)" />
-                </button>
-                <button
-                  type="button"
-                  className={styles.deleteBtn}
-                  aria-label={`Excluir ${row.nome}`}
-                  onClick={() => setSelectedDeleteId(row.id)}
-                >
-                  <FaTrash color="var(--color-danger)" />
-                </button>
-              </div>
-            ),
-          },
+          ...(podeGerenciarConvenios
+            ? [
+                {
+                  key: "acoes",
+                  label: "Ações",
+                  align: "center" as const,
+                  render: (row: ConvenioListaItem) => (
+                    <div className={styles.actionButtons}>
+                      <button
+                        type="button"
+                        aria-label={`Editar ${row.nome}`}
+                        onClick={() =>
+                          navigate(`/financeiro/convenios/${row.id}/editar`)
+                        }
+                      >
+                        <FaEdit color="var(--color-brand-dark)" />
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.deleteBtn}
+                        aria-label={`Excluir ${row.nome}`}
+                        onClick={() => setSelectedDeleteId(row.id)}
+                      >
+                        <FaTrash color="var(--color-danger)" />
+                      </button>
+                    </div>
+                  ),
+                },
+              ]
+            : []),
         ]}
       />
     </PageLayout>

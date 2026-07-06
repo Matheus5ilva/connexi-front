@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useState } from "react";
 import {
   FaCheck,
+  FaEdit,
   FaFileAlt,
   FaLock,
   FaPlus,
@@ -13,6 +14,7 @@ import { CarregamentoCentral } from "../../../components/ui/carregamento-central
 import { Modal } from "../../../components/ui/modal";
 import { StatusBadge } from "../../../components/ui/status-badge";
 import { Table } from "../../../components/ui/table";
+import { TableActionButton } from "../../../components/ui/table-action-button";
 import {
   adminTenantLogsService,
   adminTenantsService,
@@ -21,6 +23,7 @@ import {
   type CredencialAdministrativa,
   type CriarTenantAdministrativoRequest,
   type NichoTenant,
+  type PlanoTenant,
   type TenantAdministrativo,
 } from "../../../services/api";
 import styles from "./styles.module.css";
@@ -34,6 +37,11 @@ const NICHOS: Array<{ valor: NichoTenant; rotulo: string }> = [
   { valor: "SERVICOS", rotulo: "Serviços" },
 ];
 
+const PLANOS: Array<{ valor: PlanoTenant; rotulo: string }> = [
+  { valor: "SOLO", rotulo: "Solo" },
+  { valor: "EQUIPE", rotulo: "Equipe" },
+];
+
 type FormularioLogin = {
   login: string;
   senha: string;
@@ -43,7 +51,13 @@ type FormularioCriacaoTenant = {
   nome: string;
   slug: string;
   nicho: NichoTenant;
+  plano: PlanoTenant;
   emailUsuarioInicial: string;
+};
+
+type FormularioEdicaoTenant = {
+  nome: string;
+  plano: PlanoTenant;
 };
 
 const LOGIN_INICIAL: FormularioLogin = {
@@ -55,6 +69,7 @@ const CRIACAO_INICIAL: FormularioCriacaoTenant = {
   nome: "",
   slug: "",
   nicho: "SAUDE",
+  plano: "SOLO",
   emailUsuarioInicial: "",
 };
 
@@ -142,8 +157,16 @@ function montarPayloadCriacao(
     nome,
     slug: formulario.slug.trim().toLowerCase(),
     nicho: formulario.nicho,
+    plano: formulario.plano,
     emailUsuarioInicial: formulario.emailUsuarioInicial.trim().toLowerCase(),
     nomeConsultorio: nome,
+  };
+}
+
+function montarPayloadEdicao(formulario: FormularioEdicaoTenant) {
+  return {
+    nome: formulario.nome.trim(),
+    plano: formulario.plano,
   };
 }
 
@@ -167,13 +190,20 @@ export function AdminTenants() {
   const [erro, setErro] = useState<string | null>(null);
   const [sucesso, setSucesso] = useState<string | null>(null);
   const [criacaoAberta, setCriacaoAberta] = useState(false);
+  const [tenantParaEditar, setTenantParaEditar] =
+    useState<TenantAdministrativo | null>(null);
+  const [formularioEdicao, setFormularioEdicao] =
+    useState<FormularioEdicaoTenant>({
+      nome: "",
+      plano: "SOLO",
+    });
   const [tenantParaInativar, setTenantParaInativar] =
     useState<TenantAdministrativo | null>(null);
   const [tenantParaExcluir, setTenantParaExcluir] =
     useState<TenantAdministrativo | null>(null);
+  const [confirmacaoExclusao, setConfirmacaoExclusao] = useState("");
   const [tenantParaLog, setTenantParaLog] =
     useState<TenantAdministrativo | null>(null);
-  const [confirmacaoExclusao, setConfirmacaoExclusao] = useState("");
   const [dataLog, setDataLog] = useState(formatarDataInput(new Date()));
   const [erroLog, setErroLog] = useState<string | null>(null);
   const [baixandoLog, setBaixandoLog] = useState(false);
@@ -268,6 +298,46 @@ export function AdminTenants() {
     }
   }
 
+  function abrirEdicaoTenant(tenant: TenantAdministrativo) {
+    setTenantParaEditar(tenant);
+    setFormularioEdicao({
+      nome: tenant.nome,
+      plano: tenant.plano,
+    });
+    setErro(null);
+    setSucesso(null);
+  }
+
+  async function atualizarTenant(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!credencial || !tenantParaEditar) {
+      return;
+    }
+
+    try {
+      setCarregando(true);
+      setErro(null);
+      setSucesso(null);
+
+      const tenantAtualizado = await adminTenantsService.atualizar(
+        credencial,
+        tenantParaEditar.id,
+        montarPayloadEdicao(formularioEdicao),
+      );
+
+      setTenants((listaAtual) =>
+        substituirTenantNaLista(listaAtual, tenantAtualizado),
+      );
+      setTenantParaEditar(null);
+      setSucesso("Tenant atualizado com sucesso.");
+    } catch (error) {
+      setErro(toErrorMessage(error, "Não foi possível atualizar o tenant."));
+    } finally {
+      setCarregando(false);
+    }
+  }
+
   async function ativarTenant(tenant: TenantAdministrativo) {
     if (!credencial) {
       return;
@@ -321,15 +391,20 @@ export function AdminTenants() {
     }
   }
 
+  function abrirExclusaoTenant(tenant: TenantAdministrativo) {
+    setTenantParaExcluir(tenant);
+    setConfirmacaoExclusao("");
+    setErro(null);
+    setSucesso(null);
+  }
+
   async function confirmarExclusaoTenant() {
     if (!credencial || !tenantParaExcluir) {
       return;
     }
 
     if (confirmacaoExclusao.trim() !== tenantParaExcluir.slug) {
-      setErro(
-        "Digite o schema do tenant exatamente como exibido para confirmar.",
-      );
+      setErro("Digite o schema do tenant exatamente como exibido para confirmar.");
       return;
     }
 
@@ -351,18 +426,6 @@ export function AdminTenants() {
     } finally {
       setCarregando(false);
     }
-  }
-
-  function abrirConfirmacaoExclusao(tenant: TenantAdministrativo) {
-    setTenantParaExcluir(tenant);
-    setConfirmacaoExclusao("");
-    setErro(null);
-    setSucesso(null);
-  }
-
-  function fecharConfirmacaoExclusao() {
-    setTenantParaExcluir(null);
-    setConfirmacaoExclusao("");
   }
 
   function abrirLogTenant(tenant: TenantAdministrativo) {
@@ -437,50 +500,58 @@ export function AdminTenants() {
     );
   }
 
+  function renderizarPlano(tenant: TenantAdministrativo) {
+    return (
+      PLANOS.find((item) => item.valor === tenant.plano)?.rotulo ??
+      tenant.plano
+    );
+  }
+
   function renderizarAcoes(tenant: TenantAdministrativo) {
     return (
       <div className={styles.acoes}>
-        <button
-          type="button"
-          className={styles.botaoSecundario}
+        <TableActionButton
+          icon={<FaEdit color="var(--color-brand-dark)" />}
+          label={`Editar ${tenant.nome}`}
+          title="Editar"
+          onClick={() => abrirEdicaoTenant(tenant)}
+          disabled={carregando}
+        />
+        <TableActionButton
+          icon={<FaFileAlt color="var(--color-brand-dark)" />}
+          label={`Baixar log de ${tenant.nome}`}
+          title="Log"
           onClick={() => abrirLogTenant(tenant)}
           disabled={carregando}
-        >
-          <FaFileAlt aria-hidden="true" />
-          Log
-        </button>
-        {tenant.ativo ? (
-          <button
-            type="button"
-            className={styles.botaoPerigo}
-            onClick={() => setTenantParaInativar(tenant)}
+        />
+        <TableActionButton
+          icon={
+            tenant.ativo ? (
+              <FaPowerOff color="var(--color-danger)" />
+            ) : (
+              <FaCheck color="var(--color-success)" />
+            )
+          }
+          label={`${tenant.ativo ? "Inativar" : "Reativar"} ${tenant.nome}`}
+          title={tenant.ativo ? "Inativar" : "Reativar"}
+          tone={tenant.ativo ? "danger" : "success"}
+          onClick={() =>
+            tenant.ativo
+              ? setTenantParaInativar(tenant)
+              : void ativarTenant(tenant)
+          }
+          disabled={carregando}
+        />
+        {!tenant.ativo ? (
+          <TableActionButton
+            icon={<FaTrash color="var(--color-danger)" />}
+            label={`Excluir ${tenant.nome}`}
+            title="Excluir"
+            tone="danger"
+            onClick={() => abrirExclusaoTenant(tenant)}
             disabled={carregando}
-          >
-            <FaPowerOff aria-hidden="true" />
-            Inativar
-          </button>
-        ) : (
-          <>
-            <button
-              type="button"
-              className={styles.botaoSucesso}
-              onClick={() => void ativarTenant(tenant)}
-              disabled={carregando}
-            >
-              <FaCheck aria-hidden="true" />
-              Ativar
-            </button>
-            <button
-              type="button"
-              className={styles.botaoPerigo}
-              onClick={() => abrirConfirmacaoExclusao(tenant)}
-              disabled={carregando}
-            >
-              <FaTrash aria-hidden="true" />
-              Excluir
-            </button>
-          </>
-        )}
+          />
+        ) : null}
       </div>
     );
   }
@@ -611,6 +682,12 @@ export function AdminTenants() {
               render: renderizarNicho,
             },
             {
+              key: "plano",
+              label: "Plano",
+              align: "center",
+              render: renderizarPlano,
+            },
+            {
               key: "ativo",
               label: "Status",
               align: "center",
@@ -704,6 +781,25 @@ export function AdminTenants() {
             </label>
 
             <label>
+              Plano
+              <select
+                value={formularioCriacao.plano}
+                onChange={(event) =>
+                  setFormularioCriacao((atual) => ({
+                    ...atual,
+                    plano: event.target.value as PlanoTenant,
+                  }))
+                }
+              >
+                {PLANOS.map((plano) => (
+                  <option key={plano.valor} value={plano.valor}>
+                    {plano.rotulo}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label>
               E-mail do usuário inicial
               <input
                 type="email"
@@ -733,6 +829,79 @@ export function AdminTenants() {
               disabled={carregando}
             >
               Criar tenant
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        open={Boolean(tenantParaEditar)}
+        onClose={() => setTenantParaEditar(null)}
+        title="Editar tenant"
+        subtitle="Ajuste nome e plano do tenant."
+        maxWidth="560px"
+      >
+        <form className={styles.formulario} onSubmit={atualizarTenant}>
+          <div className={styles.confirmacao}>
+            <span>Tenant</span>
+            <strong>{tenantParaEditar?.nome}</strong>
+          </div>
+
+          <div className={styles.gradeFormulario}>
+            <label>
+              Nome
+              <input
+                type="text"
+                value={formularioEdicao.nome}
+                onChange={(event) =>
+                  setFormularioEdicao((atual) => ({
+                    ...atual,
+                    nome: event.target.value,
+                  }))
+                }
+                required
+              />
+            </label>
+
+            <label>
+              Subdomínio/schema
+              <input type="text" value={tenantParaEditar?.slug ?? ""} readOnly />
+            </label>
+
+            <label>
+              Plano
+              <select
+                value={formularioEdicao.plano}
+                onChange={(event) =>
+                  setFormularioEdicao((atual) => ({
+                    ...atual,
+                    plano: event.target.value as PlanoTenant,
+                  }))
+                }
+              >
+                {PLANOS.map((plano) => (
+                  <option key={plano.valor} value={plano.valor}>
+                    {plano.rotulo}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className={styles.rodapeModal}>
+            <button
+              type="button"
+              className={styles.botaoSecundario}
+              onClick={() => setTenantParaEditar(null)}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className={styles.botaoPrimario}
+              disabled={carregando}
+            >
+              Salvar tenant
             </button>
           </div>
         </form>
@@ -770,34 +939,33 @@ export function AdminTenants() {
 
       <Modal
         open={Boolean(tenantParaExcluir)}
-        onClose={fecharConfirmacaoExclusao}
+        onClose={() => setTenantParaExcluir(null)}
         title="Excluir tenant"
-        subtitle="Confirmação obrigatória para remoção permanente do schema."
+        subtitle="Esta ação remove o tenant e o schema de dados correspondente."
       >
         <div className={styles.confirmacao}>
           <p>
-            Atenção: esta ação irá excluir permanentemente o tenant e remover o
-            schema correspondente do banco de dados. Essa operação não poderá
-            ser desfeita.
+            Exclua apenas tenants inativos e sem necessidade de recuperação.
+            Esta ação não pode ser desfeita.
           </p>
           <strong>{tenantParaExcluir?.nome}</strong>
-          <span>Schema: {tenantParaExcluir?.slug}</span>
-          <label className={styles.campoConfirmacao}>
-            Digite o schema do tenant para confirmar a exclusão.
-            <input
-              type="text"
-              value={confirmacaoExclusao}
-              onChange={(event) => setConfirmacaoExclusao(event.target.value)}
-              autoComplete="off"
-            />
-          </label>
         </div>
+
+        <label className={styles.campoConfirmacao}>
+          Digite o schema <strong>{tenantParaExcluir?.slug}</strong> para confirmar
+          <input
+            type="text"
+            value={confirmacaoExclusao}
+            onChange={(event) => setConfirmacaoExclusao(event.target.value)}
+            autoComplete="off"
+          />
+        </label>
 
         <div className={styles.rodapeModal}>
           <button
             type="button"
             className={styles.botaoSecundario}
-            onClick={fecharConfirmacaoExclusao}
+            onClick={() => setTenantParaExcluir(null)}
           >
             Cancelar
           </button>

@@ -69,7 +69,6 @@ function montarPessoa(formData: PacienteFormData): PessoaInput {
 
   const pessoa: PessoaInput = {
     nome: formData.nome.trim(),
-    ativo: formData.ativo,
     contato,
   };
 

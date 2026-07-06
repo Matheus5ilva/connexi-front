@@ -13,6 +13,7 @@ import { formaPagamentoService } from "./forma-pagamento.service";
 import { painelService } from "./painel.service";
 import { pacienteService } from "./paciente.service";
 import { profissionalService } from "./profissional.service";
+import { secretariaService } from "./secretaria.service";
 import { servicoService } from "./servico.service";
 import { especialidadeService } from "./especialidade.service";
 import { tenantService } from "./tenant.service";
@@ -33,6 +34,7 @@ export {
   painelService,
   pacienteService,
   profissionalService,
+  secretariaService,
   servicoService,
   especialidadeService,
   tenantService,
