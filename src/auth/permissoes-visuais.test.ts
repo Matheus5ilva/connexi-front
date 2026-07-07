@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { UsuarioAutenticado } from "./session";
 import {
+  obterDestinoPosLogin,
+  rotaPodeSerUltimaRotaPrivada,
   usuarioPodeAcessarRota,
   usuarioPodeVerItemMenu,
 } from "./permissoes-visuais";
@@ -160,5 +162,48 @@ describe("permissoes visuais por perfil", () => {
     const secretaria = usuario({ perfil: "SECRETARIA" });
 
     expect(usuarioPodeAcessarRota(secretaria, "/rota-inexistente")).toBe(false);
+  });
+
+  it("envia SECRETARIA para agenda apos login e ignora ultima rota proibida", () => {
+    const secretaria = usuario({ perfil: "SECRETARIA" });
+
+    expect(obterDestinoPosLogin(secretaria, "/pacientes/10/prontuarios")).toBe(
+      "/agenda",
+    );
+  });
+
+  it("envia PROFISSIONAL para dashboard apos login", () => {
+    expect(obterDestinoPosLogin(usuario(), "/pacientes")).toBe("/dashboard");
+  });
+
+  it("envia MASTER para ultima rota valida apos login", () => {
+    const master = usuario({ perfil: "MASTER" });
+
+    expect(obterDestinoPosLogin(master, "/pacientes?pagina=2#lista")).toBe(
+      "/pacientes?pagina=2#lista",
+    );
+  });
+
+  it("envia MASTER para dashboard quando nao houver ultima rota", () => {
+    const master = usuario({ perfil: "MASTER" });
+
+    expect(obterDestinoPosLogin(master, null)).toBe("/dashboard");
+  });
+
+  it("envia MASTER para dashboard quando ultima rota for publica ou invalida", () => {
+    const master = usuario({ perfil: "MASTER" });
+
+    expect(obterDestinoPosLogin(master, "/login")).toBe("/dashboard");
+    expect(obterDestinoPosLogin(master, "/recuperar-senha")).toBe("/dashboard");
+    expect(obterDestinoPosLogin(master, "/resetar-senha")).toBe("/dashboard");
+    expect(obterDestinoPosLogin(master, "/acesso-negado")).toBe("/dashboard");
+    expect(obterDestinoPosLogin(master, "https://evil.test")).toBe("/dashboard");
+    expect(obterDestinoPosLogin(master, "/rota-inexistente")).toBe("/dashboard");
+  });
+
+  it("identifica somente rotas privadas conhecidas como ultima rota", () => {
+    expect(rotaPodeSerUltimaRotaPrivada("/agenda")).toBe(true);
+    expect(rotaPodeSerUltimaRotaPrivada("/login")).toBe(false);
+    expect(rotaPodeSerUltimaRotaPrivada("/rota-inexistente")).toBe(false);
   });
 });

@@ -4,7 +4,9 @@ import {
   encerrarSessaoAutenticada,
   iniciarSessaoApi,
   obterContextoAcessoUsuarioAutenticado,
+  obterUltimaRotaPrivada,
   obterUsuarioAutenticado,
+  salvarUltimaRotaPrivada,
 } from "./session";
 
 const ACCESS_TOKEN_KEY = "connexi.access-token";
@@ -136,6 +138,12 @@ describe("auth session storage", () => {
 
     expect(window.sessionStorage.getItem(ACCESS_TOKEN_KEY)).toBeNull();
     expect(window.sessionStorage.getItem(AUTH_USER_KEY)).toBeNull();
+  });
+
+  it("salva e le ultima rota privada", () => {
+    salvarUltimaRotaPrivada("/pacientes/10?tab=dados");
+
+    expect(obterUltimaRotaPrivada()).toBe("/pacientes/10?tab=dados");
   });
 
   it("nao persiste campos sensiveis extras da resposta de login", () => {

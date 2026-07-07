@@ -3,10 +3,13 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import {
   atualizarContextoTenantAutenticado,
   encerrarSessaoAutenticada,
+  obterUltimaRotaPrivada,
   possuiSessaoNoTenantAtual,
+  salvarUltimaRotaPrivada,
 } from "../auth/session";
 import {
-  obterRotaInicialPermitida,
+  obterDestinoPosLogin,
+  rotaPodeSerUltimaRotaPrivada,
   usuarioPodeAcessarRota,
 } from "../auth/permissoes-visuais";
 import { CarregamentoCentral } from "../components/ui/carregamento-central";
@@ -158,24 +161,34 @@ export function ValidarContextoTenant() {
 export function ExigirAutenticacao() {
   const location = useLocation();
   const { isAuthenticated, user } = useSessaoAutenticada();
+  const rotaAtual = `${location.pathname}${location.search}${location.hash}`;
   const sessaoValidaNoTenantAtual = possuiSessaoNoTenantAtual({
     isAuthenticated,
     user,
   });
 
+  useEffect(() => {
+    if (
+      sessaoValidaNoTenantAtual &&
+      user &&
+      !user.deveTrocarSenha &&
+      usuarioPodeAcessarRota(user, location.pathname) &&
+      rotaPodeSerUltimaRotaPrivada(rotaAtual)
+    ) {
+      salvarUltimaRotaPrivada(rotaAtual);
+    }
+  }, [location.pathname, rotaAtual, sessaoValidaNoTenantAtual, user]);
+
   if (!sessaoValidaNoTenantAtual) {
-    const returnTo = `${location.pathname}${location.search}${location.hash}`;
-    return <Navigate to={ROTA_LOGIN} replace state={{ returnTo }} />;
+    return <Navigate to={ROTA_LOGIN} replace state={{ returnTo: rotaAtual }} />;
   }
 
   if (user?.deveTrocarSenha && location.pathname !== ROTA_MINHA_CONTA) {
-    const returnTo = `${location.pathname}${location.search}${location.hash}`;
-    return <Navigate to={ROTA_MINHA_CONTA} replace state={{ returnTo }} />;
+    return <Navigate to={ROTA_MINHA_CONTA} replace state={{ returnTo: rotaAtual }} />;
   }
 
   if (user && !usuarioPodeAcessarRota(user, location.pathname)) {
-    const from = `${location.pathname}${location.search}${location.hash}`;
-    return <Navigate to={ROTA_ACESSO_NEGADO} replace state={{ from }} />;
+    return <Navigate to={ROTA_ACESSO_NEGADO} replace state={{ from: rotaAtual }} />;
   }
 
   return <Outlet />;
@@ -191,7 +204,7 @@ export function RedirecionarSeAutenticado() {
   if (sessaoValidaNoTenantAtual) {
     const destino = user?.deveTrocarSenha
       ? ROTA_MINHA_CONTA
-      : obterRotaInicialPermitida(user);
+      : obterDestinoPosLogin(user, obterUltimaRotaPrivada());
     return <Navigate to={destino} replace />;
   }
 

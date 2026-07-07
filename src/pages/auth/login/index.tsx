@@ -3,11 +3,12 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   atualizarSessaoComMinhaConta,
   iniciarSessaoApi,
+  obterUltimaRotaPrivada,
 } from "../../../auth/session";
+import { obterDestinoPosLogin } from "../../../auth/permissoes-visuais";
 import { BrandLogo } from "../../../components/brand-logo";
 import { AvisoErroFormulario } from "../../../components/ui/aviso-erro-formulario";
 import { FormField } from "../../../components/ui/form-field";
-import { resolveReturnTo } from "../../../routes/return-to";
 import {
   authService,
   mapFormularioLoginParaIniciarSessaoRequest,
@@ -44,7 +45,6 @@ function obterMensagemSucesso(state: unknown): string | null {
 export function PaginaLogin() {
   const navigate = useNavigate();
   const location = useLocation();
-  const returnTo = resolveReturnTo(location, "/");
 
   const mensagemSucesso = useMemo(
     () => obterMensagemSucesso(location.state),
@@ -103,14 +103,20 @@ export function PaginaLogin() {
       let usuarioAutenticado = iniciarSessaoApi(respostaLogin);
       const minhaConta = await authService.buscarMinhaConta();
       usuarioAutenticado = atualizarSessaoComMinhaConta(minhaConta);
+      const destinoPosLogin = obterDestinoPosLogin(
+        usuarioAutenticado,
+        obterUltimaRotaPrivada(),
+      );
 
       const destino = usuarioAutenticado.deveTrocarSenha
         ? "/configuracoes/minha-conta"
-        : returnTo;
+        : destinoPosLogin;
 
       navigate(destino, {
         replace: true,
-        state: usuarioAutenticado.deveTrocarSenha ? { returnTo } : undefined,
+        state: usuarioAutenticado.deveTrocarSenha
+          ? { returnTo: destinoPosLogin }
+          : undefined,
       });
     } catch (submitError) {
       setMensagemErro(

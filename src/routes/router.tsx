@@ -306,6 +306,10 @@ function criarRotasTenant() {
                   element: renderizarPagina(Home),
                 },
                 {
+                  path: "/dashboard",
+                  element: renderizarPagina(Home),
+                },
+                {
                   path: "/acesso-negado",
                   element: renderizarPagina(PaginaAcessoNegado),
                 },

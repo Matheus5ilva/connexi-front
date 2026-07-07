@@ -1,9 +1,12 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { UsuarioAutenticado } from "../auth/session";
+import {
+  salvarUltimaRotaPrivada,
+  type UsuarioAutenticado,
+} from "../auth/session";
 import { useSessaoAutenticada } from "../auth/use-auth-session";
-import { ExigirAutenticacao } from "./auth-guards";
+import { ExigirAutenticacao, RedirecionarSeAutenticado } from "./auth-guards";
 
 vi.mock("../auth/use-auth-session", () => ({
   useSessaoAutenticada: vi.fn(),
@@ -46,9 +49,31 @@ function renderizarRota(pathname: string, user: UsuarioAutenticado | null) {
   );
 }
 
+function renderizarLoginComSessao(user: UsuarioAutenticado) {
+  useSessaoAutenticadaMock.mockReturnValue({
+    accessToken: "access-token",
+    isAuthenticated: true,
+    user,
+  });
+
+  render(
+    <MemoryRouter initialEntries={["/login"]}>
+      <Routes>
+        <Route element={<RedirecionarSeAutenticado />}>
+          <Route path="/login" element={<div>Login</div>} />
+        </Route>
+        <Route path="/agenda" element={<div>Agenda</div>} />
+        <Route path="/dashboard" element={<div>Dashboard</div>} />
+        <Route path="/pacientes" element={<div>Pacientes</div>} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
+
 describe("ExigirAutenticacao", () => {
   afterEach(() => {
     cleanup();
+    window.sessionStorage.clear();
   });
 
   it("redireciona usuario sem sessao para login", () => {
@@ -89,5 +114,37 @@ describe("ExigirAutenticacao", () => {
 
     expect(screen.getByText("Acesso negado")).toBeInTheDocument();
     expect(screen.queryByText("Agenda")).not.toBeInTheDocument();
+  });
+
+  it("redireciona SECRETARIA autenticada no login para agenda", () => {
+    salvarUltimaRotaPrivada("/pacientes");
+
+    renderizarLoginComSessao(usuario());
+
+    expect(screen.getByText("Agenda")).toBeInTheDocument();
+  });
+
+  it("redireciona PROFISSIONAL autenticado no login para dashboard", () => {
+    salvarUltimaRotaPrivada("/pacientes");
+
+    renderizarLoginComSessao(usuario({ perfil: "PROFISSIONAL" }));
+
+    expect(screen.getByText("Dashboard")).toBeInTheDocument();
+  });
+
+  it("redireciona MASTER autenticado no login para ultima rota valida", () => {
+    salvarUltimaRotaPrivada("/pacientes");
+
+    renderizarLoginComSessao(usuario({ perfil: "MASTER" }));
+
+    expect(screen.getByText("Pacientes")).toBeInTheDocument();
+  });
+
+  it("redireciona MASTER autenticado no login para dashboard sem ultima rota valida", () => {
+    salvarUltimaRotaPrivada("/acesso-negado");
+
+    renderizarLoginComSessao(usuario({ perfil: "MASTER" }));
+
+    expect(screen.getByText("Dashboard")).toBeInTheDocument();
   });
 });

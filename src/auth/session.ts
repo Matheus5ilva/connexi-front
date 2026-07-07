@@ -12,6 +12,7 @@ import type {
 } from "../services/api/types/domain";
 
 const CHAVE_STORAGE_USUARIO_AUTENTICADO = "connexi.auth-user";
+const CHAVE_STORAGE_ULTIMA_ROTA_PRIVADA = "connexi.last-private-route";
 const ROTA_TENANT_INEXISTENTE = "/tenant-inexistente";
 const ouvintesSessaoAutenticada = new Set<() => void>();
 let snapshotSessaoAutenticadaAtual: SnapshotSessaoAutenticada | null = null;
@@ -207,6 +208,33 @@ export function obterUsuarioAutenticado(): UsuarioAutenticado | null {
 
     const usuarioValidado = usuarioAutenticadoSchema.safeParse(JSON.parse(raw));
     return usuarioValidado.success ? usuarioValidado.data : null;
+  } catch {
+    return null;
+  }
+}
+
+export function salvarUltimaRotaPrivada(rota: string): void {
+  if (!podeUsarStorage()) {
+    return;
+  }
+
+  try {
+    window.sessionStorage.setItem(CHAVE_STORAGE_ULTIMA_ROTA_PRIVADA, rota);
+  } catch {
+    // Mantem o fluxo estavel mesmo quando o storage esta indisponivel.
+  }
+}
+
+export function obterUltimaRotaPrivada(): string | null {
+  if (!podeUsarStorage()) {
+    return null;
+  }
+
+  try {
+    const rota = window.sessionStorage
+      .getItem(CHAVE_STORAGE_ULTIMA_ROTA_PRIVADA)
+      ?.trim();
+    return rota || null;
   } catch {
     return null;
   }

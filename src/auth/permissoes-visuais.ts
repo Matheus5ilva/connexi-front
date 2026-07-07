@@ -116,6 +116,29 @@ const ROTAS_SECRETARIAS: readonly string[] = [
   "/secretarias/:id/editar",
 ];
 
+const ROTAS_PUBLICAS_POS_LOGIN: readonly string[] = [
+  "/login",
+  "/recuperar-senha",
+  "/resetar-senha",
+  "/esqueci-senha",
+  "/redefinir-senha",
+  "/auth/reset-password",
+  "/acesso-negado",
+  "/tenant-inexistente",
+];
+
+const PREFIXOS_ROTAS_PRIVADAS_POS_LOGIN: readonly string[] = [
+  "/dashboard",
+  "/agenda",
+  "/profissional",
+  "/consultorio",
+  "/consultas",
+  "/pacientes",
+  "/financeiro",
+  "/configuracoes",
+  "/secretarias",
+];
+
 const ACESSO_VISUAL_POR_PERFIL: Record<PerfilUsuario, AcessoVisualPerfil> = {
   MASTER: ACESSO_TOTAL,
   PROFISSIONAL: ACESSO_TOTAL,
@@ -175,6 +198,51 @@ function tenantPermiteSecretarias(
   );
 }
 
+function normalizarRotaInterna(
+  rota: string | null | undefined,
+): { pathname: string; completa: string } | null {
+  const rotaNormalizada = rota?.trim();
+  if (
+    !rotaNormalizada ||
+    !rotaNormalizada.startsWith("/") ||
+    rotaNormalizada.startsWith("//") ||
+    rotaNormalizada.includes("\\")
+  ) {
+    return null;
+  }
+
+  try {
+    const url = new URL(rotaNormalizada, "http://connexi.local");
+    return {
+      pathname: url.pathname,
+      completa: `${url.pathname}${url.search}${url.hash}`,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function rotaPublicaPosLogin(pathname: string): boolean {
+  return ROTAS_PUBLICAS_POS_LOGIN.includes(pathname);
+}
+
+function rotaConhecidaPosLogin(pathname: string): boolean {
+  return PREFIXOS_ROTAS_PRIVADAS_POS_LOGIN.some(
+    (rota) => pathname === rota || pathname.startsWith(`${rota}/`),
+  );
+}
+
+export function rotaPodeSerUltimaRotaPrivada(
+  rota: string | null | undefined,
+): boolean {
+  const rotaInterna = normalizarRotaInterna(rota);
+  return Boolean(
+    rotaInterna &&
+      rotaConhecidaPosLogin(rotaInterna.pathname) &&
+      !rotaPublicaPosLogin(rotaInterna.pathname),
+  );
+}
+
 export function usuarioPodeVerItemMenu(
   usuario: UsuarioAcessoVisual | null | undefined,
   item: ItemMenuVisual,
@@ -213,5 +281,28 @@ export function usuarioPodeAcessarRota(
 export function obterRotaInicialPermitida(
   usuario: UsuarioAcessoVisual | null | undefined,
 ): string {
-  return usuario?.perfil === "SECRETARIA" ? "/agenda" : "/";
+  return usuario?.perfil === "SECRETARIA" ? "/agenda" : "/dashboard";
+}
+
+export function obterDestinoPosLogin(
+  usuario: UsuarioAcessoVisual | null | undefined,
+  ultimaRota: string | null | undefined,
+): string {
+  const destinoPadrao = obterRotaInicialPermitida(usuario);
+
+  if (usuario?.perfil !== "MASTER") {
+    return destinoPadrao;
+  }
+
+  const rotaInterna = normalizarRotaInterna(ultimaRota);
+  if (
+    !rotaInterna ||
+    !rotaConhecidaPosLogin(rotaInterna.pathname) ||
+    rotaPublicaPosLogin(rotaInterna.pathname) ||
+    !usuarioPodeAcessarRota(usuario, rotaInterna.pathname)
+  ) {
+    return destinoPadrao;
+  }
+
+  return rotaInterna.completa;
 }
