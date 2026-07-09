@@ -55,6 +55,27 @@ describe("Mapper de agendamento", () => {
     );
   });
 
+  it("mantem convenio e forma de pagamento escolhidos no agendamento", () => {
+    const payload = mapFormularioAgendamentoParaCriarRequest(
+      {
+        ...agendamentoBase,
+        tipoAtendimento: "CONVENIO",
+        convenioId: 7,
+        formaPagamentoId: 3,
+      },
+      {
+        profissionalId: 10,
+      },
+    );
+
+    expect(payload).toMatchObject({
+      tipoAtendimento: "CONVENIO",
+      convenioId: 7,
+      formaPagamentoId: 3,
+    });
+    expect(criarAgendamentoRequestSchema.safeParse(payload).success).toBe(true);
+  });
+
   it("schema de criacao rejeita status enviado pelo cliente", () => {
     const payload = {
       ...mapFormularioAgendamentoParaCriarRequest(agendamentoBase, {

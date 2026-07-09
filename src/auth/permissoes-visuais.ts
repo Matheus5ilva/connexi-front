@@ -145,7 +145,11 @@ const ACESSO_VISUAL_POR_PERFIL: Record<PerfilUsuario, AcessoVisualPerfil> = {
   SECRETARIA: {
     itensMenu: ITENS_SECRETARIA_BASE,
     rotas: ROTAS_SECRETARIA_BASE,
-    rotasBloqueadas: ["/consultas/:id", "/pacientes/:id/prontuarios"],
+    rotasBloqueadas: [
+      "/consultas/:id",
+      "/pacientes/:id/prontuarios",
+      ...ROTAS_ESCRITA_CADASTROS_FINANCEIROS,
+    ],
   },
 };
 

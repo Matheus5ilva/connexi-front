@@ -100,6 +100,28 @@ describe("ExigirAutenticacao", () => {
     expect(screen.getByText("Acesso negado")).toBeInTheDocument();
   });
 
+  it("bloqueia telas administrativas de catalogos para SECRETARIA sem permissao financeira", () => {
+    renderizarRota("/financeiro/formas-pagamento", usuario());
+
+    expect(screen.getByText("Acesso negado")).toBeInTheDocument();
+    cleanup();
+
+    renderizarRota("/financeiro/convenios", usuario());
+
+    expect(screen.getByText("Acesso negado")).toBeInTheDocument();
+  });
+
+  it("bloqueia escrita em catalogos para SECRETARIA sem permissao financeira", () => {
+    renderizarRota("/financeiro/formas-pagamento/novo", usuario());
+
+    expect(screen.getByText("Acesso negado")).toBeInTheDocument();
+    cleanup();
+
+    renderizarRota("/financeiro/convenios/10/editar", usuario());
+
+    expect(screen.getByText("Acesso negado")).toBeInTheDocument();
+  });
+
   it("permite financeiro para SECRETARIA com permissao financeira", () => {
     renderizarRota(
       "/financeiro/contas-a-receber",
@@ -107,6 +129,32 @@ describe("ExigirAutenticacao", () => {
     );
 
     expect(screen.getByText("Rota permitida")).toBeInTheDocument();
+  });
+
+  it("permite consulta de catalogos para SECRETARIA com permissao financeira", () => {
+    const secretariaComFinanceiro = usuario({ podeAcessarFinanceiro: true });
+
+    renderizarRota("/financeiro/formas-pagamento", secretariaComFinanceiro);
+
+    expect(screen.getByText("Rota permitida")).toBeInTheDocument();
+    cleanup();
+
+    renderizarRota("/financeiro/convenios", secretariaComFinanceiro);
+
+    expect(screen.getByText("Rota permitida")).toBeInTheDocument();
+  });
+
+  it("bloqueia escrita em catalogos para SECRETARIA com permissao financeira", () => {
+    const secretariaComFinanceiro = usuario({ podeAcessarFinanceiro: true });
+
+    renderizarRota("/financeiro/formas-pagamento/novo", secretariaComFinanceiro);
+
+    expect(screen.getByText("Acesso negado")).toBeInTheDocument();
+    cleanup();
+
+    renderizarRota("/financeiro/convenios/10/editar", secretariaComFinanceiro);
+
+    expect(screen.getByText("Acesso negado")).toBeInTheDocument();
   });
 
   it("envia rota proibida ou inexistente para acesso negado, nao para agenda", () => {

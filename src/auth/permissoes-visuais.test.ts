@@ -108,6 +108,12 @@ describe("permissoes visuais por perfil", () => {
       usuarioPodeVerItemMenu(secretariaSemFinanceiro, "contasReceber"),
     ).toBe(false);
     expect(
+      usuarioPodeVerItemMenu(secretariaSemFinanceiro, "formasPagamento"),
+    ).toBe(false);
+    expect(usuarioPodeVerItemMenu(secretariaSemFinanceiro, "convenios")).toBe(
+      false,
+    );
+    expect(
       usuarioPodeAcessarRota(
         secretariaSemFinanceiro,
         "/financeiro/contas-a-receber",
@@ -115,6 +121,12 @@ describe("permissoes visuais por perfil", () => {
     ).toBe(false);
 
     expect(usuarioPodeVerItemMenu(secretariaComFinanceiro, "contasReceber")).toBe(
+      true,
+    );
+    expect(
+      usuarioPodeVerItemMenu(secretariaComFinanceiro, "formasPagamento"),
+    ).toBe(true);
+    expect(usuarioPodeVerItemMenu(secretariaComFinanceiro, "convenios")).toBe(
       true,
     );
     expect(
@@ -140,7 +152,7 @@ describe("permissoes visuais por perfil", () => {
     ).toBe(false);
   });
 
-  it("permite catalogo minimo de agenda sem liberar financeiro completo", () => {
+  it("bloqueia telas administrativas de catalogos para SECRETARIA sem financeiro", () => {
     const secretariaSemFinanceiro = usuario({ perfil: "SECRETARIA" });
 
     expect(usuarioPodeAcessarRota(secretariaSemFinanceiro, "/agenda")).toBe(true);
@@ -153,9 +165,84 @@ describe("permissoes visuais por perfil", () => {
     expect(
       usuarioPodeAcessarRota(
         secretariaSemFinanceiro,
+        "/financeiro/formas-pagamento",
+      ),
+    ).toBe(false);
+    expect(
+      usuarioPodeAcessarRota(secretariaSemFinanceiro, "/financeiro/convenios/10"),
+    ).toBe(false);
+    expect(
+      usuarioPodeAcessarRota(
+        secretariaSemFinanceiro,
+        "/financeiro/formas-pagamento/10",
+      ),
+    ).toBe(false);
+    expect(
+      usuarioPodeAcessarRota(secretariaSemFinanceiro, "/financeiro/convenios/novo"),
+    ).toBe(false);
+    expect(
+      usuarioPodeAcessarRota(
+        secretariaSemFinanceiro,
+        "/financeiro/formas-pagamento/10/editar",
+      ),
+    ).toBe(false);
+    expect(
+      usuarioPodeAcessarRota(
+        secretariaSemFinanceiro,
         "/financeiro/contas-a-receber",
       ),
     ).toBe(false);
+  });
+
+  it("libera consulta de catalogos para SECRETARIA com financeiro", () => {
+    const secretariaComFinanceiro = usuario({
+      perfil: "SECRETARIA",
+      podeAcessarFinanceiro: true,
+    });
+
+    expect(
+      usuarioPodeAcessarRota(secretariaComFinanceiro, "/financeiro/convenios"),
+    ).toBe(true);
+    expect(
+      usuarioPodeAcessarRota(secretariaComFinanceiro, "/financeiro/convenios/10"),
+    ).toBe(true);
+    expect(
+      usuarioPodeAcessarRota(
+        secretariaComFinanceiro,
+        "/financeiro/formas-pagamento",
+      ),
+    ).toBe(true);
+    expect(
+      usuarioPodeAcessarRota(
+        secretariaComFinanceiro,
+        "/financeiro/formas-pagamento/10",
+      ),
+    ).toBe(true);
+    expect(
+      usuarioPodeAcessarRota(secretariaComFinanceiro, "/financeiro/convenios/novo"),
+    ).toBe(false);
+    expect(
+      usuarioPodeAcessarRota(
+        secretariaComFinanceiro,
+        "/financeiro/formas-pagamento/10/editar",
+      ),
+    ).toBe(false);
+  });
+
+  it("mantem telas administrativas de catalogos para PROFISSIONAL e MASTER", () => {
+    const profissional = usuario({ perfil: "PROFISSIONAL" });
+    const master = usuario({ perfil: "MASTER" });
+
+    expect(usuarioPodeVerItemMenu(profissional, "formasPagamento")).toBe(true);
+    expect(usuarioPodeVerItemMenu(profissional, "convenios")).toBe(true);
+    expect(usuarioPodeAcessarRota(profissional, "/financeiro/convenios")).toBe(
+      true,
+    );
+    expect(
+      usuarioPodeAcessarRota(profissional, "/financeiro/formas-pagamento"),
+    ).toBe(true);
+    expect(usuarioPodeVerItemMenu(master, "formasPagamento")).toBe(true);
+    expect(usuarioPodeVerItemMenu(master, "convenios")).toBe(true);
   });
 
   it("bloqueia rota desconhecida para SECRETARIA sem redirecionar por fallback amplo", () => {

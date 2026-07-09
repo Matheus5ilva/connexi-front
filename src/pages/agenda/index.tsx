@@ -186,8 +186,6 @@ export function Agenda() {
   const resolvedWalkInHorario = resolvedPrefillHorario || getNowTime();
   const podeCriarAgendamento = Boolean(profissionalOperacionalId);
   const ehSecretaria = contextoAcesso.perfil === "SECRETARIA";
-  const secretariaPodeVerFinanceiro =
-    !ehSecretaria || contextoAcesso.podeAcessarFinanceiro;
   const podeCriarAtendimentoAvulso =
     !ehSecretaria && podeCriarAgendamento;
   const mensagemProfissionalOperacionalInexistente =
@@ -242,12 +240,10 @@ export function Agenda() {
           servicoService.listar(),
           configuracaoService.buscarPrincipalAgenda(),
         ]);
-        const [convenios, formasPagamento] = secretariaPodeVerFinanceiro
-          ? await Promise.all([
-              convenioService.listar().catch(() => []),
-              formaPagamentoService.listar().catch(() => []),
-            ])
-          : [[], []];
+        const [convenios, formasPagamento] = await Promise.all([
+          convenioService.listar().catch(() => []),
+          formaPagamentoService.listar().catch(() => []),
+        ]);
 
         if (!isMounted) {
           return;
@@ -284,7 +280,7 @@ export function Agenda() {
     return () => {
       isMounted = false;
     };
-  }, [secretariaPodeVerFinanceiro]);
+  }, []);
 
   useEffect(() => {
     const tentouAbrirFluxoCriacao =
@@ -677,7 +673,6 @@ export function Agenda() {
         catalogos={catalogos}
         configuracaoFuncionamento={configuracaoFuncionamento}
         segmento={segmento}
-        podeVerConvenios={secretariaPodeVerFinanceiro}
       />
 
       <ModalConsultaAvulsa
@@ -695,7 +690,6 @@ export function Agenda() {
         catalogos={catalogos}
         configuracaoFuncionamento={configuracaoFuncionamento}
         segmento={segmento}
-        podeVerConvenios={secretariaPodeVerFinanceiro}
       />
 
       <ModalVisualizarAgendamento
@@ -704,7 +698,6 @@ export function Agenda() {
         agendamento={selectedAgendamento}
         segmento={segmento}
         podeAbrirAtendimento={!ehSecretaria}
-        podeVerConvenios={secretariaPodeVerFinanceiro}
         onAbrirPaciente={openPaciente}
         onAbrirConsulta={openConsulta}
         onConfirmar={(id) => {
@@ -740,7 +733,6 @@ export function Agenda() {
         }}
         configuracaoFuncionamento={configuracaoFuncionamento}
         segmento={segmento}
-        podeVerConvenios={secretariaPodeVerFinanceiro}
       />
 
       <PageHeader
@@ -871,13 +863,11 @@ export function Agenda() {
               <span
                 className={`${styles.coverageBadge} ${row.tipoAtendimento === "CONVENIO" ? styles.coverageConvenio : styles.coverageParticular}`}
               >
-                {row.tipoAtendimento === "CONVENIO" && !secretariaPodeVerFinanceiro
-                  ? "Atendimento"
-                  : formatarTipoAtendimento(
-                      row.tipoAtendimento,
-                      row.convenio,
-                      labels.parceria,
-                    )}
+                {formatarTipoAtendimento(
+                  row.tipoAtendimento,
+                  row.convenio,
+                  labels.parceria,
+                )}
               </span>
             ),
           },
