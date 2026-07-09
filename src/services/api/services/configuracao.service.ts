@@ -16,6 +16,7 @@ import { parseWithSchema } from "../utils/parse-with-schema";
 import { unwrapEnvelope } from "../utils/unwrap-envelope";
 
 const CAMINHO_BASE_CONFIGURACOES = "/configuracoes";
+const CAMINHO_CONFIGURACOES_AGENDA = "/configuracoes/agenda";
 
 const listaConfiguracoesSchema = z.array(configuracaoSchema);
 
@@ -34,6 +35,23 @@ export const configuracaoService = {
 
   async buscarPrincipal(): Promise<Configuracao | null> {
     const configuracoes = await this.listar();
+    return configuracoes[0] ?? null;
+  },
+
+  async buscarPrincipalAgenda(): Promise<Configuracao | null> {
+    const response = await httpClient.get<
+      ApiEnvelope<Configuracao[]> | Configuracao[]
+    >(CAMINHO_CONFIGURACOES_AGENDA);
+    const configuracoes = parseWithSchema(
+      listaConfiguracoesSchema,
+      unwrapEnvelope(response),
+      {
+        context: "configuracao.agenda.response",
+        message: "Resposta inesperada ao listar configuracoes da agenda.",
+        code: "INVALID_CONFIGURACAO_AGENDA_RESPONSE",
+      },
+    );
+
     return configuracoes[0] ?? null;
   },
 

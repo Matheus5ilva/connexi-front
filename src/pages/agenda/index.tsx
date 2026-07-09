@@ -185,12 +185,20 @@ export function Agenda() {
     prefillPacienteNome ?? navigationPrefillPaciente;
   const resolvedWalkInHorario = resolvedPrefillHorario || getNowTime();
   const podeCriarAgendamento = Boolean(profissionalOperacionalId);
+  const ehSecretaria = contextoAcesso.perfil === "SECRETARIA";
+  const secretariaPodeVerFinanceiro =
+    !ehSecretaria || contextoAcesso.podeAcessarFinanceiro;
+  const podeCriarAtendimentoAvulso =
+    !ehSecretaria && podeCriarAgendamento;
   const mensagemProfissionalOperacionalInexistente =
     "Cadastre um profissional ativo para registrar agendamentos e atendimentos avulsos.";
+  const mensagemAtendimentoAvulsoIndisponivel =
+    "Atendimento avulso indisponível para este perfil.";
   const createModalResolvedOpen =
     (createModalOpen || navigationModalOpen) && podeCriarAgendamento;
   const walkInModalResolvedOpen =
-    (walkInModalOpen || navigationWalkInModalOpen) && podeCriarAgendamento;
+    (walkInModalOpen || navigationWalkInModalOpen) &&
+    podeCriarAtendimentoAvulso;
 
   useEffect(() => {
     if (contextoAcesso.exigeProfissionalVinculado) {
@@ -227,17 +235,19 @@ export function Agenda() {
           profissional,
           pacientesResponse,
           servicos,
-          convenios,
-          formasPagamento,
           configuracao,
         ] = await Promise.all([
-          carregarProfissionalPrincipal(),
+          carregarProfissionalPrincipal().catch(() => null),
           pacienteService.listar({ page: 1, limit: 100, ativo: true }),
           servicoService.listar(),
-          convenioService.listar(),
-          formaPagamentoService.listar(),
-          configuracaoService.buscarPrincipal(),
+          configuracaoService.buscarPrincipalAgenda(),
         ]);
+        const [convenios, formasPagamento] = secretariaPodeVerFinanceiro
+          ? await Promise.all([
+              convenioService.listar().catch(() => []),
+              formaPagamentoService.listar().catch(() => []),
+            ])
+          : [[], []];
 
         if (!isMounted) {
           return;
@@ -274,24 +284,33 @@ export function Agenda() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [secretariaPodeVerFinanceiro]);
 
   useEffect(() => {
     const tentouAbrirFluxoCriacao =
       navigationModalOpen || navigationWalkInModalOpen;
+    const podeAbrirFluxoCriacao = navigationWalkInModalOpen
+      ? podeCriarAtendimentoAvulso
+      : podeCriarAgendamento;
 
-    if (!tentouAbrirFluxoCriacao || podeCriarAgendamento) {
+    if (!tentouAbrirFluxoCriacao || podeAbrirFluxoCriacao) {
       return;
     }
 
-    setActionError(mensagemProfissionalOperacionalInexistente);
+    setActionError(
+      navigationWalkInModalOpen && podeCriarAgendamento
+        ? mensagemAtendimentoAvulsoIndisponivel
+        : mensagemProfissionalOperacionalInexistente,
+    );
     navigate(location.pathname, { replace: true, state: null });
   }, [
     location.pathname,
+    mensagemAtendimentoAvulsoIndisponivel,
     mensagemProfissionalOperacionalInexistente,
     navigate,
     navigationModalOpen,
     navigationWalkInModalOpen,
+    podeCriarAtendimentoAvulso,
     podeCriarAgendamento,
   ]);
 
@@ -658,6 +677,7 @@ export function Agenda() {
         catalogos={catalogos}
         configuracaoFuncionamento={configuracaoFuncionamento}
         segmento={segmento}
+        podeVerConvenios={secretariaPodeVerFinanceiro}
       />
 
       <ModalConsultaAvulsa
@@ -675,6 +695,7 @@ export function Agenda() {
         catalogos={catalogos}
         configuracaoFuncionamento={configuracaoFuncionamento}
         segmento={segmento}
+        podeVerConvenios={secretariaPodeVerFinanceiro}
       />
 
       <ModalVisualizarAgendamento
@@ -682,6 +703,8 @@ export function Agenda() {
         onClose={() => setViewModalOpen(false)}
         agendamento={selectedAgendamento}
         segmento={segmento}
+        podeAbrirAtendimento={!ehSecretaria}
+        podeVerConvenios={secretariaPodeVerFinanceiro}
         onAbrirPaciente={openPaciente}
         onAbrirConsulta={openConsulta}
         onConfirmar={(id) => {
@@ -717,6 +740,7 @@ export function Agenda() {
         }}
         configuracaoFuncionamento={configuracaoFuncionamento}
         segmento={segmento}
+        podeVerConvenios={secretariaPodeVerFinanceiro}
       />
 
       <PageHeader
@@ -752,22 +776,24 @@ export function Agenda() {
         }
         right={
           <div className={styles.headerActions}>
-            <button
-              className={`${styles.btnSecondaryHeader} ${
-                !podeCriarAgendamento ? styles.botaoDesabilitado : ""
-              }`}
-              onClick={() => openWalkInModal()}
-              type="button"
-              disabled={!podeCriarAgendamento}
-              title={
-                !podeCriarAgendamento
-                  ? mensagemProfissionalOperacionalInexistente
-                  : undefined
-              }
-            >
-              <AtendimentoIcon />
-              <span>Atendimento avulso</span>
-            </button>
+            {contextoAcesso.perfil !== "SECRETARIA" && (
+              <button
+                className={`${styles.btnSecondaryHeader} ${
+                  !podeCriarAtendimentoAvulso ? styles.botaoDesabilitado : ""
+                }`}
+                onClick={() => openWalkInModal()}
+                type="button"
+                disabled={!podeCriarAtendimentoAvulso}
+                title={
+                  !podeCriarAtendimentoAvulso
+                    ? mensagemProfissionalOperacionalInexistente
+                    : undefined
+                }
+              >
+                <AtendimentoIcon />
+                <span>Atendimento avulso</span>
+              </button>
+            )}
             <button
               className={`${styles.btnPrimary} ${
                 !podeCriarAgendamento ? styles.botaoDesabilitado : ""
@@ -845,11 +871,13 @@ export function Agenda() {
               <span
                 className={`${styles.coverageBadge} ${row.tipoAtendimento === "CONVENIO" ? styles.coverageConvenio : styles.coverageParticular}`}
               >
-                {formatarTipoAtendimento(
-                  row.tipoAtendimento,
-                  row.convenio,
-                  labels.parceria,
-                )}
+                {row.tipoAtendimento === "CONVENIO" && !secretariaPodeVerFinanceiro
+                  ? "Atendimento"
+                  : formatarTipoAtendimento(
+                      row.tipoAtendimento,
+                      row.convenio,
+                      labels.parceria,
+                    )}
               </span>
             ),
           },
@@ -880,14 +908,14 @@ export function Agenda() {
                       className: styles.primaryConfirm,
                       onClick: () => void handleStatusTransition(row, "CONFIRMADO"),
                     }
-                  : row.status === "CONFIRMADO"
+                  : row.status === "CONFIRMADO" && !ehSecretaria
                     ? {
                         label: "Iniciar atendimento",
                         icon: <FaPlay />,
                         className: styles.primaryStart,
                         onClick: () => void openConsulta(row.id),
                       }
-                    : row.status === "EM_ATENDIMENTO"
+                    : row.status === "EM_ATENDIMENTO" && !ehSecretaria
                       ? {
                           label: "Abrir atendimento",
                           icon: <FaPlay />,

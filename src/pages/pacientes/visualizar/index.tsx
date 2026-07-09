@@ -19,6 +19,7 @@ import {
 import { PageHeader } from "../../../components/ui/page-header";
 import { PageLayout } from "../../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
+import { useSessaoAutenticada } from "../../../auth/use-auth-session";
 import {
   getCamposPacienteVisiveis,
   getSegmentoLabels,
@@ -170,9 +171,286 @@ function sortAgendamentoOperacional(
   );
 }
 
+type SegmentoLabels = ReturnType<typeof getSegmentoLabels>;
+type CamposPacienteVisiveis = ReturnType<typeof getCamposPacienteVisiveis>;
+
+type DadosCadastraisSectionsProps = {
+  pacienteAtual: Paciente;
+  pessoaMinuscula: string;
+  labels: SegmentoLabels;
+  camposVisiveis: CamposPacienteVisiveis;
+  statusPaciente: string;
+};
+
+function DadosCadastraisSections({
+  pacienteAtual,
+  pessoaMinuscula,
+  labels,
+  camposVisiveis,
+  statusPaciente,
+}: DadosCadastraisSectionsProps) {
+  const contato = pacienteAtual.pessoa.contato;
+  const endereco = pacienteAtual.pessoa.endereco;
+  const cidade = pacienteAtual.pessoa.cidade;
+
+  return (
+    <>
+      <section className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>
+          <FaUser className={styles.sectionIcon} />
+          Dados do {pessoaMinuscula}
+        </h2>
+        <div className={styles.infoGrid}>
+          <div>
+            <span className={styles.infoLabel}>Nascimento</span>
+            <p className={styles.infoValue}>
+              {formatDateBr(pacienteAtual.dataNascimento)}
+            </p>
+          </div>
+          <div>
+            <span className={styles.infoLabel}>Sexo</span>
+            <p className={styles.infoValue}>
+              {formatSexo(pacienteAtual.sexo)}
+            </p>
+          </div>
+          <div>
+              <span className={styles.infoLabel}>Gênero</span>
+            <p className={styles.infoValue}>
+              {pacienteAtual.genero || "Não informado"}
+            </p>
+          </div>
+          {camposVisiveis.nomeMae ? (
+            <div>
+              <span className={styles.infoLabel}>Nome da mãe</span>
+              <p className={styles.infoValue}>
+                {pacienteAtual.nomeMae || "Não informado"}
+              </p>
+            </div>
+          ) : null}
+          {camposVisiveis.convenio ? (
+            <div>
+              <span className={styles.infoLabel}>{labels.parceria}</span>
+              <p className={styles.infoValue}>
+                {pacienteAtual.convenio || "Não informado"}
+              </p>
+            </div>
+          ) : null}
+          {camposVisiveis.numeroCarteirinha ? (
+            <div>
+              <span className={styles.infoLabel}>
+                {labels.numeroCarteirinha}
+              </span>
+              <p className={styles.infoValue}>
+                {pacienteAtual.numeroCarteirinha || "Não informada"}
+              </p>
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      <section className={styles.sectionCard}>
+        <h2 className={styles.sectionTitle}>
+          <FaPhone className={styles.sectionIcon} />
+          Contato
+        </h2>
+        <div className={styles.infoGrid}>
+          <div>
+            <span className={styles.infoLabel}>Telefone</span>
+            <p className={styles.infoValue}>
+              {contato.telefone || "Não informado"}
+            </p>
+          </div>
+          <div>
+            <span className={styles.infoLabel}>WhatsApp</span>
+            <p className={styles.infoValue}>
+              {contato.whatsapp || "Não informado"}
+            </p>
+          </div>
+          <div className={styles.colFull}>
+            <span className={styles.infoLabel}>E-mail</span>
+            <p className={styles.infoValue}>
+              {contato.email || "Não informado"}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className={`${styles.sectionCard} ${styles.colSpan2}`}>
+        <h2 className={styles.sectionTitle}>Endereço</h2>
+        <div className={styles.infoGrid}>
+          <div>
+            <span className={styles.infoLabel}>CEP</span>
+            <p className={styles.infoValue}>{endereco?.cep || "-"}</p>
+          </div>
+          <div className={styles.colSpan2}>
+            <span className={styles.infoLabel}>Logradouro</span>
+            <p className={styles.infoValue}>{endereco?.logradouro || "-"}</p>
+          </div>
+          <div>
+            <span className={styles.infoLabel}>Número</span>
+            <p className={styles.infoValue}>{endereco?.numero ?? "-"}</p>
+          </div>
+          <div>
+            <span className={styles.infoLabel}>Complemento</span>
+            <p className={styles.infoValue}>{endereco?.complemento || "-"}</p>
+          </div>
+          <div>
+            <span className={styles.infoLabel}>Bairro</span>
+            <p className={styles.infoValue}>{endereco?.bairro || "-"}</p>
+          </div>
+          <div>
+            <span className={styles.infoLabel}>Cidade</span>
+            <p className={styles.infoValue}>{cidade?.nome || "-"}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className={`${styles.sectionCard} ${styles.colSpan2}`}>
+        <h2 className={styles.sectionTitle}>Cadastro do {pessoaMinuscula}</h2>
+        <div className={styles.infoGrid}>
+          <div>
+            <span className={styles.infoLabel}>Nome cadastrado</span>
+            <p className={styles.infoValue}>{pacienteAtual.pessoa.nome}</p>
+          </div>
+          <div>
+            <span className={styles.infoLabel}>Status do cadastro</span>
+            <p className={styles.infoValue}>{statusPaciente}</p>
+          </div>
+          <div>
+            <span className={styles.infoLabel}>CPF</span>
+            <p className={styles.infoValue}>
+              {pacienteAtual.cpf || "Não informado"}
+            </p>
+          </div>
+          <div>
+            <span className={styles.infoLabel}>Cidade vinculada</span>
+            <p className={styles.infoValue}>
+              {cidade?.nome || "Não informada"}
+            </p>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+type FinanceiroPacienteSectionProps = {
+  pessoaMinuscula: string;
+  financeiro: FinanceiroPacienteResumo;
+  financeiroErro: string | null;
+};
+
+function FinanceiroPacienteSection({
+  pessoaMinuscula,
+  financeiro,
+  financeiroErro,
+}: FinanceiroPacienteSectionProps) {
+  return (
+    <section
+      className={styles.financeGrid}
+      aria-label={`Resumo financeiro do ${pessoaMinuscula}`}
+    >
+      {financeiroErro ? (
+        <p className={styles.notesText}>{financeiroErro}</p>
+      ) : null}
+
+      <article className={styles.financeCard}>
+        <span className={styles.financeLabel}>Total recebido</span>
+        <strong className={styles.financeValue}>
+          {formatCurrency(financeiro.totalRecebido)}
+        </strong>
+        <span className={styles.financeMeta}>
+          {financeiro.consultasRecebidas} atendimento(s) recebido(s)
+        </span>
+      </article>
+
+      <article className={styles.financeCard}>
+        <span className={styles.financeLabel}>Total pendente</span>
+        <strong className={styles.financeValue}>
+          {formatCurrency(financeiro.totalPendente)}
+        </strong>
+        <span className={styles.financeMeta}>
+          {financeiro.pendencias} pendência(s) em aberto
+        </span>
+      </article>
+
+      <article className={styles.financeCard}>
+        <span className={styles.financeLabel}>Total atrasado</span>
+        <strong className={styles.financeValueDanger}>
+          {formatCurrency(financeiro.totalAtrasado)}
+        </strong>
+        <span className={styles.financeMeta}>
+          Acompanhar pendências vencidas
+        </span>
+      </article>
+
+      <article className={styles.financeCard}>
+        <span className={styles.financeLabel}>Último recebimento</span>
+        <strong className={styles.financeValue}>
+          {formatDateBr(financeiro.ultimoRecebimento)}
+        </strong>
+        <span className={styles.financeMeta}>
+          Baseado nos atendimentos realizados
+        </span>
+      </article>
+    </section>
+  );
+}
+
+type HistoricoAtendimentosSectionProps = {
+  pessoaMinuscula: string;
+  prontuariosRecentes: ProntuarioHistoricoItem[];
+  historicoErro: string | null;
+  onVerHistorico: () => void;
+};
+
+function HistoricoAtendimentosSection({
+  pessoaMinuscula,
+  prontuariosRecentes,
+  historicoErro,
+  onVerHistorico,
+}: HistoricoAtendimentosSectionProps) {
+  return (
+    <section className={`${styles.sectionCard} ${styles.colSpan2}`}>
+      <div className={styles.sectionHeaderWithAction}>
+        <h2 className={styles.sectionTitle}>Histórico de atendimentos</h2>
+        <button
+          type="button"
+          className={styles.linkAction}
+          onClick={onVerHistorico}
+        >
+          Ver histórico completo
+        </button>
+      </div>
+
+      {historicoErro ? (
+        <p className={styles.notesText}>{historicoErro}</p>
+      ) : prontuariosRecentes.length === 0 ? (
+        <p className={styles.notesText}>
+          Este {pessoaMinuscula} ainda não possui histórico de atendimentos.
+        </p>
+      ) : (
+        <div className={styles.timelineList}>
+          {prontuariosRecentes.map((prontuario) => (
+            <article key={prontuario.id} className={styles.timelineItem}>
+              <div className={styles.timelineMeta}>
+                <span>{formatDateBr(prontuario.dataConsulta)}</span>
+                <span>{prontuario.horaConsulta}</span>
+              </div>
+              <strong>{prontuario.profissionalNome}</strong>
+              <p>{prontuario.resumo || prontuario.servicoNome}</p>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function VisualizarPaciente() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useSessaoAutenticada();
   const { segmento } = useOutletContext<LayoutOutletContext>();
   const labels = getSegmentoLabels(segmento);
   const camposVisiveis = getCamposPacienteVisiveis(segmento);
@@ -194,6 +472,10 @@ export function VisualizarPaciente() {
     resumoFinanceiroInicial,
   );
   const [financeiroErro, setFinanceiroErro] = useState<string | null>(null);
+  const ehSecretaria = user?.perfil === "SECRETARIA";
+  const podeVerDadosCadastrais = true;
+  const podeVerHistoricoClinico = !ehSecretaria;
+  const podeVerFinanceiro = !ehSecretaria || Boolean(user?.podeAcessarFinanceiro);
 
   useEffect(() => {
     if (!pacienteId) {
@@ -247,7 +529,8 @@ export function VisualizarPaciente() {
   }, [labels.pessoa, pacienteId, pessoaMinuscula]);
 
   useEffect(() => {
-    if (!pacienteId) {
+    if (!pacienteId || !podeVerHistoricoClinico) {
+      setHistorico([]);
       return;
     }
 
@@ -285,7 +568,7 @@ export function VisualizarPaciente() {
     return () => {
       active = false;
     };
-  }, [pacienteId]);
+  }, [pacienteId, podeVerHistoricoClinico]);
 
   useEffect(() => {
     if (!pacienteId) {
@@ -332,7 +615,8 @@ export function VisualizarPaciente() {
   }, [pacienteId, pessoaMinuscula]);
 
   useEffect(() => {
-    if (!pacienteId) {
+    if (!pacienteId || !podeVerFinanceiro) {
+      setFinanceiro(resumoFinanceiroInicial);
       return;
     }
 
@@ -411,14 +695,38 @@ export function VisualizarPaciente() {
     return () => {
       active = false;
     };
-  }, [pacienteId]);
+  }, [pacienteId, podeVerFinanceiro]);
 
   const historicoOrdenado = useMemo(
     () => historico.slice().sort(sortHistoricoDesc),
     [historico],
   );
+  const agendamentosRealizadosOrdenados = useMemo(
+    () =>
+      agendamentos
+        .filter((agendamento) => agendamento.status === "REALIZADO")
+        .slice()
+        .sort((first, second) =>
+          compareDateTimeAsc(
+            first.data,
+            first.horario,
+            second.data,
+            second.horario,
+          ),
+        ),
+    [agendamentos],
+  );
   const prontuariosRecentes = historicoOrdenado.slice(0, 3);
-  const ultimoAtendimento = historicoOrdenado[0]?.dataConsulta;
+  const totalAtendimentos = podeVerHistoricoClinico
+    ? historicoOrdenado.length
+    : agendamentosRealizadosOrdenados.length;
+  const primeiroAtendimento = podeVerHistoricoClinico
+    ? historicoOrdenado[historicoOrdenado.length - 1]?.dataConsulta
+    : agendamentosRealizadosOrdenados[0]?.data;
+  const ultimoAtendimento = podeVerHistoricoClinico
+    ? historicoOrdenado[0]?.dataConsulta
+    : agendamentosRealizadosOrdenados[agendamentosRealizadosOrdenados.length - 1]
+        ?.data;
   const proximoAgendamentoOperacional = useMemo(
     () =>
       agendamentos
@@ -460,9 +768,6 @@ export function VisualizarPaciente() {
   const pacienteAtual = paciente;
   const nestedReturnTo =
     returnTo === "/pacientes" ? `/pacientes/${pacienteAtual.id}` : returnTo;
-  const contato = pacienteAtual.pessoa.contato;
-  const endereco = pacienteAtual.pessoa.endereco;
-  const cidade = pacienteAtual.pessoa.cidade;
   const statusPaciente = formatStatusPaciente(pacienteAtual.ativo);
 
   async function handleNovoAtendimento() {
@@ -518,6 +823,12 @@ export function VisualizarPaciente() {
     });
   }
 
+  function handleVerHistorico() {
+    navigate(`/pacientes/${pacienteAtual.id}/prontuarios`, {
+      state: { returnTo: nestedReturnTo },
+    });
+  }
+
   return (
     <PageLayout>
       <PageHeader
@@ -562,14 +873,16 @@ export function VisualizarPaciente() {
         className={styles.quickActions}
         aria-label={`Ações rápidas do ${pessoaMinuscula}`}
       >
-        <button
-          type="button"
-          className={styles.quickPrimary}
-          onClick={handleNovoAtendimento}
-        >
-          <FaPlay />
-          <span>Novo atendimento</span>
-        </button>
+        {podeVerHistoricoClinico ? (
+          <button
+            type="button"
+            className={styles.quickPrimary}
+            onClick={handleNovoAtendimento}
+          >
+            <FaPlay />
+            <span>Novo atendimento</span>
+          </button>
+        ) : null}
         <button
           type="button"
           className={styles.quickSecondary}
@@ -578,33 +891,33 @@ export function VisualizarPaciente() {
           <FaCalendarCheck />
           <span>Agendar atendimento</span>
         </button>
-        <button
-          type="button"
-          className={styles.quickSecondary}
-          onClick={() =>
-            navigate(`/pacientes/${pacienteAtual.id}/prontuarios`, {
-              state: { returnTo: nestedReturnTo },
-            })
-          }
-        >
-          <FaFileMedical />
-          <span>Ver histórico</span>
-        </button>
-        <button
-          type="button"
-          className={styles.quickSecondary}
-          onClick={() =>
-            navigate("/financeiro/contas-a-receber", {
-              state: {
-                returnTo: nestedReturnTo,
-                prefillPaciente: pacienteAtual.nome,
-              },
-            })
-          }
-        >
-          <FaDollarSign />
-          <span>Ver financeiro</span>
-        </button>
+        {podeVerHistoricoClinico ? (
+          <button
+            type="button"
+            className={styles.quickSecondary}
+            onClick={handleVerHistorico}
+          >
+            <FaFileMedical />
+            <span>Ver histórico</span>
+          </button>
+        ) : null}
+        {podeVerFinanceiro ? (
+          <button
+            type="button"
+            className={styles.quickSecondary}
+            onClick={() =>
+              navigate("/financeiro/contas-a-receber", {
+                state: {
+                  returnTo: nestedReturnTo,
+                  prefillPaciente: pacienteAtual.nome,
+                },
+              })
+            }
+          >
+            <FaDollarSign />
+            <span>Ver financeiro</span>
+          </button>
+        ) : null}
       </section>
 
       {actionError ? <p className={styles.notesText}>{actionError}</p> : null}
@@ -643,8 +956,12 @@ export function VisualizarPaciente() {
         </article>
         <article className={styles.kpiCard}>
           <span className={styles.kpiLabel}>Total de atendimentos</span>
+          <strong className={styles.kpiValue}>{totalAtendimentos}</strong>
+        </article>
+        <article className={styles.kpiCard}>
+          <span className={styles.kpiLabel}>Primeiro atendimento</span>
           <strong className={styles.kpiValue}>
-            {historicoOrdenado.length}
+            {formatDateBr(primeiroAtendimento)}
           </strong>
         </article>
         <article className={styles.kpiCard}>
@@ -663,245 +980,45 @@ export function VisualizarPaciente() {
         </article>
       </section>
 
-      <section
-        className={styles.financeGrid}
-        aria-label={`Resumo financeiro do ${pessoaMinuscula}`}
-      >
-        {financeiroErro ? (
-          <p className={styles.notesText}>{financeiroErro}</p>
-        ) : null}
-
-        <article className={styles.financeCard}>
-          <span className={styles.financeLabel}>Total recebido</span>
-          <strong className={styles.financeValue}>
-            {formatCurrency(financeiro.totalRecebido)}
-          </strong>
-          <span className={styles.financeMeta}>
-            {financeiro.consultasRecebidas} atendimento(s) recebido(s)
-          </span>
-        </article>
-
-        <article className={styles.financeCard}>
-          <span className={styles.financeLabel}>Total pendente</span>
-          <strong className={styles.financeValue}>
-            {formatCurrency(financeiro.totalPendente)}
-          </strong>
-          <span className={styles.financeMeta}>
-            {financeiro.pendencias} pendência(s) em aberto
-          </span>
-        </article>
-
-        <article className={styles.financeCard}>
-          <span className={styles.financeLabel}>Total atrasado</span>
-          <strong className={styles.financeValueDanger}>
-            {formatCurrency(financeiro.totalAtrasado)}
-          </strong>
-          <span className={styles.financeMeta}>
-            Acompanhar pendências vencidas
-          </span>
-        </article>
-
-        <article className={styles.financeCard}>
-          <span className={styles.financeLabel}>Último recebimento</span>
-          <strong className={styles.financeValue}>
-            {formatDateBr(financeiro.ultimoRecebimento)}
-          </strong>
-          <span className={styles.financeMeta}>
-            Baseado nos atendimentos realizados
-          </span>
-        </article>
-      </section>
+      {podeVerFinanceiro ? (
+        <FinanceiroPacienteSection
+          pessoaMinuscula={pessoaMinuscula}
+          financeiro={financeiro}
+          financeiroErro={financeiroErro}
+        />
+      ) : null}
 
       <div className={styles.contentGrid}>
-        <section className={styles.sectionCard}>
-          <h2 className={styles.sectionTitle}>
-            <FaUser className={styles.sectionIcon} />
-            Dados do {pessoaMinuscula}
-          </h2>
-          <div className={styles.infoGrid}>
-            <div>
-              <span className={styles.infoLabel}>Nascimento</span>
-              <p className={styles.infoValue}>
-                {formatDateBr(pacienteAtual.dataNascimento)}
-              </p>
-            </div>
-            <div>
-              <span className={styles.infoLabel}>Sexo</span>
-              <p className={styles.infoValue}>
-                {formatSexo(pacienteAtual.sexo)}
-              </p>
-            </div>
-            <div>
-              <span className={styles.infoLabel}>Gênero</span>
-              <p className={styles.infoValue}>
-                {pacienteAtual.genero || "Não informado"}
-              </p>
-            </div>
-            {camposVisiveis.nomeMae ? (
-              <div>
-                <span className={styles.infoLabel}>Nome da mãe</span>
-                <p className={styles.infoValue}>
-                  {pacienteAtual.nomeMae || "Não informado"}
-                </p>
-              </div>
-            ) : null}
-            {camposVisiveis.convenio ? (
-              <div>
-                <span className={styles.infoLabel}>{labels.parceria}</span>
-                <p className={styles.infoValue}>
-                  {pacienteAtual.convenio || "Não informado"}
-                </p>
-              </div>
-            ) : null}
-            {camposVisiveis.numeroCarteirinha ? (
-              <div>
-                <span className={styles.infoLabel}>
-                  {labels.numeroCarteirinha}
-                </span>
-                <p className={styles.infoValue}>
-                  {pacienteAtual.numeroCarteirinha || "Não informada"}
-                </p>
-              </div>
-            ) : null}
-          </div>
-        </section>
+        {podeVerDadosCadastrais ? (
+          <DadosCadastraisSections
+            pacienteAtual={pacienteAtual}
+            pessoaMinuscula={pessoaMinuscula}
+            labels={labels}
+            camposVisiveis={camposVisiveis}
+            statusPaciente={statusPaciente}
+          />
+        ) : null}
 
-        <section className={styles.sectionCard}>
-          <h2 className={styles.sectionTitle}>
-            <FaPhone className={styles.sectionIcon} />
-            Contato
-          </h2>
-          <div className={styles.infoGrid}>
-            <div>
-              <span className={styles.infoLabel}>Telefone</span>
-              <p className={styles.infoValue}>
-                {contato.telefone || "Não informado"}
-              </p>
-            </div>
-            <div>
-              <span className={styles.infoLabel}>WhatsApp</span>
-              <p className={styles.infoValue}>
-                {contato.whatsapp || "Não informado"}
-              </p>
-            </div>
-            <div className={styles.colFull}>
-              <span className={styles.infoLabel}>E-mail</span>
-              <p className={styles.infoValue}>
-                {contato.email || "Não informado"}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className={`${styles.sectionCard} ${styles.colSpan2}`}>
-          <h2 className={styles.sectionTitle}>Endereço</h2>
-          <div className={styles.infoGrid}>
-            <div>
-              <span className={styles.infoLabel}>CEP</span>
-              <p className={styles.infoValue}>{endereco?.cep || "-"}</p>
-            </div>
-            <div className={styles.colSpan2}>
-              <span className={styles.infoLabel}>Logradouro</span>
-              <p className={styles.infoValue}>{endereco?.logradouro || "-"}</p>
-            </div>
-            <div>
-              <span className={styles.infoLabel}>Número</span>
-              <p className={styles.infoValue}>{endereco?.numero ?? "-"}</p>
-            </div>
-            <div>
-              <span className={styles.infoLabel}>Complemento</span>
-              <p className={styles.infoValue}>{endereco?.complemento || "-"}</p>
-            </div>
-            <div>
-              <span className={styles.infoLabel}>Bairro</span>
-              <p className={styles.infoValue}>{endereco?.bairro || "-"}</p>
-            </div>
-            <div>
-              <span className={styles.infoLabel}>Cidade</span>
-              <p className={styles.infoValue}>{cidade?.nome || "-"}</p>
-            </div>
-          </div>
-        </section>
-
-        <section className={`${styles.sectionCard} ${styles.colSpan2}`}>
-          <h2 className={styles.sectionTitle}>Cadastro do {pessoaMinuscula}</h2>
-          <div className={styles.infoGrid}>
-            <div>
-              <span className={styles.infoLabel}>Nome cadastrado</span>
-              <p className={styles.infoValue}>{pacienteAtual.pessoa.nome}</p>
-            </div>
-            <div>
-              <span className={styles.infoLabel}>Status do cadastro</span>
-              <p className={styles.infoValue}>{statusPaciente}</p>
-            </div>
-            <div>
-              <span className={styles.infoLabel}>CPF</span>
-              <p className={styles.infoValue}>
-                {pacienteAtual.cpf || "Não informado"}
-              </p>
-            </div>
-            <div>
-              <span className={styles.infoLabel}>Cidade vinculada</span>
-              <p className={styles.infoValue}>
-                {cidade?.nome || "Não informada"}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className={`${styles.sectionCard} ${styles.colSpan2}`}>
-          <div className={styles.sectionHeaderWithAction}>
-            <h2 className={styles.sectionTitle}>
-              Histórico de atendimentos
-            </h2>
-            <button
-              type="button"
-              className={styles.linkAction}
-              onClick={() =>
-                navigate(`/pacientes/${pacienteAtual.id}/prontuarios`, {
-                  state: { returnTo: nestedReturnTo },
-                })
-              }
-            >
-              Ver histórico completo
-            </button>
-          </div>
-
-          {historicoErro ? (
-            <p className={styles.notesText}>{historicoErro}</p>
-          ) : prontuariosRecentes.length === 0 ? (
-            <p className={styles.notesText}>
-              Este {pessoaMinuscula} ainda não possui histórico de atendimentos.
-            </p>
-          ) : (
-            <div className={styles.timelineList}>
-              {prontuariosRecentes.map((prontuario) => (
-                <article key={prontuario.id} className={styles.timelineItem}>
-                  <div className={styles.timelineMeta}>
-                    <span>{formatDateBr(prontuario.dataConsulta)}</span>
-                    <span>{prontuario.horaConsulta}</span>
-                  </div>
-                  <strong>{prontuario.profissionalNome}</strong>
-                  <p>{prontuario.resumo || prontuario.servicoNome}</p>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
+        {podeVerHistoricoClinico ? (
+          <HistoricoAtendimentosSection
+            pessoaMinuscula={pessoaMinuscula}
+            prontuariosRecentes={prontuariosRecentes}
+            historicoErro={historicoErro}
+            onVerHistorico={handleVerHistorico}
+          />
+        ) : null}
       </div>
 
-      <button
-        type="button"
-        className={styles.floatingAction}
-        onClick={() =>
-          navigate(`/pacientes/${pacienteAtual.id}/prontuarios`, {
-            state: { returnTo: nestedReturnTo },
-          })
-        }
-      >
-        <FaClock />
-        <span>Histórico</span>
-      </button>
+      {podeVerHistoricoClinico ? (
+        <button
+          type="button"
+          className={styles.floatingAction}
+          onClick={handleVerHistorico}
+        >
+          <FaClock />
+          <span>Histórico</span>
+        </button>
+      ) : null}
     </PageLayout>
   );
 }

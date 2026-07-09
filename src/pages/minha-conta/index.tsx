@@ -19,6 +19,7 @@ import styles from "./styles.module.css";
 const perfilLabels: Record<MinhaConta["perfil"], string> = {
   MASTER: "Mestre",
   PROFISSIONAL: "Profissional",
+  SECRETARIA: "Secretaria",
 };
 
 function formatarDataHora(value?: string | null): string {

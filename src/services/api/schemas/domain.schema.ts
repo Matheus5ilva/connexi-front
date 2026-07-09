@@ -136,9 +136,10 @@ export const tokensAutenticacaoSchema = z.object({
 export const respostaLoginUsuarioSchema = z.object({
   name: z.string().trim().min(1).max(120),
   email: z.string().trim().toLowerCase().email().max(160),
-  role: z.enum(["MASTER", "PROFISSIONAL"]),
+  role: z.enum(["MASTER", "PROFISSIONAL", "SECRETARIA"]),
   deveTrocarSenha: z.boolean(),
   tenantId: entityIdSchema,
+  podeAcessarFinanceiro: z.boolean().nullable().optional(),
 });
 
 export const respostaLoginSchema = tokensAutenticacaoSchema.extend({
@@ -149,10 +150,14 @@ export const minhaContaAutenticadaSchema = z.object({
   id: entityIdSchema,
   name: z.string().trim().min(1).max(120),
   email: z.string().trim().toLowerCase().email().max(160),
-  role: z.enum(["MASTER", "PROFISSIONAL"]),
+  role: z.enum(["MASTER", "PROFISSIONAL", "SECRETARIA"]),
   profissionalId: z.number().int().positive().nullable().optional(),
+  secretariaId: z.number().int().positive().nullable().optional(),
+  podeAcessarFinanceiro: z.boolean().nullable().optional(),
   deveTrocarSenha: z.boolean(),
   tenantId: entityIdSchema,
+  plano: z.enum(["SOLO", "EQUIPE"]).optional(),
+  permiteSecretaria: z.boolean().optional(),
   ultimoLoginEm: z.string().trim().nullable().optional(),
 });
 
@@ -161,6 +166,8 @@ export const tenantSchema = z.object({
   slug: z.string().trim().min(1).max(63),
   nome: z.string().trim().min(1).max(255),
   nicho: z.enum(SEGMENTOS_SUPORTADOS).optional(),
+  plano: z.enum(["SOLO", "EQUIPE"]).default("SOLO"),
+  permiteSecretaria: z.boolean().default(false),
   ativo: z.boolean(),
   createdAt: z.string().trim().min(1),
 });
@@ -277,7 +284,6 @@ export const contatoPacienteInputSchema = z.object({
 
 export const pessoaPacienteInputSchema = z.object({
   nome: textoSemHtml(z.string().trim().min(3).max(100)),
-  ativo: z.boolean().optional(),
   contato: contatoPacienteInputSchema,
   endereco: enderecoInputSchema.optional(),
   cidade: z
@@ -419,6 +425,63 @@ export const atualizarProfissionalRequestSchema = criarProfissionalRequestSchema
   .extend({
     ativo: z.boolean().optional(),
   });
+
+const senhaProvisoriaSecretariaSchema = z
+  .string()
+  .trim()
+  .min(6, "Senha provisória deve ter no mínimo 6 caracteres.")
+  .max(120, "Senha provisória deve ter no máximo 120 caracteres.")
+  .regex(/(?=.*[A-Za-z])(?=.*\d)/, {
+    message: "Senha provisória deve conter letras e números.",
+  });
+
+const cidadeSecretariaSchema = z.object({
+  codigoIbge: optionalTrimmedStringSchema,
+  nome: optionalTrimmedStringSchema,
+  siglaEstado: optionalTrimmedStringSchema,
+  estado: z.preprocess((value) => value ?? undefined, estadoSchema.optional()),
+});
+
+const pessoaSecretariaSchema = z.object({
+  nome: z.string().trim().min(1).max(100),
+  contato: contatoSchema,
+  endereco: z.preprocess(
+    (value) => value ?? undefined,
+    enderecoSchema.optional(),
+  ),
+  cidade: z.preprocess(
+    (value) => value ?? undefined,
+    cidadeSecretariaSchema.optional(),
+  ),
+});
+
+export const secretariaSchema = z.object({
+  id: numericIdSchema,
+  usuarioId: numericIdSchema,
+  pessoa: pessoaSecretariaSchema,
+  ativo: z.boolean(),
+  podeAcessarFinanceiro: z.boolean(),
+  deveTrocarSenha: z.boolean(),
+});
+
+export const criarSecretariaRequestSchema = z.object({
+  pessoa: pessoaProfissionalInputSchema,
+  podeAcessarFinanceiro: z.boolean().optional(),
+  senhaProvisoria: senhaProvisoriaSecretariaSchema,
+});
+
+export const atualizarSecretariaRequestSchema = z.object({
+  pessoa: pessoaProfissionalInputSchema.optional(),
+  podeAcessarFinanceiro: z.boolean().optional(),
+});
+
+export const atualizarStatusSecretariaRequestSchema = z.object({
+  ativo: z.boolean(),
+});
+
+export const redefinirSenhaSecretariaRequestSchema = z.object({
+  senhaProvisoria: senhaProvisoriaSecretariaSchema,
+});
 
 export const listarProfissionaisRequestSchema = paginationRequestSchema.extend({
   ativo: optionalBooleanSchema,

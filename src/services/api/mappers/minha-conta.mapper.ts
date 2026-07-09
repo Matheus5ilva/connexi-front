@@ -18,8 +18,12 @@ export function mapRespostaMinhaContaParaMinhaConta(
     email: resposta.email,
     perfil: resposta.role,
     profissionalId: resposta.profissionalId ?? undefined,
+    secretariaId: resposta.secretariaId ?? undefined,
+    podeAcessarFinanceiro: resposta.podeAcessarFinanceiro ?? false,
     deveTrocarSenha: resposta.deveTrocarSenha,
     tenantId: resposta.tenantId,
+    plano: resposta.plano,
+    permiteSecretaria: resposta.permiteSecretaria,
     ultimoLoginEm: resposta.ultimoLoginEm ?? undefined,
   };
 }

@@ -16,6 +16,7 @@ export const nichoTenantSchema = z.enum([
   "ESTETICA",
   "SERVICOS",
 ]);
+export const planoTenantSchema = z.enum(["SOLO", "EQUIPE"]);
 
 const textoSeguro = (schema: z.ZodString) =>
   schema.refine(validarTextoSemHtml, MENSAGEM_TEXTO_SEM_HTML);
@@ -25,6 +26,8 @@ const tenantAdministrativoSchema = z.object({
   slug: z.string().trim().min(1).max(63),
   nome: z.string().trim().min(1).max(255),
   nicho: nichoTenantSchema,
+  plano: planoTenantSchema.default("SOLO"),
+  permiteSecretaria: z.boolean().default(false),
   ativo: z.boolean(),
   dataInativacao: z.string().trim().min(1).nullable(),
   criadoEm: z.string().trim().min(1),
@@ -44,16 +47,26 @@ const criarTenantAdministrativoRequestSchema = z.object({
     ),
   nome: textoSeguro(z.string().trim().min(1).max(255)),
   nicho: nichoTenantSchema,
+  plano: planoTenantSchema.optional(),
   emailUsuarioInicial: z.string().trim().toLowerCase().email().max(160),
   nomeConsultorio: textoSeguro(z.string().trim().min(1).max(100)).optional(),
+});
+
+const atualizarTenantAdministrativoRequestSchema = z.object({
+  nome: textoSeguro(z.string().trim().min(1).max(255)).optional(),
+  plano: planoTenantSchema.optional(),
 });
 
 const listaTenantsAdministrativosSchema = z.array(tenantAdministrativoSchema);
 
 export type NichoTenant = z.infer<typeof nichoTenantSchema>;
+export type PlanoTenant = z.infer<typeof planoTenantSchema>;
 export type TenantAdministrativo = z.infer<typeof tenantAdministrativoSchema>;
 export type CriarTenantAdministrativoRequest = z.infer<
   typeof criarTenantAdministrativoRequestSchema
+>;
+export type AtualizarTenantAdministrativoRequest = z.infer<
+  typeof atualizarTenantAdministrativoRequestSchema
 >;
 
 export type CredencialAdministrativa = {
@@ -146,6 +159,41 @@ export const adminTenantsService = {
         context: "admin.tenants.ativar.response",
         message: "Resposta inesperada ao ativar tenant.",
         code: "ADMIN_TENANT_ATIVAR_RESPOSTA_INVALIDA",
+      },
+    );
+  },
+
+  async atualizar(
+    credencial: CredencialAdministrativa,
+    id: string,
+    payload: AtualizarTenantAdministrativoRequest,
+  ): Promise<TenantAdministrativo> {
+    const payloadValidado = parseWithSchema(
+      atualizarTenantAdministrativoRequestSchema,
+      payload,
+      {
+        context: "admin.tenants.atualizar.payload",
+        message: "Dados inválidos para atualizar tenant.",
+        code: "ADMIN_TENANT_ATUALIZAR_PAYLOAD_INVALIDO",
+      },
+    );
+
+    const response = await httpClient.patch<
+      ApiEnvelope<TenantAdministrativo> | TenantAdministrativo,
+      AtualizarTenantAdministrativoRequest
+    >(
+      `${CAMINHO_BASE_ADMIN_TENANTS}/${encodeURIComponent(id)}`,
+      payloadValidado,
+      opcoesAdministrativas(credencial),
+    );
+
+    return parseWithSchema(
+      tenantAdministrativoSchema,
+      unwrapEnvelope(response),
+      {
+        context: "admin.tenants.atualizar.response",
+        message: "Resposta inesperada ao atualizar tenant.",
+        code: "ADMIN_TENANT_ATUALIZAR_RESPOSTA_INVALIDA",
       },
     );
   },

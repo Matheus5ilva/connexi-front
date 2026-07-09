@@ -10,8 +10,14 @@ import {
   FaPowerOff,
   FaThLarge,
   FaUserCog,
+  FaUsers,
 } from "react-icons/fa";
 import { encerrarSessaoAutenticada } from "../../auth/session";
+import {
+  usuarioPodeVerItemMenu,
+  type ItemMenuVisual,
+} from "../../auth/permissoes-visuais";
+import { useSessaoAutenticada } from "../../auth/use-auth-session";
 import { BrandLogo } from "../brand-logo";
 import { authService } from "../../services/api";
 import styles from "./styles.module.css";
@@ -28,6 +34,7 @@ type Props = {
 export function Sidebar({ open, onClose, segmento }: Props) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useSessaoAutenticada();
   const labels = getSegmentoLabels(segmento);
   const icons = getSegmentoIcons(segmento);
   const AgendaIcon = icons.agenda;
@@ -41,6 +48,7 @@ export function Sidebar({ open, onClose, segmento }: Props) {
   const [dropdownOpen, setDropdownOpen] = useState({
     pacientes: false,
     profissional: false,
+    consultorio: false,
     financeiro: false,
     configuracao: false,
   });
@@ -49,16 +57,37 @@ export function Sidebar({ open, onClose, segmento }: Props) {
   const isProfissionaisRoute =
     location.pathname.startsWith("/profissional") ||
     location.pathname.startsWith("/profissionais");
+  const isSecretariasRoute = location.pathname.startsWith("/secretarias");
   const isConsultorioRoute =
     location.pathname.startsWith("/consultorio") ||
-    location.pathname.startsWith("/consultorios");
-
+    location.pathname.startsWith("/consultorios") ||
+    isSecretariasRoute;
   const isFinanceiroRoute = location.pathname.startsWith("/financeiro");
   const isConfiguracaoRoute = location.pathname.startsWith("/configuracoes");
   const isMinhaContaRoute = location.pathname === "/configuracoes/minha-conta";
-  const isConfiguracoesSistemaRoute = isConfiguracaoRoute && !isMinhaContaRoute;
+  const isConfiguracoesSistemaRoute =
+    location.pathname.startsWith("/configuracoes") && !isMinhaContaRoute;
+  const podeVerMenu = (item: ItemMenuVisual) =>
+    usuarioPodeVerItemMenu(user, item);
+  const podeVerGrupoProfissional =
+    podeVerMenu("profissional") || podeVerMenu("especialidades");
+  const podeVerGrupoConsultorio =
+    podeVerMenu("consultorio") || podeVerMenu("secretarias");
+  const itensFinanceiros: readonly ItemMenuVisual[] = [
+    "contasReceber",
+    "contasPagar",
+    "fluxoCaixa",
+    "formasPagamento",
+    "convenios",
+    "servicos",
+  ];
+  const podeVerGrupoFinanceiro = itensFinanceiros.some(podeVerMenu);
+  const podeVerGrupoConfiguracao =
+    podeVerMenu("configuracoes") || podeVerMenu("minhaConta");
 
   const isProfissionalSubmenuOpen = dropdownOpen.profissional;
+  const isConsultorioSubmenuOpen =
+    dropdownOpen.consultorio || isConsultorioRoute;
   const isFinanceiroSubmenuOpen = dropdownOpen.financeiro;
   const isConfiguracaoSubmenuOpen =
     dropdownOpen.configuracao || isConfiguracaoRoute;
@@ -67,6 +96,7 @@ export function Sidebar({ open, onClose, segmento }: Props) {
     setDropdownOpen({
       pacientes: false,
       profissional: false,
+      consultorio: false,
       financeiro: false,
       configuracao: false,
     });
@@ -86,7 +116,12 @@ export function Sidebar({ open, onClose, segmento }: Props) {
   }, [location.pathname, onClose]);
 
   function toggleDropdown(
-    key: "pacientes" | "profissional" | "financeiro" | "configuracao",
+    key:
+      | "pacientes"
+      | "profissional"
+      | "consultorio"
+      | "financeiro"
+      | "configuracao",
   ) {
     setDropdownOpen((prev) => ({
       ...prev,
@@ -146,42 +181,49 @@ export function Sidebar({ open, onClose, segmento }: Props) {
         </div>
 
         <nav className={styles.navContainer} aria-label="Navegação principal">
-          <NavLink
-            to="/"
-            end
-            className={({ isActive }) =>
-              `${styles.navLinkMed} ${isActive ? styles.activeLink : ""}`
-            }
-            onClick={closeOnMobile}
-          >
-            <FaThLarge className={styles.icon} />
-            <span className={styles.linkText}>Home</span>
-          </NavLink>
+          {podeVerMenu("home") ? (
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) =>
+                `${styles.navLinkMed} ${isActive ? styles.activeLink : ""}`
+              }
+              onClick={closeOnMobile}
+            >
+              <FaThLarge className={styles.icon} />
+              <span className={styles.linkText}>Home</span>
+            </NavLink>
+          ) : null}
 
-          <NavLink
-            to="/agenda"
-            className={({ isActive }) =>
-              `${styles.navLinkMed} ${isActive ? styles.activeLink : ""}`
-            }
-            onClick={closeOnMobile}
-          >
-            <AgendaIcon className={styles.icon} />
-            <span className={styles.linkText}>Agenda</span>
-          </NavLink>
+          {podeVerMenu("agenda") ? (
+            <NavLink
+              to="/agenda"
+              className={({ isActive }) =>
+                `${styles.navLinkMed} ${isActive ? styles.activeLink : ""}`
+              }
+              onClick={closeOnMobile}
+            >
+              <AgendaIcon className={styles.icon} />
+              <span className={styles.linkText}>Agenda</span>
+            </NavLink>
+          ) : null}
 
-          <NavLink
-            to="/pacientes"
-            className={({ isActive }) =>
-              `${styles.navLinkMed} ${isActive ? styles.activeLink : ""}`
-            }
-            onClick={closeOnMobile}
-          >
-            <PessoaIcon className={styles.icon} />
-            <span className={styles.linkText}>{labels.pessoas}</span>
-          </NavLink>
-          <div
-            className={`${styles.navItemMed} ${isProfissionalSubmenuOpen ? styles.open : ""}`}
-          >
+          {podeVerMenu("pacientes") ? (
+            <NavLink
+              to="/pacientes"
+              className={({ isActive }) =>
+                `${styles.navLinkMed} ${isActive ? styles.activeLink : ""}`
+              }
+              onClick={closeOnMobile}
+            >
+              <PessoaIcon className={styles.icon} />
+              <span className={styles.linkText}>{labels.pessoas}</span>
+            </NavLink>
+          ) : null}
+          {podeVerGrupoProfissional ? (
+            <div
+              className={`${styles.navItemMed} ${isProfissionalSubmenuOpen ? styles.open : ""}`}
+            >
             <button
               className={`${styles.navLinkMed} ${isProfissionaisRoute ? styles.activeLink : ""}`}
               onClick={() => toggleDropdown("profissional")}
@@ -195,45 +237,86 @@ export function Sidebar({ open, onClose, segmento }: Props) {
             </button>
 
             <div className={styles.submenu} id="submenu-profissional">
-              <NavLink
-                to="/profissional"
-                end
-                className={({ isActive }) =>
-                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
-                }
-                onClick={closeOnMobile}
-              >
-                <ProfissionalIcon className={styles.icon} />
-                <span className={styles.linkText}>Meu Perfil</span>
-              </NavLink>
+              {podeVerMenu("profissional") ? (
+                <NavLink
+                  to="/profissional"
+                  end
+                  className={({ isActive }) =>
+                    `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                  }
+                  onClick={closeOnMobile}
+                >
+                  <ProfissionalIcon className={styles.icon} />
+                  <span className={styles.linkText}>Meu Perfil</span>
+                </NavLink>
+              ) : null}
 
-              <NavLink
-                to="/profissional/especialidades"
-                className={({ isActive }) =>
-                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
-                }
-                onClick={closeOnMobile}
-              >
-                <FaList className={styles.icon} />
-                <span className={styles.linkText}>Especialidades</span>
-              </NavLink>
+              {podeVerMenu("especialidades") ? (
+                <NavLink
+                  to="/profissional/especialidades"
+                  className={({ isActive }) =>
+                    `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                  }
+                  onClick={closeOnMobile}
+                >
+                  <FaList className={styles.icon} />
+                  <span className={styles.linkText}>Especialidades</span>
+                </NavLink>
+              ) : null}
             </div>
-          </div>
+            </div>
+          ) : null}
 
-          <NavLink
-            to="/consultorio"
-            className={({ isActive }) =>
-              `${styles.navLinkMed} ${isActive || isConsultorioRoute ? styles.activeLink : ""}`
-            }
-            onClick={closeOnMobile}
-          >
-            <NegocioIcon className={styles.icon} />
-            <span className={styles.linkText}>{labels.negocio}</span>
-          </NavLink>
+          {podeVerGrupoConsultorio ? (
+            <div
+              className={`${styles.navItemMed} ${isConsultorioSubmenuOpen ? styles.open : ""}`}
+            >
+            <button
+              className={`${styles.navLinkMed} ${isConsultorioRoute ? styles.activeLink : ""}`}
+              onClick={() => toggleDropdown("consultorio")}
+              type="button"
+              aria-expanded={isConsultorioSubmenuOpen}
+              aria-controls="submenu-consultorio"
+            >
+              <NegocioIcon className={styles.icon} />
+              <span className={styles.linkText}>{labels.negocio}</span>
+              <FaChevronDown className={styles.submenuArrow} />
+            </button>
 
-          <div
-            className={`${styles.navItemMed} ${isFinanceiroSubmenuOpen ? styles.open : ""}`}
-          >
+            <div className={styles.submenu} id="submenu-consultorio">
+              {podeVerMenu("consultorio") ? (
+                <NavLink
+                  to="/consultorio"
+                  className={({ isActive }) =>
+                    `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                  }
+                  onClick={closeOnMobile}
+                >
+                  <NegocioIcon className={styles.icon} />
+                  <span className={styles.linkText}>Dados do negócio</span>
+                </NavLink>
+              ) : null}
+
+              {podeVerMenu("secretarias") ? (
+                <NavLink
+                  to="/secretarias"
+                  className={({ isActive }) =>
+                    `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                  }
+                  onClick={closeOnMobile}
+                >
+                  <FaUsers className={styles.icon} />
+                  <span className={styles.linkText}>Secretárias</span>
+                </NavLink>
+              ) : null}
+            </div>
+            </div>
+          ) : null}
+
+          {podeVerGrupoFinanceiro ? (
+            <div
+              className={`${styles.navItemMed} ${isFinanceiroSubmenuOpen ? styles.open : ""}`}
+            >
             <button
               className={`${styles.navLinkMed} ${isFinanceiroRoute ? styles.activeLink : ""}`}
               onClick={() => toggleDropdown("financeiro")}
@@ -247,77 +330,91 @@ export function Sidebar({ open, onClose, segmento }: Props) {
             </button>
 
             <div className={styles.submenu} id="submenu-financeiro">
-              <NavLink
-                to="/financeiro/contas-a-receber"
-                className={({ isActive }) =>
-                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
-                }
-                onClick={closeOnMobile}
-              >
-                <FaMoneyBillWave className={styles.icon} />
-                <span className={styles.linkText}>Contas a Receber</span>
-              </NavLink>
+              {podeVerMenu("contasReceber") ? (
+                <NavLink
+                  to="/financeiro/contas-a-receber"
+                  className={({ isActive }) =>
+                    `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                  }
+                  onClick={closeOnMobile}
+                >
+                  <FaMoneyBillWave className={styles.icon} />
+                  <span className={styles.linkText}>Contas a Receber</span>
+                </NavLink>
+              ) : null}
 
-              <NavLink
-                to="/financeiro/contas-a-pagar"
-                className={({ isActive }) =>
-                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
-                }
-                onClick={closeOnMobile}
-              >
-                <FaMoneyCheckAlt className={styles.icon} />
-                <span className={styles.linkText}>Contas a Pagar</span>
-              </NavLink>
+              {podeVerMenu("contasPagar") ? (
+                <NavLink
+                  to="/financeiro/contas-a-pagar"
+                  className={({ isActive }) =>
+                    `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                  }
+                  onClick={closeOnMobile}
+                >
+                  <FaMoneyCheckAlt className={styles.icon} />
+                  <span className={styles.linkText}>Contas a Pagar</span>
+                </NavLink>
+              ) : null}
 
-              <NavLink
-                to="/financeiro/fluxo-caixa"
-                className={({ isActive }) =>
-                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
-                }
-                onClick={closeOnMobile}
-              >
-                <FaChartLine className={styles.icon} />
-                <span className={styles.linkText}>Fluxo de Caixa</span>
-              </NavLink>
+              {podeVerMenu("fluxoCaixa") ? (
+                <NavLink
+                  to="/financeiro/fluxo-caixa"
+                  className={({ isActive }) =>
+                    `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                  }
+                  onClick={closeOnMobile}
+                >
+                  <FaChartLine className={styles.icon} />
+                  <span className={styles.linkText}>Fluxo de Caixa</span>
+                </NavLink>
+              ) : null}
 
-              <NavLink
-                to="/financeiro/formas-pagamento"
-                className={({ isActive }) =>
-                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
-                }
-                onClick={closeOnMobile}
-              >
-                <FaCreditCard className={styles.icon} />
-                <span className={styles.linkText}>Formas de Pagamento</span>
-              </NavLink>
+              {podeVerMenu("formasPagamento") ? (
+                <NavLink
+                  to="/financeiro/formas-pagamento"
+                  className={({ isActive }) =>
+                    `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                  }
+                  onClick={closeOnMobile}
+                >
+                  <FaCreditCard className={styles.icon} />
+                  <span className={styles.linkText}>Formas de Pagamento</span>
+                </NavLink>
+              ) : null}
 
-              <NavLink
-                to="/financeiro/convenios"
-                className={({ isActive }) =>
-                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
-                }
-                onClick={closeOnMobile}
-              >
-                <ParceriaIcon className={styles.icon} />
-                <span className={styles.linkText}>{labels.parcerias}</span>
-              </NavLink>
+              {podeVerMenu("convenios") ? (
+                <NavLink
+                  to="/financeiro/convenios"
+                  className={({ isActive }) =>
+                    `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                  }
+                  onClick={closeOnMobile}
+                >
+                  <ParceriaIcon className={styles.icon} />
+                  <span className={styles.linkText}>{labels.parcerias}</span>
+                </NavLink>
+              ) : null}
 
-              <NavLink
-                to="/financeiro/servicos"
-                className={({ isActive }) =>
-                  `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
-                }
-                onClick={closeOnMobile}
-              >
-                <ServicoIcon className={styles.icon} />
-                <span className={styles.linkText}>{labels.servicos}</span>
-              </NavLink>
+              {podeVerMenu("servicos") ? (
+                <NavLink
+                  to="/financeiro/servicos"
+                  className={({ isActive }) =>
+                    `${styles.submenuLink} ${isActive ? styles.activeSubmenuLink : ""}`
+                  }
+                  onClick={closeOnMobile}
+                >
+                  <ServicoIcon className={styles.icon} />
+                  <span className={styles.linkText}>{labels.servicos}</span>
+                </NavLink>
+              ) : null}
             </div>
-          </div>
+            </div>
+          ) : null}
 
-          <div
-            className={`${styles.navItemMed} ${isConfiguracaoSubmenuOpen ? styles.open : ""}`}
-          >
+          {podeVerGrupoConfiguracao ? (
+            <div
+              className={`${styles.navItemMed} ${isConfiguracaoSubmenuOpen ? styles.open : ""}`}
+            >
             <button
               className={`${styles.navLinkMed} ${isConfiguracaoRoute ? styles.activeLink : ""}`}
               onClick={() => toggleDropdown("configuracao")}
@@ -331,6 +428,7 @@ export function Sidebar({ open, onClose, segmento }: Props) {
             </button>
 
             <div className={styles.submenu} id="submenu-configuracao">
+              {podeVerMenu("configuracoes") ? (
               <NavLink
                 to="/configuracoes"
                 className={() =>
@@ -341,7 +439,9 @@ export function Sidebar({ open, onClose, segmento }: Props) {
                 <ConfiguracaoIcon className={styles.icon} />
                 <span className={styles.linkText}>Configurações</span>
               </NavLink>
+              ) : null}
 
+              {podeVerMenu("minhaConta") ? (
               <NavLink
                 to="/configuracoes/minha-conta"
                 className={() =>
@@ -352,8 +452,10 @@ export function Sidebar({ open, onClose, segmento }: Props) {
                 <FaUserCog className={styles.icon} />
                 <span className={styles.linkText}>Minha Conta</span>
               </NavLink>
+              ) : null}
             </div>
           </div>
+          ) : null}
         </nav>
 
         <div className={styles.sidebarFooter}>

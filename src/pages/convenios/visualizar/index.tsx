@@ -7,6 +7,7 @@ import { PageHeader } from "../../../components/ui/page-header";
 import { PageLayout } from "../../../components/ui/page-layout";
 import { CarregamentoCentral } from "../../../components/ui/carregamento-central";
 import { getSegmentoLabels } from "../../../config/segmento-labels";
+import { useSessaoAutenticada } from "../../../auth/use-auth-session";
 import type { LayoutOutletContext } from "../../../layout";
 import { parseRouteNumericId } from "../../../schemas/runtime-input.schema";
 import { convenioService, toErrorMessage, type Convenio } from "../../../services/api";
@@ -27,6 +28,7 @@ function formatarCnpj(cnpj: string): string {
 
 export function VisualizarConvenio() {
   const navigate = useNavigate();
+  const { user } = useSessaoAutenticada();
   const { segmento } = useOutletContext<LayoutOutletContext>();
   const labels = getSegmentoLabels(segmento);
   const parceriaMinuscula = labels.parceria.toLowerCase();
@@ -42,6 +44,7 @@ export function VisualizarConvenio() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const podeGerenciarConvenios = user?.perfil !== "SECRETARIA";
 
   useEffect(() => {
     if (convenioId === null) {
@@ -122,6 +125,11 @@ export function VisualizarConvenio() {
   const convenioAtual = convenio;
 
   async function handleDelete() {
+    if (!podeGerenciarConvenios) {
+      setConfirmDeleteOpen(false);
+      return;
+    }
+
     try {
       setActionError(null);
       await convenioService.remover(convenioAtual.id);
@@ -137,7 +145,7 @@ export function VisualizarConvenio() {
   return (
     <PageLayout>
       <Modal
-        open={confirmDeleteOpen}
+        open={podeGerenciarConvenios && confirmDeleteOpen}
         onClose={() => setConfirmDeleteOpen(false)}
         title={`Excluir ${parceriaMinuscula}`}
         subtitle={`Essa ação remove ${artigoParceria} ${parceriaMinuscula} da base atual.`}
@@ -185,24 +193,26 @@ export function VisualizarConvenio() {
           </div>
         }
         right={
-          <div className={styles.headerActions}>
-            <button
-              type="button"
-              className={styles.btnSecondary}
-              onClick={() => navigate(`/financeiro/convenios/${convenioAtual.id}/editar`)}
-            >
-              <FaEdit />
-              <span>Editar</span>
-            </button>
-            <button
-              type="button"
-              className={styles.btnDanger}
-              onClick={() => setConfirmDeleteOpen(true)}
-            >
-              <FaTrash />
-              <span>Excluir</span>
-            </button>
-          </div>
+          podeGerenciarConvenios ? (
+            <div className={styles.headerActions}>
+              <button
+                type="button"
+                className={styles.btnSecondary}
+                onClick={() => navigate(`/financeiro/convenios/${convenioAtual.id}/editar`)}
+              >
+                <FaEdit />
+                <span>Editar</span>
+              </button>
+              <button
+                type="button"
+                className={styles.btnDanger}
+                onClick={() => setConfirmDeleteOpen(true)}
+              >
+                <FaTrash />
+                <span>Excluir</span>
+              </button>
+            </div>
+          ) : null
         }
       />
 

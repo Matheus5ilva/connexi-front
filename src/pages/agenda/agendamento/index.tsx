@@ -65,6 +65,7 @@ type ModalNovoProps = {
   catalogos: CatalogosAgendamento;
   configuracaoFuncionamento: Configuracao | null;
   segmento: Segmento;
+  podeVerConvenios?: boolean;
 };
 
 type ModalConsultaAvulsaProps = ModalNovoProps;
@@ -80,6 +81,8 @@ type ModalVisualizarProps = {
   onRemarcar: (agendamentoId: string) => void;
   onCancelar: (agendamentoId: string) => void;
   segmento: Segmento;
+  podeAbrirAtendimento?: boolean;
+  podeVerConvenios?: boolean;
 };
 
 type ModalRemarcarProps = {
@@ -96,6 +99,7 @@ type ModalRemarcarProps = {
   >;
   configuracaoFuncionamento: Configuracao | null;
   segmento: Segmento;
+  podeVerConvenios?: boolean;
 };
 
 type ErrosFormulario<T> = Partial<Record<keyof T, string>>;
@@ -345,8 +349,13 @@ function renderCoverageSelector(
     | RemarcacaoAgendamentoFormularioData["tipoAtendimento"],
   onChange: (value: "PARTICULAR" | "CONVENIO") => void,
   titleId: string,
+  podeVerConvenios = true,
   convenioLabel = "Convênio",
 ) {
+  if (!podeVerConvenios) {
+    return null;
+  }
+
   return (
     <section className={styles.coverageSection} aria-labelledby={titleId}>
       <h3 className={styles.sectionLabel} id={titleId}>
@@ -394,6 +403,7 @@ function AgendamentoFormModal({
   catalogos,
   configuracaoFuncionamento,
   segmento,
+  podeVerConvenios = true,
   title,
   subtitle,
   submitLabel,
@@ -667,6 +677,7 @@ function AgendamentoFormModal({
           form.tipoAtendimento,
           atualizarTipoAtendimento,
           "agendamento-tipo-atendimento-title",
+          podeVerConvenios,
           labels.parceria,
         )}
 
@@ -688,13 +699,15 @@ function AgendamentoFormModal({
             <option value="">Selecione {servicoMinusculo}...</option>
             {catalogos.servicos.map((servico) => (
               <option key={servico.id} value={servico.id}>
-                {servico.nome}
+                {form.tipoAtendimento === "PARTICULAR"
+                  ? `${servico.nome} - ${formatarMoeda(servico.valorParticular)}`
+                  : servico.nome}
               </option>
             ))}
           </select>
         </FormField>
 
-        {form.tipoAtendimento === "CONVENIO" && (
+        {podeVerConvenios && form.tipoAtendimento === "CONVENIO" && (
           <FormField
             id="agendamento-convenio"
             label={labels.parceria}
@@ -908,6 +921,8 @@ export function ModalVisualizarAgendamento({
   onRemarcar,
   onCancelar,
   segmento,
+  podeAbrirAtendimento = true,
+  podeVerConvenios = true,
 }: ModalVisualizarProps) {
   if (!agendamento) {
     return null;
@@ -993,11 +1008,13 @@ export function ModalVisualizarAgendamento({
             <div>
               <span className={styles.detailsItemLabel}>Atendimento</span>
               <span className={styles.detailsItemValue}>
-                {formatarTipoAtendimento(
-                  agendamento.tipoAtendimento,
-                  agendamento.convenio,
-                  labels.parceria,
-                )}
+                {agendamento.tipoAtendimento === "CONVENIO" && !podeVerConvenios
+                  ? "Atendimento"
+                  : formatarTipoAtendimento(
+                      agendamento.tipoAtendimento,
+                      agendamento.convenio,
+                      labels.parceria,
+                    )}
               </span>
             </div>
           </div>
@@ -1058,7 +1075,7 @@ export function ModalVisualizarAgendamento({
             </button>
           )}
 
-          {agendamento.status === "CONFIRMADO" && (
+          {podeAbrirAtendimento && agendamento.status === "CONFIRMADO" && (
             <button
               type="button"
               className={`${styles.btnPrimary} ${styles.detailsPrimaryAction}`}
@@ -1068,7 +1085,7 @@ export function ModalVisualizarAgendamento({
             </button>
           )}
 
-          {agendamento.status === "EM_ATENDIMENTO" && (
+          {podeAbrirAtendimento && agendamento.status === "EM_ATENDIMENTO" && (
             <button
               type="button"
               className={`${styles.btnPrimary} ${styles.detailsPrimaryAction}`}
@@ -1133,6 +1150,7 @@ export function ModalRemarcarAgendamento({
   catalogos,
   configuracaoFuncionamento,
   segmento,
+  podeVerConvenios = true,
 }: ModalRemarcarProps) {
   const labels = getSegmentoLabels(segmento);
   const mapaRotulosCampos = criarMapaRotulosCamposAgendamento(labels);
@@ -1422,10 +1440,11 @@ export function ModalRemarcarAgendamento({
           form.tipoAtendimento,
           atualizarTipoAtendimentoRemarcacao,
           "remarcar-tipo-atendimento-title",
+          podeVerConvenios,
           labels.parceria,
         )}
 
-        {form.tipoAtendimento === "CONVENIO" && (
+        {podeVerConvenios && form.tipoAtendimento === "CONVENIO" && (
           <FormField
             id="remarcar-convenio"
             hint={dicaConvenioRemarcacao}

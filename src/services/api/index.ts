@@ -97,6 +97,12 @@ export {
 } from "./mappers/profissional.mapper";
 
 export {
+  mapFormularioSecretariaParaAtualizarRequest,
+  mapFormularioSecretariaParaCriarRequest,
+  mapSecretariaParaFormulario,
+} from "./mappers/secretaria.mapper";
+
+export {
   mapFormularioServicoParaAtualizarRequest,
   mapFormularioServicoParaCriarRequest,
   mapServicoParaFormulario,
@@ -118,6 +124,7 @@ export {
   painelService,
   pacienteService,
   profissionalService,
+  secretariaService,
   servicoService,
   especialidadeService,
   tenantService,
@@ -125,8 +132,10 @@ export {
 
 export type {
   CredencialAdministrativa,
+  AtualizarTenantAdministrativoRequest,
   CriarTenantAdministrativoRequest,
   NichoTenant,
+  PlanoTenant,
   TenantAdministrativo,
 } from "./services/admin-tenants.service";
 
@@ -152,6 +161,8 @@ export type {
   AtualizarEspecialidadeRequest,
   AtualizarPacienteRequest,
   AtualizarProfissionalRequest,
+  AtualizarSecretariaRequest,
+  AtualizarStatusSecretariaRequest,
   AtualizarServicoRequest,
   CancelarDocumentoPagarRequest,
   CancelarDocumentoReceberRequest,
@@ -169,6 +180,7 @@ export type {
   CriarEspecialidadeRequest,
   CriarPacienteRequest,
   CriarProfissionalRequest,
+  CriarSecretariaRequest,
   CriarServicoRequest,
   ContextoConsulta,
   ConsultaResumo,
@@ -221,6 +233,7 @@ export type {
   RespostaDetalheProntuarioPaciente,
   RespostaProntuariosPaciente,
   RedefinirSenhaRequest,
+  RedefinirSenhaSecretariaRequest,
   RegistrarRecebimentoAgendamentoRequest,
   RespostaLogin,
   RespostaMinhaContaAutenticada,
@@ -230,6 +243,7 @@ export type {
   SalvarConsultaRequest,
   SalvarConfiguracaoRequest,
   SolicitarRecuperacaoSenhaRequest,
+  Secretaria,
   Servico,
   ServicoConvenio,
   ServicoConvenioInput,

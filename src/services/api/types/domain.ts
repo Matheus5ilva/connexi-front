@@ -1,7 +1,7 @@
 import type { PaginationRequest } from "./common";
 import type { Segmento } from "../../../config/segmento-labels";
 
-export type PerfilUsuario = "MASTER" | "PROFISSIONAL";
+export type PerfilUsuario = "MASTER" | "PROFISSIONAL" | "SECRETARIA";
 
 export interface TokensAutenticacao {
   accessToken: string;
@@ -32,6 +32,7 @@ export interface RespostaLogin {
     role: PerfilUsuario;
     deveTrocarSenha: boolean;
     tenantId: string;
+    podeAcessarFinanceiro?: boolean | null;
   };
 }
 
@@ -41,8 +42,12 @@ export interface RespostaMinhaContaAutenticada {
   email: string;
   role: PerfilUsuario;
   profissionalId?: number | null;
+  secretariaId?: number | null;
+  podeAcessarFinanceiro?: boolean | null;
   deveTrocarSenha: boolean;
   tenantId: string;
+  plano?: Tenant["plano"];
+  permiteSecretaria?: boolean;
   ultimoLoginEm?: string | null;
 }
 
@@ -52,8 +57,12 @@ export interface MinhaConta {
   email: string;
   perfil: PerfilUsuario;
   profissionalId?: number | null;
+  secretariaId?: number | null;
+  podeAcessarFinanceiro?: boolean | null;
   deveTrocarSenha: boolean;
   tenantId: string;
+  plano?: Tenant["plano"];
+  permiteSecretaria?: boolean;
   ultimoLoginEm?: string | null;
 }
 
@@ -68,6 +77,8 @@ export interface Tenant {
   slug: string;
   nome: string;
   nicho?: Segmento;
+  plano: "SOLO" | "EQUIPE";
+  permiteSecretaria: boolean;
   ativo: boolean;
   createdAt: string;
 }
@@ -278,6 +289,18 @@ export interface PessoaProfissionalInput extends Omit<PessoaInput, "contato"> {
   contato: ContatoProfissionalInput;
 }
 
+export interface PessoaSecretaria {
+  nome: string;
+  contato: Contato;
+  endereco?: Endereco;
+  cidade?: {
+    codigoIbge?: string;
+    nome?: string;
+    siglaEstado?: string;
+    estado?: Estado;
+  };
+}
+
 export interface CriarProfissionalRequest {
   pessoa: PessoaProfissionalInput;
   tipoProfissional?: string;
@@ -295,6 +318,34 @@ export interface ListarProfissionaisRequest extends PaginationRequest {
   ativo?: boolean;
   especialidadeId?: number;
   especialidade?: string;
+}
+
+export interface Secretaria {
+  id: number;
+  usuarioId: number;
+  pessoa: PessoaSecretaria;
+  ativo: boolean;
+  podeAcessarFinanceiro: boolean;
+  deveTrocarSenha: boolean;
+}
+
+export interface CriarSecretariaRequest {
+  pessoa: PessoaProfissionalInput;
+  podeAcessarFinanceiro?: boolean;
+  senhaProvisoria: string;
+}
+
+export interface AtualizarSecretariaRequest {
+  pessoa?: PessoaProfissionalInput;
+  podeAcessarFinanceiro?: boolean;
+}
+
+export interface AtualizarStatusSecretariaRequest {
+  ativo: boolean;
+}
+
+export interface RedefinirSenhaSecretariaRequest {
+  senhaProvisoria: string;
 }
 
 export type AbrangenciaConvenio = "Nacional" | "Regional" | "Municipal";
