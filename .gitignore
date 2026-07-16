@@ -38,3 +38,10 @@ test-results/
 *.njsproj
 *.sln
 *.sw?
+
+# Lighthouse
+reports/
+
+# Caso queira manter a pasta
+reports/*
+!reports/.gitkeep

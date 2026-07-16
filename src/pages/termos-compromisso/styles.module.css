@@ -79,6 +79,24 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.backButton:hover,
+.backButton:focus-visible {
+  border-color: var(--color-brand);
+  color: var(--color-brand-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.backButton:focus-visible {
+  outline: 3px solid rgba(111, 174, 149, 0.26);
+  outline-offset: 3px;
 }
 
 .contentCard {

@@ -28,6 +28,9 @@ export function BrandLogo({
         src={logo}
         alt={showText ? "" : "CONNEXI"}
         aria-hidden={showText}
+        width={size}
+        height={size}
+        decoding="async"
         data-logo-symbol
       />
       {showText ? (

@@ -8,6 +8,25 @@ const UPDATE_DATE_LABEL = "16/04/2026";
 export function TermosCompromissoPage() {
   const navigate = useNavigate();
 
+  function voltar() {
+    let origemMesmoSite = false;
+
+    try {
+      origemMesmoSite = document.referrer
+        ? new URL(document.referrer).origin === window.location.origin
+        : false;
+    } catch {
+      origemMesmoSite = false;
+    }
+
+    if (window.history.length > 1 && origemMesmoSite) {
+      navigate(-1);
+      return;
+    }
+
+    navigate("/");
+  }
+
   return (
     <main className={styles.page}>
       <section className={styles.hero}>
@@ -32,7 +51,8 @@ export function TermosCompromissoPage() {
           <button
             type="button"
             className={styles.backButton}
-            onClick={() => navigate("/login")}
+            aria-label="Voltar"
+            onClick={voltar}
           >
             <FaArrowLeft />
             <span>Voltar</span>
