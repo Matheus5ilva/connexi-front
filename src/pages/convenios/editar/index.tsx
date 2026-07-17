@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import type { DefaultValues } from "react-hook-form";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { FormPageHeader } from "../../../components/ui/form-page-header";
 import { NotFoundCard } from "../../../components/ui/not-found-card";
@@ -18,11 +19,10 @@ import {
 } from "../../../services/api";
 import { FormularioConvenio } from "../components/formulario-convenio";
 
-const valoresVazios: ConvenioFormularioData = {
+const valoresVazios: DefaultValues<ConvenioFormularioData> = {
   nome: "",
   cnpj: "",
   ativo: true,
-  diasPagamento: undefined,
   abrangencia: "Nacional",
   telefone: "",
   whatsapp: "",
@@ -93,7 +93,7 @@ export function EditarConvenio() {
     };
   }, [artigoParceria, convenioId, parceriaMinuscula]);
 
-  const valoresIniciais = useMemo<ConvenioFormularioData>(() => {
+  const valoresIniciais = useMemo<DefaultValues<ConvenioFormularioData>>(() => {
     if (!convenio) {
       return valoresVazios;
     }

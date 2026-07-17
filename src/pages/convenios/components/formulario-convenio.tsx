@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { useForm, useWatch, type FieldErrors } from "react-hook-form";
+import {
+  useForm,
+  useWatch,
+  type DefaultValues,
+  type FieldErrors,
+} from "react-hook-form";
 import { criarResolvedorZod } from "schemas/resolvedor-zod";
 import { AvisoErroFormulario } from "../../../components/ui/aviso-erro-formulario";
 import { FormField } from "../../../components/ui/form-field";
@@ -48,7 +53,7 @@ function criarMapaRotulosCampos(labels: SegmentoLabels) {
 
 type FormularioConvenioProps = {
   labels: SegmentoLabels;
-  valoresIniciais: ConvenioFormularioData;
+  valoresIniciais: DefaultValues<ConvenioFormularioData>;
   textoBotaoSubmit: string;
   onSubmit: (values: ConvenioFormularioData) => Promise<void> | void;
   onCancel: () => void;
@@ -215,11 +220,13 @@ export function FormularioConvenio({
           <FormField
             id="convenio-dias-pagamento"
             label="Prazo para pagamento (dias)"
+            required
             error={errors.diasPagamento?.message}
           >
             <input
               className={`${styles.input} ${errors.diasPagamento ? styles.inputError : ""}`}
               type="number"
+              min={0}
               step="1"
               inputMode="numeric"
               placeholder="Ex.: 30"

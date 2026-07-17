@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import type { DefaultValues } from "react-hook-form";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { FormPageHeader } from "../../../components/ui/form-page-header";
 import { PageHeader } from "../../../components/ui/page-header";
@@ -12,11 +13,10 @@ import {
 } from "../../../services/api";
 import { FormularioConvenio } from "../components/formulario-convenio";
 
-const valoresIniciaisPadrao: ConvenioFormularioData = {
+const valoresIniciaisPadrao: DefaultValues<ConvenioFormularioData> = {
   nome: "",
   cnpj: "",
   ativo: true,
-  diasPagamento: undefined,
   abrangencia: "Nacional",
   telefone: "",
   whatsapp: "",

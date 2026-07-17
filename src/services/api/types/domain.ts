@@ -371,7 +371,7 @@ export interface CriarConvenioRequest {
   nome: string;
   cnpj: string;
   ativo?: boolean;
-  diasPagamento?: number;
+  diasPagamento: number;
   abrangencia: AbrangenciaConvenio;
   contato: ContatoConvenioInput;
 }

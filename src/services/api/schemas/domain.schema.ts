@@ -612,7 +612,7 @@ export const criarConvenioRequestSchema = z.object({
   nome: textoSemHtml(z.string().trim().min(3).max(100)),
   cnpj: z.string().trim().max(14),
   ativo: z.boolean().optional(),
-  diasPagamento: z.number().finite().optional(),
+  diasPagamento: z.number().int().min(0),
   abrangencia: abrangenciaConvenioSchema,
   contato: contatoInputSchema,
 });

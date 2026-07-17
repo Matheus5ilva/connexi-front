@@ -47,7 +47,10 @@ export const formularioConvenioSchema = z.object({
   ativo: z.boolean(),
   diasPagamento: z.preprocess(
     toNumber,
-    z.number({ message: "Informe um número válido." }).finite().optional(),
+    z
+      .number({ message: "Informe o prazo para pagamento." })
+      .int("Informe um número inteiro maior ou igual a zero.")
+      .min(0, "Informe um número inteiro maior ou igual a zero."),
   ),
   abrangencia: abrangenciaConvenioEnum,
   telefone: z
