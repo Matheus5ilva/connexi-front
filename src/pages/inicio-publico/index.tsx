@@ -22,6 +22,7 @@ import {
   MdVerified,
 } from "react-icons/md";
 import { BrandLogo } from "../../components/brand-logo";
+import { APP_SITE_URL } from "../../config/version";
 import landingAgendaMock from "../../assets/landing-agenda-mock.png";
 import styles from "./styles.module.css";
 
@@ -40,6 +41,7 @@ const instagramUrl = normalizarUrlExterna(import.meta.env.VITE_INSTAGRAM_URL);
 const whatsappComercial = montarLinkWhatsApp(mensagemComercial);
 const whatsappPlanoSolo = montarLinkWhatsApp(mensagemPlanoSolo);
 const whatsappPlanoEquipe = montarLinkWhatsApp(mensagemPlanoEquipe);
+const termosCompromissoUrl = `${APP_SITE_URL}/termos-e-compromisso`;
 const jsonLd = JSON.stringify({
   "@context": "https://schema.org",
   "@graph": [
@@ -208,7 +210,7 @@ export function PaginaInicialPublica() {
             <nav className={styles.desktopNav} aria-label="Navegação principal">
               <a href="#problema">O Problema</a>
               <a href="#solucao">A Solução</a>
-              <a href="#especialidades">Para Quem</a>
+              <a href="#para-quem">Para Quem</a>
               <a href="#precos">Preços</a>
             </nav>
 
@@ -256,7 +258,7 @@ export function PaginaInicialPublica() {
             <a href="#solucao" onClick={fecharMenu}>
               A Solução
             </a>
-            <a href="#especialidades" onClick={fecharMenu}>
+            <a href="#para-quem" onClick={fecharMenu}>
               Para Quem
             </a>
             <a href="#precos" onClick={fecharMenu}>
@@ -575,7 +577,7 @@ export function PaginaInicialPublica() {
             </div>
           </section>
 
-          <section className={styles.segments} id="especialidades">
+          <section className={styles.segments} id="para-quem">
             <div className={`${styles.container} ${styles.center}`}>
               <span
                 className={`${styles.sectionBadge} ${styles.reveal}`}
@@ -811,7 +813,7 @@ export function PaginaInicialPublica() {
 
               <div className={styles.footerMeta}>
                 <span>© 2026 CONNEXI. Todos os direitos reservados.</span>
-                <a href="/termos-e-compromisso">Termos</a>
+                <a href={termosCompromissoUrl}>Termos</a>
                 <a
                   href={whatsappComercial}
                   target="_blank"

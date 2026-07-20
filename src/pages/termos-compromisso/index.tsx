@@ -1,12 +1,154 @@
+import { useEffect, useState } from "react";
 import { FaArrowLeft, FaFileSignature } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { BrandLogo } from "../../components/brand-logo";
+import { APP_PRODUCTION_SITE_URL, APP_SITE_URL } from "../../config/version";
 import styles from "./styles.module.css";
 
 const UPDATE_DATE_LABEL = "16/04/2026";
+const TERMOS_CANONICAL = `${APP_PRODUCTION_SITE_URL}/termos-e-compromisso`;
+const LINKS_PUBLICOS = {
+  home: `${APP_SITE_URL}/`,
+  problema: `${APP_SITE_URL}/#problema`,
+  solucao: `${APP_SITE_URL}/#solucao`,
+  paraQuem: `${APP_SITE_URL}/#para-quem`,
+  precos: `${APP_SITE_URL}/#precos`,
+  termos: `${APP_SITE_URL}/termos-e-compromisso`,
+} as const;
+const NUMERO_WHATSAPP_PADRAO = "5531984505916";
+const NUMERO_WHATSAPP = (
+  import.meta.env.VITE_SUPPORT_WHATSAPP_NUMBER || NUMERO_WHATSAPP_PADRAO
+).replace(/\D/g, "");
+const WHATSAPP_TERMO_URL = `https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(
+  "Olá, tenho dúvidas sobre os Termos de uso, compromisso e proteção de dados do CONNEXI.",
+)}`;
+
+const indiceTermos = [
+  { id: "objeto", label: "1. Objeto" },
+  { id: "aceitacao-dos-termos", label: "2. Aceitação dos termos" },
+  {
+    id: "disponibilidade-e-descontinuacao",
+    label: "3. Disponibilidade e descontinuação",
+  },
+  { id: "backup-exportacao-portabilidade", label: "4. Backup e portabilidade" },
+  { id: "cancelamento-retencao-exclusao", label: "5. Cancelamento e dados" },
+  { id: "pagamento-e-reembolso", label: "6. Pagamento e reembolso" },
+  { id: "suporte-atendimento", label: "7. Suporte e atendimento" },
+  { id: "desenvolvimento-customizacoes", label: "8. Desenvolvimento" },
+  { id: "responsabilidade-do-usuario", label: "9. Responsabilidade do usuário" },
+  { id: "protecao-de-dados-lgpd", label: "10. Proteção de dados e LGPD" },
+  { id: "seguranca-da-informacao", label: "11. Segurança da informação" },
+  { id: "incidentes-de-seguranca", label: "12. Incidentes de segurança" },
+  { id: "limitacao-de-responsabilidade", label: "13. Limitação de responsabilidade" },
+  { id: "uso-proibido", label: "14. Uso proibido" },
+  { id: "nivel-de-servico", label: "15. Nível de serviço" },
+  { id: "alteracoes-dos-termos", label: "16. Alterações dos termos" },
+  { id: "foro", label: "17. Foro" },
+  { id: "disposicoes-gerais", label: "18. Disposições gerais" },
+];
+
+function garantirMetaDescricao(content: string) {
+  const metaExistente = document.querySelector<HTMLMetaElement>(
+    'meta[name="description"]',
+  );
+  const metaDescription =
+    metaExistente ?? document.createElement("meta");
+
+  metaDescription.name = "description";
+  metaDescription.content = content;
+
+  if (!metaExistente) {
+    document.head.appendChild(metaDescription);
+  }
+
+  return {
+    created: !metaExistente,
+    previousContent: metaExistente?.content ?? null,
+  };
+}
+
+function garantirCanonical(href: string) {
+  const linkExistente = document.querySelector<HTMLLinkElement>(
+    'link[rel="canonical"]',
+  );
+  const canonical = linkExistente ?? document.createElement("link");
+
+  canonical.rel = "canonical";
+  canonical.href = href;
+
+  if (!linkExistente) {
+    document.head.appendChild(canonical);
+  }
+
+  return {
+    created: !linkExistente,
+    previousHref: linkExistente?.href ?? null,
+  };
+}
 
 export function TermosCompromissoPage() {
   const navigate = useNavigate();
+  const [secaoAtiva, setSecaoAtiva] = useState(indiceTermos[0].id);
+
+  useEffect(() => {
+    const tituloAnterior = document.title;
+    const metaAnterior = garantirMetaDescricao(
+      "Termos de uso, compromisso e proteção de dados do CONNEXI para profissionais que usam a plataforma.",
+    );
+    const canonicalAnterior = garantirCanonical(TERMOS_CANONICAL);
+
+    document.title = "Termos de uso, compromisso e proteção de dados | CONNEXI";
+
+    return () => {
+      document.title = tituloAnterior;
+
+      const metaDescription = document.querySelector<HTMLMetaElement>(
+        'meta[name="description"]',
+      );
+      if (metaDescription && metaAnterior.created) {
+        metaDescription.remove();
+      } else if (metaDescription && metaAnterior.previousContent !== null) {
+        metaDescription.content = metaAnterior.previousContent;
+      }
+
+      const canonical = document.querySelector<HTMLLinkElement>(
+        'link[rel="canonical"]',
+      );
+      if (canonical && canonicalAnterior.created) {
+        canonical.remove();
+      } else if (canonical && canonicalAnterior.previousHref !== null) {
+        canonical.href = canonicalAnterior.previousHref;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!("IntersectionObserver" in window)) {
+      return;
+    }
+
+    const secoes = indiceTermos
+      .map(({ id }) => document.getElementById(id))
+      .filter((secao): secao is HTMLElement => Boolean(secao));
+
+    const observer = new IntersectionObserver(
+      (entradas) => {
+        const entradaVisivel = entradas.find((entrada) => entrada.isIntersecting);
+
+        if (entradaVisivel?.target.id) {
+          setSecaoAtiva(entradaVisivel.target.id);
+        }
+      },
+      {
+        rootMargin: "-34% 0px -56% 0px",
+        threshold: 0,
+      },
+    );
+
+    secoes.forEach((secao) => observer.observe(secao));
+
+    return () => observer.disconnect();
+  }, []);
 
   function voltar() {
     let origemMesmoSite = false;
@@ -28,39 +170,92 @@ export function TermosCompromissoPage() {
   }
 
   return (
-    <main className={styles.page}>
-      <section className={styles.hero}>
-        <div className={styles.brandRow}>
-          <BrandLogo size={30} />
-        </div>
-
-        <div className={styles.heroContent}>
-          <span className={styles.eyebrow}>Documento jurídico</span>
-          <h1 className={styles.title}>
-            Termos de uso, compromisso e proteção de dados
-          </h1>
-          <p className={styles.subtitle}>
-            Este documento apresenta as condições de uso da plataforma, regras
-            de suporte, responsabilidades das partes, tratamento de dados
-            conforme a LGPD, política de cancelamento, backup e limitações de
-            responsabilidade.
-          </p>
-        </div>
-
-        <div className={styles.heroActions}>
-          <button
-            type="button"
-            className={styles.backButton}
-            aria-label="Voltar"
-            onClick={voltar}
+    <div className={styles.page}>
+      <header className={styles.siteHeader}>
+        <div className={styles.headerInner}>
+          <a
+            className={styles.logoLink}
+            href={LINKS_PUBLICOS.home}
+            aria-label="CONNEXI"
           >
-            <FaArrowLeft />
-            <span>Voltar</span>
-          </button>
-        </div>
-      </section>
+            <BrandLogo size={32} />
+          </a>
 
-      <section className={styles.contentCard}>
+          <nav className={styles.headerNav} aria-label="Navegação principal">
+            <a href={LINKS_PUBLICOS.problema}>O Problema</a>
+            <a href={LINKS_PUBLICOS.solucao}>A Solução</a>
+            <a href={LINKS_PUBLICOS.paraQuem}>Para Quem</a>
+            <a href={LINKS_PUBLICOS.precos}>Preços</a>
+            <a aria-current="page" href={LINKS_PUBLICOS.termos}>
+              Termos
+            </a>
+          </nav>
+
+          <a className={styles.headerAction} href={WHATSAPP_TERMO_URL}>
+            Tirar dúvidas
+          </a>
+        </div>
+      </header>
+
+      <main className={styles.main}>
+        <section className={styles.hero} aria-labelledby="termos-title">
+          <div className={styles.heroContent}>
+            <div className={styles.eyebrowRow}>
+              <span className={styles.eyebrowDot} aria-hidden="true" />
+              <span className={styles.eyebrow}>Documento jurídico</span>
+            </div>
+
+            <h1 className={styles.title} id="termos-title">
+              Termos e Compromisso
+            </h1>
+            <p className={styles.subtitle}>
+              Este documento apresenta as condições de uso da plataforma, regras
+              de suporte, responsabilidades das partes, tratamento de dados
+              conforme a LGPD, política de cancelamento, backup e limitações de
+              responsabilidade.
+            </p>
+          </div>
+
+          <div className={styles.heroMeta}>
+            <p>Última atualização: {UPDATE_DATE_LABEL}</p>
+            <button
+              type="button"
+              className={styles.backButton}
+              aria-label="Voltar"
+              onClick={voltar}
+            >
+              <FaArrowLeft aria-hidden="true" />
+              <span>Voltar</span>
+            </button>
+          </div>
+        </section>
+
+        <div className={styles.documentLayout}>
+          <aside className={styles.documentAside}>
+            <nav
+              className={styles.summaryNav}
+              aria-label="Índice do documento"
+            >
+              <h2>Índice do documento</h2>
+              <ol>
+                {indiceTermos.map((item) => (
+                  <li key={item.id}>
+                    <a
+                      href={`#${item.id}`}
+                      aria-current={secaoAtiva === item.id ? "location" : undefined}
+                      className={
+                        secaoAtiva === item.id ? styles.summaryLinkActive : ""
+                      }
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          </aside>
+
+          <article className={styles.contentCard}>
         <header className={styles.contentHeader}>
           <div className={styles.contentTitleRow}>
             <FaFileSignature className={styles.contentIcon} />
@@ -81,8 +276,12 @@ export function TermosCompromissoPage() {
         </header>
 
         <div className={styles.sectionList}>
-          <section className={styles.section}>
-            <h3>1. Objeto</h3>
+          <section
+            className={styles.section}
+            id="objeto"
+            aria-labelledby="objeto-title"
+          >
+            <h3 id="objeto-title">1. Objeto</h3>
             <p>
               A plataforma CONNEXI é um sistema de gestão disponibilizado em
               modelo SaaS, destinado ao apoio de rotinas administrativas,
@@ -97,8 +296,12 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>2. Aceitação dos termos</h3>
+          <section
+            className={styles.section}
+            id="aceitacao-dos-termos"
+            aria-labelledby="aceitacao-dos-termos-title"
+          >
+            <h3 id="aceitacao-dos-termos-title">2. Aceitação dos termos</h3>
             <p>
               O uso da plataforma representa aceite integral deste termo,
               incluindo regras de limitação de responsabilidade, suporte,
@@ -111,8 +314,14 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>3. Disponibilidade e descontinuação do serviço</h3>
+          <section
+            className={styles.section}
+            id="disponibilidade-e-descontinuacao"
+            aria-labelledby="disponibilidade-e-descontinuacao-title"
+          >
+            <h3 id="disponibilidade-e-descontinuacao-title">
+              3. Disponibilidade e descontinuação do serviço
+            </h3>
             <p>
               A plataforma é disponibilizada no estado em que se encontra,
               podendo sofrer atualizações, manutenções, melhorias, alterações de
@@ -132,8 +341,14 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>4. Backup, exportação e portabilidade dos dados</h3>
+          <section
+            className={styles.section}
+            id="backup-exportacao-portabilidade"
+            aria-labelledby="backup-exportacao-portabilidade-title"
+          >
+            <h3 id="backup-exportacao-portabilidade-title">
+              4. Backup, exportação e portabilidade dos dados
+            </h3>
             <p>
               Em caso de descontinuação, cancelamento ou solicitação formal, o
               usuário poderá solicitar a exportação dos seus dados, respeitado o
@@ -155,8 +370,14 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>5. Cancelamento, retenção e exclusão dos dados</h3>
+          <section
+            className={styles.section}
+            id="cancelamento-retencao-exclusao"
+            aria-labelledby="cancelamento-retencao-exclusao-title"
+          >
+            <h3 id="cancelamento-retencao-exclusao-title">
+              5. Cancelamento, retenção e exclusão dos dados
+            </h3>
             <p>
               O usuário poderá solicitar o cancelamento do serviço a qualquer
               momento, sem cobrança de multa ou taxa de cancelamento.
@@ -182,8 +403,14 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>6. Política de pagamento e reembolso</h3>
+          <section
+            className={styles.section}
+            id="pagamento-e-reembolso"
+            aria-labelledby="pagamento-e-reembolso-title"
+          >
+            <h3 id="pagamento-e-reembolso-title">
+              6. Política de pagamento e reembolso
+            </h3>
             <p>
               Os valores pagos pelo usuário remuneram a disponibilização,
               manutenção e uso da plataforma durante o período contratado.
@@ -196,8 +423,14 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>7. Suporte, atendimento e horário comercial</h3>
+          <section
+            className={styles.section}
+            id="suporte-atendimento"
+            aria-labelledby="suporte-atendimento-title"
+          >
+            <h3 id="suporte-atendimento-title">
+              7. Suporte, atendimento e horário comercial
+            </h3>
             <p>
               O suporte ao usuário será prestado exclusivamente em dias úteis e
               em horário comercial, conforme definido pela contratada.
@@ -218,8 +451,12 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>
+          <section
+            className={styles.section}
+            id="desenvolvimento-customizacoes"
+            aria-labelledby="desenvolvimento-customizacoes-title"
+          >
+            <h3 id="desenvolvimento-customizacoes-title">
               8. Solicitações de desenvolvimento, melhorias e customizações
             </h3>
             <p>
@@ -244,8 +481,14 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>9. Responsabilidade do usuário</h3>
+          <section
+            className={styles.section}
+            id="responsabilidade-do-usuario"
+            aria-labelledby="responsabilidade-do-usuario-title"
+          >
+            <h3 id="responsabilidade-do-usuario-title">
+              9. Responsabilidade do usuário
+            </h3>
             <p>
               O usuário é integralmente responsável pela veracidade,
               atualização, legalidade e integridade das informações cadastradas
@@ -264,8 +507,14 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>10. Proteção de dados e LGPD</h3>
+          <section
+            className={styles.section}
+            id="protecao-de-dados-lgpd"
+            aria-labelledby="protecao-de-dados-lgpd-title"
+          >
+            <h3 id="protecao-de-dados-lgpd-title">
+              10. Proteção de dados e LGPD
+            </h3>
             <p>
               O tratamento de dados pessoais observará a Lei nº 13.709/2018, Lei
               Geral de Proteção de Dados Pessoais (LGPD), naquilo que for
@@ -295,8 +544,14 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>11. Segurança da informação</h3>
+          <section
+            className={styles.section}
+            id="seguranca-da-informacao"
+            aria-labelledby="seguranca-da-informacao-title"
+          >
+            <h3 id="seguranca-da-informacao-title">
+              11. Segurança da informação
+            </h3>
             <p>
               A contratada adotará medidas técnicas e administrativas razoáveis
               para proteger os dados contra acessos não autorizados, perda,
@@ -314,8 +569,14 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>12. Incidentes de segurança</h3>
+          <section
+            className={styles.section}
+            id="incidentes-de-seguranca"
+            aria-labelledby="incidentes-de-seguranca-title"
+          >
+            <h3 id="incidentes-de-seguranca-title">
+              12. Incidentes de segurança
+            </h3>
             <p>
               Em caso de incidente de segurança relevante que possa acarretar
               risco ou dano aos titulares de dados, a contratada comunicará o
@@ -328,8 +589,14 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>13. Limitação de responsabilidade</h3>
+          <section
+            className={styles.section}
+            id="limitacao-de-responsabilidade"
+            aria-labelledby="limitacao-de-responsabilidade-title"
+          >
+            <h3 id="limitacao-de-responsabilidade-title">
+              13. Limitação de responsabilidade
+            </h3>
             <p>
               A contratada não será responsável por perdas financeiras, danos
               indiretos, lucros cessantes, danos morais, interrupção de
@@ -350,8 +617,12 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>14. Uso proibido</h3>
+          <section
+            className={styles.section}
+            id="uso-proibido"
+            aria-labelledby="uso-proibido-title"
+          >
+            <h3 id="uso-proibido-title">14. Uso proibido</h3>
             <p>
               É proibido utilizar o sistema para fins ilícitos, fraudulentos,
               abusivos, discriminatórios, ofensivos, contrários à legislação ou
@@ -365,8 +636,12 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>15. Nível de serviço</h3>
+          <section
+            className={styles.section}
+            id="nivel-de-servico"
+            aria-labelledby="nivel-de-servico-title"
+          >
+            <h3 id="nivel-de-servico-title">15. Nível de serviço</h3>
             <p>
               A plataforma poderá adotar disponibilidade estimada de até 95%
               mensal, salvo indisponibilidades causadas por manutenção, serviços
@@ -379,8 +654,14 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>16. Alterações dos termos</h3>
+          <section
+            className={styles.section}
+            id="alteracoes-dos-termos"
+            aria-labelledby="alteracoes-dos-termos-title"
+          >
+            <h3 id="alteracoes-dos-termos-title">
+              16. Alterações dos termos
+            </h3>
             <p>
               A contratada poderá atualizar este termo a qualquer momento para
               refletir mudanças no sistema, regras comerciais, exigências legais
@@ -392,8 +673,12 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>17. Foro</h3>
+          <section
+            className={styles.section}
+            id="foro"
+            aria-labelledby="foro-title"
+          >
+            <h3 id="foro-title">17. Foro</h3>
             <p>
               Fica eleito o foro da comarca da contratada para dirimir eventuais
               dúvidas ou conflitos decorrentes deste termo, salvo disposição
@@ -401,8 +686,12 @@ export function TermosCompromissoPage() {
             </p>
           </section>
 
-          <section className={styles.section}>
-            <h3>18. Disposições gerais</h3>
+          <section
+            className={styles.section}
+            id="disposicoes-gerais"
+            aria-labelledby="disposicoes-gerais-title"
+          >
+            <h3 id="disposicoes-gerais-title">18. Disposições gerais</h3>
             <p>
               Este termo constitui o acordo integral entre as partes quanto ao
               uso da plataforma.
@@ -413,7 +702,33 @@ export function TermosCompromissoPage() {
             </p>
           </section>
         </div>
-      </section>
-    </main>
+          </article>
+        </div>
+      </main>
+
+      <footer className={styles.footer}>
+        <div className={styles.footerInner}>
+          <a
+            className={styles.footerLogo}
+            href={LINKS_PUBLICOS.home}
+            aria-label="CONNEXI"
+          >
+            <BrandLogo size={30} />
+          </a>
+
+          <div className={styles.footerLinks}>
+            <a href={LINKS_PUBLICOS.home}>Página inicial</a>
+            <a aria-current="page" href={LINKS_PUBLICOS.termos}>
+              Termos
+            </a>
+            <a href={WHATSAPP_TERMO_URL}>
+              WhatsApp
+            </a>
+          </div>
+
+          <p>© 2026 CONNEXI. Todos os direitos reservados.</p>
+        </div>
+      </footer>
+    </div>
   );
 }

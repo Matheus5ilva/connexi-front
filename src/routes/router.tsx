@@ -1,14 +1,27 @@
-import { Suspense, lazy, type ComponentType, type LazyExoticComponent, type ReactElement } from "react";
-import { Navigate, createBrowserRouter } from "react-router-dom";
+import {
+  Suspense,
+  lazy,
+  type ComponentType,
+  type LazyExoticComponent,
+  type ReactElement,
+} from "react";
+import {
+  Navigate,
+  createBrowserRouter,
+  redirectDocument,
+} from "react-router-dom";
 import {
   ExigirAutenticacao,
   RedirecionarSeAutenticado,
   ValidarContextoTenant,
 } from "./auth-guards";
+import { APP_SITE_URL } from "../config/version";
 import { apiConfig } from "../services/api";
 
 type ModuloPagina<TNome extends string> = Record<TNome, ComponentType>;
 type PaginaCarregavel = LazyExoticComponent<ComponentType>;
+const TERMOS_COMPROMISSO_OFICIAL_URL =
+  `${APP_SITE_URL}/termos-e-compromisso`;
 
 function carregarPagina<TNome extends string>(
   importador: () => Promise<ModuloPagina<TNome>>,
@@ -264,15 +277,15 @@ function criarRotasPublicas() {
 function criarRotasTenant() {
   return [
     {
+      path: "/termos-e-compromisso",
+      loader: () => redirectDocument(TERMOS_COMPROMISSO_OFICIAL_URL),
+    },
+    {
       element: <ValidarContextoTenant />,
       children: [
         {
           path: "/tenant-inexistente",
           element: renderizarPagina(PaginaTenantInexistente),
-        },
-        {
-          path: "/termos-e-compromisso",
-          element: renderizarPagina(TermosCompromissoPage),
         },
         {
           element: <RedirecionarSeAutenticado />,

@@ -48,7 +48,7 @@ describe("PaginaInicialPublica", () => {
 
     expect(screen.getByRole("link", { name: "Termos" })).toHaveAttribute(
       "href",
-      "/termos-e-compromisso",
+      `${window.location.origin}/termos-e-compromisso`,
     );
   });
 
@@ -63,6 +63,12 @@ describe("PaginaInicialPublica", () => {
     expect(
       within(headerElement).getByRole("link", { name: "CONNEXI" }),
     ).toHaveAttribute("href", "/");
+    within(headerElement)
+      .getAllByRole("link", { name: "Para Quem" })
+      .forEach((link) => {
+        expect(link).toHaveAttribute("href", "#para-quem");
+      });
+    expect(document.getElementById("para-quem")).toBeInTheDocument();
     expect(headerElement.querySelectorAll("[data-brand-logo]")).toHaveLength(1);
     expect(headerElement.querySelector("[data-logo-symbol]")).toBeInTheDocument();
     expect(within(headerElement).getByText("CONNEXI")).toBeInTheDocument();

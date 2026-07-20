@@ -7,6 +7,7 @@ import {
 } from "../../../auth/session";
 import { obterDestinoPosLogin } from "../../../auth/permissoes-visuais";
 import { BrandLogo } from "../../../components/brand-logo";
+import { APP_SITE_URL } from "../../../config/version";
 import { AvisoErroFormulario } from "../../../components/ui/aviso-erro-formulario";
 import { FormField } from "../../../components/ui/form-field";
 import {
@@ -32,6 +33,8 @@ const mapaRotulosCampos = {
   email: "E-mail",
   senha: "Senha",
 } satisfies Record<string, string>;
+const TERMOS_COMPROMISSO_OFICIAL_URL =
+  `${APP_SITE_URL}/termos-e-compromisso`;
 
 function obterMensagemSucesso(state: unknown): string | null {
   if (!state || typeof state !== "object") return null;
@@ -253,14 +256,12 @@ export function PaginaLogin() {
 
           <p className={styles.footerHint}>
             Ao entrar, você declara ciência das diretrizes da plataforma.{" "}
-            <Link
-              to="/termos-e-compromisso"
+            <a
+              href={TERMOS_COMPROMISSO_OFICIAL_URL}
               className={styles.authLink}
-              target="_blank"
-              rel="noreferrer"
             >
               Leia os termos e compromisso
-            </Link>
+            </a>
             .
           </p>
         </div>
